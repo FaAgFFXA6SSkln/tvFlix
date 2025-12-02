@@ -10,7 +10,7 @@
 // ==/UserScript==
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "25120230229";
+const scriptVersion = "2512030319";
 
 (function() {
   'use strict';
@@ -83,7 +83,7 @@ const scriptVersion = "25120230229";
       // 메인 페이지 또는 서브페이지일 때 실행
       const headerWrap = document.getElementById('header_wrap');
       if (headerWrap) {
-          headerWrap.style.height = '100px';
+          headerWrap.style.height = '80px';
       }
 
       // 검색 버튼 수직 중앙 정렬
@@ -179,7 +179,7 @@ const scriptVersion = "25120230229";
   }
 
   // 재생 페이지'.bo_v_mov'에 '동영상 재생하기' 버튼 추가 및 스타일 적용
-document.querySelectorAll('div.bo_v_mov').forEach(container => {
+  document.querySelectorAll('div.bo_v_mov').forEach(container => {
     // 새로운 컨테이너 생성
     const overlay = document.createElement('div');
     overlay.className = 'bo_v_mov_overlay';
@@ -476,6 +476,12 @@ document.querySelectorAll('div.bo_v_mov').forEach(container => {
           /* CSS도 충분히 높여서 혹시 모를 경우 대비 (JS에서 최종 오버라이드 됨) */
           font-size: 1.7em !important;
       }
+
+
+#body_wrap {
+    margin-top: 20px;
+}
+
   `;
   document.head.appendChild(style);
 
