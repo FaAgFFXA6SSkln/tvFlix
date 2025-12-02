@@ -10,7 +10,7 @@
 // ==/UserScript==
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512022155";
+const scriptVersion = "25120230229";
 
 (function() {
   'use strict';
@@ -799,15 +799,17 @@ document.addEventListener('keydown', (e) => {
 });
 
 
+///전체화면에서 빠져나올때 iframe 포커스 탈출
+window.addEventListener('message', e => {
+    if (e.data.type === 'videoFullscreenExit') {
+        window.focus();
+        document.body.focus();
 
-window.addEventListener('message', (event) => {
-    if (!event.data || event.data.type !== 'videoFullscreenExit') return;
-
-	NativeApp.jsLog("부모 창으로 포커스");
-    // 1) 부모 창 자체로 포커스
-    window.focus();
-
+        const iframe = document.getElementById('view_iframe');
+        if (iframe) iframe.blur();
+    }
 });
+
 
 
 NativeApp.jsLog("[kotlin]유저스크립트 version: " + scriptVersion);
