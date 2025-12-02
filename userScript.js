@@ -10,7 +10,7 @@
 // ==/UserScript==
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512021825";
+const scriptVersion = "2512022151";
 
 (function() {
   'use strict';
@@ -796,6 +796,16 @@ document.addEventListener('keydown', (e) => {
             e.preventDefault();
         }
     }
+});
+
+
+
+window.addEventListener('message', (event) => {
+    if (!event.data || event.data.type !== 'videoFullscreenExit') return;
+
+    // 1) 부모 창 자체로 포커스
+    window.focus();
+
 });
 
 
