@@ -10,7 +10,7 @@
 // ==/UserScript==
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512021649";
+const scriptVersion = "2512021818";
 
 (function() {
   'use strict';
