@@ -10,7 +10,7 @@
 // ==/UserScript==
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512021818";
+const scriptVersion = "2512021825";
 
 (function() {
   'use strict';
@@ -795,13 +795,6 @@ document.addEventListener('keydown', (e) => {
             if (prev) prev.focus();
             e.preventDefault();
         }
-    }
-});
-
-// 메인 페이지
-window.addEventListener("message", function(event) {
-    if (event.data) {
-        NativeApp.jsLog("From iframe: " + event.data);
     }
 });
 
