@@ -798,5 +798,12 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
+// 메인 페이지
+window.addEventListener("message", function(event) {
+    if (event.data) {
+        NativeApp.jsLog("From iframe: " + event.data);
+    }
+});
+
 
 NativeApp.jsLog("[kotlin]유저스크립트 version: " + scriptVersion);
