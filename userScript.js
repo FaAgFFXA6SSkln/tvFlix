@@ -10,7 +10,7 @@
 // ==/UserScript==
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512021501";
+const scriptVersion = "2512021649";
 
 (function() {
   'use strict';
@@ -127,7 +127,7 @@ const scriptVersion = "2512021501";
       }
   });
 
-  //재생 페이지에서 다른 회차 썸네일 제거
+  //재생 페이지에서 회차 썸네일 제거
   // class가 searchText로 시작하는 모든 li 선택
   const liElements = document.querySelectorAll('li[class^="searchText"]');
   liElements.forEach(li => {
@@ -136,6 +136,20 @@ const scriptVersion = "2512021501";
           img.remove();
       }
   });
+
+
+  //재생 페이지에서 회차가 하나밖에 없는 경우, 회차 영역 전체를 제거
+  const target = document.querySelector('#other_list');
+  if (target) {
+    const ul = target.querySelector('ul');
+    if (ul) {
+      const items = ul.querySelectorAll('li');
+      if (items.length <= 1) {
+        target.remove();
+      }
+    }
+  }
+
   // =======================================================
 
 
