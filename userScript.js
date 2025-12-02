@@ -10,7 +10,7 @@
 // ==/UserScript==
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512022151";
+const scriptVersion = "2512022155";
 
 (function() {
   'use strict';
@@ -803,6 +803,7 @@ document.addEventListener('keydown', (e) => {
 window.addEventListener('message', (event) => {
     if (!event.data || event.data.type !== 'videoFullscreenExit') return;
 
+	NativeApp.jsLog("부모 창으로 포커스");
     // 1) 부모 창 자체로 포커스
     window.focus();
 
