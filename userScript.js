@@ -20,7 +20,7 @@
 // 6. 기타
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512031227";
+const scriptVersion = "2512031610";
 
 // =======================================================
 // 1. 웹사이트 내 불필요한 요소 포커스 비활성화
@@ -750,6 +750,31 @@ const scriptVersion = "2512031227";
           }
       }
   });
+
+
+  //검색 버튼 누르면 입력창으로 포커스 강제 이동
+  document.querySelector('.btn_search').addEventListener('click', function (e) {
+    e.preventDefault();
+    const input = document.getElementById('sch_stx');
+
+    // 입력창 표시 (숨겨져 있다면)
+    input.style.display = 'block';
+
+    // 짧은 딜레이 후 포커스
+    setTimeout(() => {
+        input.focus();
+        input.click();  // 모바일에서 키보드 강제 호출에 필요함
+    }, 50);
+  });
+  document.forms["fsearchbox"].addEventListener("submit", function (e) {
+    const input = document.getElementById("sch_stx");
+
+    if (!input.value.trim()) {
+        e.preventDefault();// action 실행 막기
+        input.focus();// 포커스 다시 주기 (선택)
+    }
+  });
+
 })();
 // =======================================================
 // =======================================================
