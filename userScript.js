@@ -238,6 +238,10 @@ const scriptVersion = "2512031227";
         if (typeof NativeApp !== 'undefined' && NativeApp.handlePlayButtonClick) {
             NativeApp.handlePlayButtonClick();
         }
+        else {
+
+        }
+
     };
 });
 
@@ -246,7 +250,8 @@ const scriptVersion = "2512031227";
   document.addEventListener('focusin', (e) => {
       const target = e.target.closest && e.target.closest('.title, .title2, .filter_layer a, .filter2_layer a');
       if (!target) return;
-
+      const parentDiv = target.parentElement;
+      const isSearchPageItem = parentDiv && parentDiv.tagName === 'DIV' && parentDiv.classList.contains('con');// 검색 결과창 페이지에서의 title이라면(그렇다면 길이를 다른 title과는 다르게 취급해야함)
       const isDropDownItem = e.target.closest('.filter_layer a, .filter2_layer a');
       const rect = target.getBoundingClientRect();
 
@@ -262,7 +267,7 @@ const scriptVersion = "2512031227";
           position: 'absolute',
           top: `${rect.top + window.scrollY}px`,
           left: `${rect.left + window.scrollX}px`,
-          width: `${rect.width}px`,
+          width: isSearchPageItem ? '65%' : `${rect.width}px`,
           height: isDropDownItem ? `${rect.height}px` : `${rect.height + 30}px`,
           color: '#FFF',
           fontWeight: 'bold',
