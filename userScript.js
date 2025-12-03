@@ -1,30 +1,33 @@
 // ==UserScript==
 // @name        tvFlixUserScirpt
 // @namespace   tvFlixUserScirpt
-// @version     20251202
+// @version     2512031227
 // @description tvFlixUserScirpt
 // @author      Unknown
 // @include     /^https?:\/\/[^/]*tvwiki[^/]*\/.*$/
 // @icon        https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg
 // @grant       none
 // ==/UserScript==
+//
+// =======================================================
+// 이 스크립트의 목적
+// =======================================================
+// 1. 웹사이트 내 불필요한 요소 포커스 비활성화
+// 2. 웹사이트 요소 제거
+// 3. 웹사이트 요소 추가
+// 4. 웹사이트 요소 변경
+// 5. 네이티브에서 호출할 함수
+// 6. 기타
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512030902";
+const scriptVersion = "2512031227";
 
+// =======================================================
+// 1. 웹사이트 내 불필요한 요소 포커스 비활성화
+// =======================================================
 (function() {
   'use strict';
-  // 1. 포커스 비활성화 로직
-  // 2. UI 요소 제거 로직
-  // 3. UI 요소 추가 로직
-  // 4. UI 요소 변경 로직
-  // 5. 네이티브 통신 커스텀 함수
-  // 6. 기타
-  // =======================================================
-  // 1. 포커스 비활성화
   // .slide_wrap 내부의 '.title'을 제외한 모든 요소의 포커스 비활성화
-  // =======================================================
-
   document.querySelectorAll('.slide_wrap *').forEach(element => {
   if (element.classList && !element.classList.contains('title') && !element.classList.contains('more')) {
     element.setAttribute('tabindex', '-1');
@@ -40,17 +43,21 @@ const scriptVersion = "2512030902";
   if (formElement) {
     formElement.setAttribute('tabindex', '-1');
   }
-
   const searchElement= document.getElementById('sch_submit');
   if (searchElement) {
     searchElement.setAttribute('tabindex', '-1');
   }
-  // =======================================================
+})();
+// =======================================================
+// =======================================================
+// =======================================================
 
 
-
-
-
+// =======================================================
+// 2. 웹사이트 요소 제거
+// =======================================================
+(function() {
+  'use strict'
 
   // =======================================================
   // 2. UI 요소 제거
@@ -152,16 +159,18 @@ const scriptVersion = "2512030902";
 
   // =======================================================
 
+})();
+// =======================================================
+// =======================================================
+// =======================================================
 
 
 
-
-
-
-
-  // =======================================================
-  // 3. UI 요소 추가
-  // =======================================================
+// =======================================================
+// 3. 웹사이트 요소 추가
+// =======================================================
+(function() {
+  'use strict'
   // 검색 버튼 텍스트 추가 로직 및 인라인 스타일 강제 오버라이드
   const searchButton = document.querySelector('a.btn_search');
   if (searchButton) {
@@ -231,13 +240,80 @@ const scriptVersion = "2512030902";
         }
     };
 });
-  // =======================================================
+
+  //특수 포커스 효과
+  let focusOverlay = null;
+  document.addEventListener('focusin', (e) => {
+      const target = e.target.closest && e.target.closest('.title, .title2, .filter_layer a, .filter2_layer a');
+      if (!target) return;
+
+      const isDropDownItem = e.target.closest('.filter_layer a, .filter2_layer a');
+      const rect = target.getBoundingClientRect();
+
+      // 원본 투명화
+      target.style.opacity = '0';
+
+      // overlay 생성
+      focusOverlay = document.createElement('div');
+      focusOverlay.textContent = target.textContent;
+
+      // 공통 스타일
+      Object.assign(focusOverlay.style, {
+          position: 'absolute',
+          top: `${rect.top + window.scrollY}px`,
+          left: `${rect.left + window.scrollX}px`,
+          width: `${rect.width}px`,
+          height: isDropDownItem ? `${rect.height}px` : `${rect.height + 30}px`,
+          color: '#FFF',
+          fontWeight: 'bold',
+          background: '#552E00',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: '999999',
+          pointerEvents: 'none',
+          padding: '4px 10px',
+          outline: '4px solid #FFD700',
+          outlineOffset: '0',
+          boxShadow: `
+              0 0 0 400px #552E00 inset,
+              0 0 400px rgba(255, 215, 0, 1)
+          `,
+          transition: 'outline-color 0.2s, box-shadow 0.2s',
+      });
+
+      // 글꼴 스타일 원본 복사
+      const cs = window.getComputedStyle(target);
+      focusOverlay.style.fontSize = cs.fontSize;
+      focusOverlay.style.fontFamily = cs.fontFamily;
+
+      document.body.appendChild(focusOverlay);
+  });
+  document.addEventListener('focusout', (e) => {
+    const el = e.target;
+
+    // 원본 복원
+    el.style.opacity = '';
+
+    // 오버레이 제거
+    if (focusOverlay) {
+        focusOverlay.remove();
+        focusOverlay = null;
+    }
+});
+
+})();
+// =======================================================
+// =======================================================
+// =======================================================
 
 
 
-
-
-
+// =======================================================
+// 4. 웹사이트 요소 변경
+// =======================================================
+(function() {
+  'use strict'
 
   // =======================================================
   // 4. UI 요소 변경
@@ -485,16 +561,61 @@ const scriptVersion = "2512030902";
   `;
   document.head.appendChild(style);
 
+  // 타이틀 변경
+  document.title = "Netflix";
+  const logoLink = document.querySelector("a.logo");
+  if (logoLink) {
+      const img = logoLink.querySelector("img");
+      if (img) {
+          img.src = "https://i.imgur.com/rBAwaXX.png";
+          img.style.width = "110px";
+          img.style.height = "auto";
+      }
+  }
+  // 아이콘 변경 함수 호출
+  const faviconURL = "https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg";
+  const appleIconURL = "https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg";
+
+  function replaceIcons() {
+      document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"]').forEach(el => el.remove());
+      const icon = document.createElement('link');
+      icon.rel = "icon";
+      icon.type = "image/svg+xml";
+      icon.href = faviconURL;
+      document.head.appendChild(icon);
+      const apple = document.createElement('link');
+      apple.rel = "apple-touch-icon";
+      apple.href = appleIconURL;
+      document.head.appendChild(apple);
+  }
+  replaceIcons();
+
+  // 재생 페이지의 플레이어 썸네일 자동 스킵
+  const button = document.querySelector('a.btn.btn_normal');
+  if (button) {
+      button.click();
+    NativeApp.jsLog("플레이어 재생 페이지 자동 넘기기 실행");
+  }
 
 
-  // =======================================================
-  // 6. 커스텀 함수
-  // =======================================================
+
+
+})();
+// =======================================================
+// =======================================================
+// =======================================================
+
+
+
+// =======================================================
+// 5. 네이티브에서 호출할 함수
+// =======================================================
+(function() {
+  'use strict'
 
   window.handleBackButton = function() {
     // 1. 검색창에서 ESC, 뒤로가기 눌렀을 때 동작
     const isSearchLayerOpen = document.querySelector('.search_layer.active') !== null;// 검색창이 활성화 상태인지 여부 (true / false)
-
     if (isSearchLayerOpen){
       document.querySelector('.search_layer')?.classList.remove('active');
       document.querySelector('.search_wrap')?.classList.remove('active');
@@ -513,7 +634,6 @@ const scriptVersion = "2512030902";
       e.stopPropagation();
       return;
     }
-
 
     // 2. 드롭다운 선택중 ESC, 뒤로가기 눌렀을 때 동작
     const layer2 = document.querySelector('.filter2_layer');
@@ -556,9 +676,6 @@ const scriptVersion = "2512030902";
       }
     }
 
-
-
-
     //3. 검색창이나 드롭다운 활성화 상태가 아닌 경우
     const host = location.hostname.replace(/^www\./, "");
     const path = window.location.pathname.replace(/\/$/, ""); // 끝의 / 제거
@@ -570,234 +687,70 @@ const scriptVersion = "2512030902";
         history.back();
     }
   }
-
-
-
-  // =======================================================
-  // 6. 기타
-  // =======================================================
-  // 타이틀 변경
-  document.title = "Netflix";
-  const logoLink = document.querySelector("a.logo");
-  if (logoLink) {
-      const img = logoLink.querySelector("img");
-      if (img) {
-          img.src = "https://i.imgur.com/rBAwaXX.png";
-          img.style.width = "110px";
-          img.style.height = "auto";
-      }
-  }
-  // 아이콘 변경 함수 호출
-  const faviconURL = "https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg";
-  const appleIconURL = "https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg";
-
-  function replaceIcons() {
-      document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"]').forEach(el => el.remove());
-      const icon = document.createElement('link');
-      icon.rel = "icon";
-      icon.type = "image/svg+xml";
-      icon.href = faviconURL;
-      document.head.appendChild(icon);
-      const apple = document.createElement('link');
-      apple.rel = "apple-touch-icon";
-      apple.href = appleIconURL;
-      document.head.appendChild(apple);
-  }
-  replaceIcons();
-
-  // 자동 플레이어 넘기기 시도 (버튼 클릭)
-  const button = document.querySelector('a.btn.btn_normal');
-  if (button) {
-      button.click();
-    NativeApp.jsLog("플레이어 재생 페이지 자동 넘기기 실행");
-  }
 })();
+// =======================================================
+// =======================================================
+// =======================================================
 
 
 
 
+// =======================================================
+// 6. 기타(디버그 및 버그 수정)
+// =======================================================
+(function() {
+  //로깅 함수
+  window.customLog = function(message) {
+    console.log(message);
+    if (typeof NativeApp !== "undefined" && typeof NativeApp[fn] === "function") {
+      NativeApp.jsLog(message);
+    }
+  }
 
+  //크롬캐스트에서 드롭다운 동작 안하는 문제 수정
+  document.querySelectorAll('.filter_layer a').forEach(a => {
+      a.setAttribute('tabindex', '0');
+  });
+  document.addEventListener('keydown', (e) => {
+      const active = document.activeElement;
 
+      if (active.classList.contains('btn_filter')) {
+          const layer = active.nextElementSibling; // .filter_layer
+          if (!layer) return;
 
+          if (e.key === 'ArrowDown') {
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // =======================================================
-    // 2. 알림창 제목 재정의 로직: 모든 웹사이트 알림을 '알림'으로 통일
-    // =======================================================
-
-    // 커스텀 알림 모달을 표시하는 함수
-    function showCustomAlert(message, isConfirm = false) {
-        // 이미 모달이 떠 있다면 새 모달을 띄우지 않음 (중첩 방지)
-        if (document.querySelector('.custom-alert-backdrop')) {
-            console.warn('Attempted to show multiple alerts. Skipping new alert.');
-			if (typeof NativeApp !== 'undefined' && NativeApp.showNeutralAlert) {
-                NativeApp.showNeutralAlert(String(message));
+            //드롭다운이 열려있을때
+            const computed = window.getComputedStyle(layer);
+            const hasActiveClass = layer.classList && layer.classList.contains('active');
+            const displayVisible = (layer.style.display && layer.style.display !== 'none') || (computed.display && computed.display !== 'none');
+            const visibilityVisible = (layer.style.visibility && layer.style.visibility !== 'hidden') || (computed.visibility && computed.visibility !== 'hidden');
+            const offscreen = layer.style.left && (layer.style.left === '-9999px' || layer.style.left.indexOf('-') === 0);
+            const isOpen = hasActiveClass || (displayVisible && visibilityVisible && !offscreen);
+            if (isOpen) {
+              const first = layer.querySelector('a');
+              first?.focus();
+              e.preventDefault();
             }
-            return isConfirm ? false : undefined;
-        }
-    }
-
-    // 네이티브 window.alert 덮어쓰기
-    window.alert = function(message) {
-        showCustomAlert(String(message));
-    };
-
-    // 네이티브 window.confirm 덮어쓰기 (await을 통해 결과를 동기적으로 반환)
-    window.confirm = async function(message) {
-        return await showCustomAlert(String(message), true);
-    };
-
-    // window.prompt는 복잡한 사용자 입력이 필요하므로 지원하지 않고 경고 처리 후 null 반환
-    window.prompt = function(message) {
-        console.warn('window.prompt was called. Returning null as it is not supported by custom alerts. Message:', message);
-        return null;
-    };
-
-    document.querySelector('.btn_search').addEventListener('click', function (e) {
-        e.preventDefault();
-
-        const input = document.getElementById('sch_stx');
-
-        // 입력창 표시 (숨겨져 있다면)
-        input.style.display = 'block';
-                  input.focus();
-            input.click();  // 모바일에서 키보드 강제 호출에 필요함
-
-
-    });
-
-
-
-    document.forms["fsearchbox"].addEventListener("submit", function (e) {
-        const input = document.getElementById("sch_stx");
-
-        if (!input.value.trim()) {
-            e.preventDefault();  // action 실행 막기
-            input.focus();       // 포커스 다시 주기 (선택)
-        }
-});
-
-
-//특수 포커스 효과
-let focusOverlay = null;
-document.addEventListener('focusin', (e) => {
-    const target = e.target.closest && e.target.closest('.title, .title2, .filter_layer a, .filter2_layer a');
-    if (!target) return;
-
-    const isDropDownItem = e.target.closest('.filter_layer a, .filter2_layer a');
-    const rect = target.getBoundingClientRect();
-
-    // 원본 투명화
-    target.style.opacity = '0';
-
-    // overlay 생성
-    focusOverlay = document.createElement('div');
-    focusOverlay.textContent = target.textContent;
-
-    // 공통 스타일
-    Object.assign(focusOverlay.style, {
-        position: 'absolute',
-        top: `${rect.top + window.scrollY}px`,
-        left: `${rect.left + window.scrollX}px`,
-        width: `${rect.width}px`,
-        height: isDropDownItem ? `${rect.height}px` : `${rect.height + 30}px`,
-        color: '#FFF',
-        fontWeight: 'bold',
-        background: '#552E00',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: '999999',
-        pointerEvents: 'none',
-        padding: '4px 10px',
-        outline: '4px solid #FFD700',
-        outlineOffset: '0',
-        boxShadow: `
-            0 0 0 400px #552E00 inset,
-            0 0 400px rgba(255, 215, 0, 1)
-        `,
-        transition: 'outline-color 0.2s, box-shadow 0.2s',
-    });
-
-    // 글꼴 스타일 원본 복사
-    const cs = window.getComputedStyle(target);
-    focusOverlay.style.fontSize = cs.fontSize;
-    focusOverlay.style.fontFamily = cs.fontFamily;
-
-    document.body.appendChild(focusOverlay);
-});
-document.addEventListener('focusout', (e) => {
-    const el = e.target;
-
-    // 원본 복원
-    el.style.opacity = '';
-
-    // 오버레이 제거
-    if (focusOverlay) {
-        focusOverlay.remove();
-        focusOverlay = null;
-    }
-});
-
-
-
-//크롬캐스트에서 드롭다운 동작 안하는 문제 수정
-document.querySelectorAll('.filter_layer a').forEach(a => {
-    a.setAttribute('tabindex', '0');
-});
-document.addEventListener('keydown', (e) => {
-    const active = document.activeElement;
-
-    if (active.classList.contains('btn_filter')) {
-        const layer = active.nextElementSibling; // .filter_layer
-        if (!layer) return;
-
-        if (e.key === 'ArrowDown') {
-
-          //드롭다운이 열려있을때
-          const computed = window.getComputedStyle(layer);
-          const hasActiveClass = layer.classList && layer.classList.contains('active');
-          const displayVisible = (layer.style.display && layer.style.display !== 'none') || (computed.display && computed.display !== 'none');
-          const visibilityVisible = (layer.style.visibility && layer.style.visibility !== 'hidden') || (computed.visibility && computed.visibility !== 'hidden');
-          const offscreen = layer.style.left && (layer.style.left === '-9999px' || layer.style.left.indexOf('-') === 0);
-          const isOpen = hasActiveClass || (displayVisible && visibilityVisible && !offscreen);
-          if (isOpen) {
-            const first = layer.querySelector('a');
-            first?.focus();
-            e.preventDefault();
           }
-        }
-    } else if (active.closest('.filter_layer, .filter2_layer')) {
-        if (e.key === 'ArrowDown') {
-            const next = active.nextElementSibling;
-            if (next) next.focus();
-            e.preventDefault();
-        } else if (e.key === 'ArrowUp') {
-            const prev = active.previousElementSibling;
-            if (prev) prev.focus();
-            e.preventDefault();
-        }
-    }
-});
+      } else if (active.closest('.filter_layer, .filter2_layer')) {
+          if (e.key === 'ArrowDown') {
+              const next = active.nextElementSibling;
+              if (next) next.focus();
+              e.preventDefault();
+          } else if (e.key === 'ArrowUp') {
+              const prev = active.previousElementSibling;
+              if (prev) prev.focus();
+              e.preventDefault();
+          }
+      }
+  });
+})();
+// =======================================================
+// =======================================================
+// =======================================================
 
 
 
 
-
-NativeApp.jsLog("[kotlin]유저스크립트 version: " + scriptVersion);
+customLog("[kotlin]유저스크립트 version: " + scriptVersion);
