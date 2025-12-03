@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        tvFlixUserScirpt
 // @namespace   tvFlixUserScirpt
-// @version     2512031227
+// @version     2512040547
 // @description tvFlixUserScirpt
 // @author      Unknown
 // @include     /^https?:\/\/[^/]*tvwiki[^/]*\/.*$/
