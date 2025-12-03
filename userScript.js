@@ -10,7 +10,7 @@
 // ==/UserScript==
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512030319";
+const scriptVersion = "2512030902";
 
 (function() {
   'use strict';
@@ -32,7 +32,7 @@ const scriptVersion = "2512030319";
   });
 
   // 기존의 기타 포커스 비활성화 로직 (안전을 위해 유지)
-  document.querySelectorAll('a.img, img, img.lazy, iframe', 'a.on', 'body').forEach(element => {
+  document.querySelectorAll('a.img, img, img.lazy, iframe, a.on, body').forEach(element => {
       element.setAttribute('tabindex', '-1');
   });
 
@@ -669,10 +669,6 @@ const scriptVersion = "2512030319";
         return null;
     };
 
-    console.log('Native alert/confirm functions have been overridden with a custom modal titled "알림".');
-
-
-
     document.querySelector('.btn_search').addEventListener('click', function (e) {
         e.preventDefault();
 
@@ -680,12 +676,10 @@ const scriptVersion = "2512030319";
 
         // 입력창 표시 (숨겨져 있다면)
         input.style.display = 'block';
-
-        // 짧은 딜레이 후 포커스
-        setTimeout(() => {
-            input.focus();
+                  input.focus();
             input.click();  // 모바일에서 키보드 강제 호출에 필요함
-        }, 50);
+
+
     });
 
 
@@ -700,9 +694,8 @@ const scriptVersion = "2512030319";
 });
 
 
-//특수 포커스
+//특수 포커스 효과
 let focusOverlay = null;
-
 document.addEventListener('focusin', (e) => {
     const target = e.target.closest && e.target.closest('.title, .title2, .filter_layer a, .filter2_layer a');
     if (!target) return;
@@ -768,7 +761,6 @@ document.addEventListener('focusout', (e) => {
 document.querySelectorAll('.filter_layer a').forEach(a => {
     a.setAttribute('tabindex', '0');
 });
-
 document.addEventListener('keydown', (e) => {
     const active = document.activeElement;
 
@@ -805,16 +797,6 @@ document.addEventListener('keydown', (e) => {
 });
 
 
-///전체화면에서 빠져나올때 iframe 포커스 탈출
-window.addEventListener('message', e => {
-    if (e.data.type === 'videoFullscreenExit') {
-        window.focus();
-        document.body.focus();
-
-        const iframe = document.getElementById('view_iframe');
-        if (iframe) iframe.blur();
-    }
-});
 
 
 
