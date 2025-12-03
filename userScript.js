@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        tvFlixUserScirpt
 // @namespace   tvFlixUserScirpt
-// @version     2512040547
+// @version     2512040626
 // @description tvFlixUserScirpt
 // @author      Unknown
 // @include     /^https?:\/\/[^/]*tvwiki[^/]*\/.*$/
@@ -20,7 +20,7 @@
 // 6. 기타
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512040210";
+const scriptVersion = "2512040626";
 
 // =======================================================
 // 1. 웹사이트 내 불필요한 요소 포커스 비활성화
@@ -505,8 +505,6 @@ const scriptVersion = "2512040210";
           padding: 0 !important;
       }
 
-
-/*
       /* [NEW FEATURE] .bo_v_mov 크기를 버튼에 맞게 강제 축소 및 중앙 정렬 */
       .bo_v_mov {
           width: 100% !important;
@@ -519,7 +517,6 @@ const scriptVersion = "2512040210";
           margin: 10px 0 !important;
           padding: 0 !important;
       }
-      */
 
 
       /* [MAX SPECIFICITY FIX] ID 선택자를 모두 포함하여 명시도를 최상으로 높임 */
