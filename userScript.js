@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        tvFlixUserScirpt
 // @namespace   tvFlixUserScirpt
-// @version     2512040626
+// @version     2512031227
 // @description tvFlixUserScirpt
 // @author      Unknown
 // @include     /^https?:\/\/[^/]*tvwiki[^/]*\/.*$/
@@ -20,7 +20,7 @@
 // 6. 기타
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512040626";
+const scriptVersion = "2512031610";
 
 // =======================================================
 // 1. 웹사이트 내 불필요한 요소 포커스 비활성화
@@ -505,18 +505,7 @@ const scriptVersion = "2512040626";
           padding: 0 !important;
       }
 
-      /* [NEW FEATURE] .bo_v_mov 크기를 버튼에 맞게 강제 축소 및 중앙 정렬 */
-      .bo_v_mov {
-          width: 100% !important;
-          height: 0px !important; /* 버튼이 들어갈 높이로 강제 축소 */
-          display: flex !important;
-          justify-content: center !important; /* 중앙 정렬 */
-          align-items: center !important; /* 중앙 정렬 */
-          background-color: #1a1a1a !important; /* 배경색을 어둡게 설정 */
-          border-radius: 8px !important;
-          margin: 10px 0 !important;
-          padding: 0 !important;
-      }
+
 
 
       /* [MAX SPECIFICITY FIX] ID 선택자를 모두 포함하여 명시도를 최상으로 높임 */
@@ -806,6 +795,33 @@ const scriptVersion = "2512040626";
 // =======================================================
 // =======================================================
 // =======================================================
+
+
+
+(function() {
+    const movDiv = document.querySelector('.bo_v_mov');
+    if (!movDiv) return;
+
+    // 브라우저 전체 화면처럼 fixed
+    movDiv.style.position = 'fixed';
+    movDiv.style.top = '0';
+    movDiv.style.left = '0';
+    movDiv.style.width = '100vw';
+    movDiv.style.height = '100vh';
+    movDiv.style.zIndex = '9999';
+    movDiv.style.backgroundColor = 'black'; // optional, 배경 검정 처리
+
+    // iframe도 부모 div에 맞추기
+    const iframe = movDiv.querySelector('iframe');
+    if (iframe) {
+        iframe.style.width = '100%';
+        iframe.style.height = '100%';
+        iframe.style.border = 'none';
+    }
+
+    // 페이지 스크롤 제거
+    document.body.style.overflow = 'hidden';
+})();
 
 
 
