@@ -35,7 +35,7 @@ const scriptVersion = "2512031610";
   });
 
   // 기존의 기타 포커스 비활성화 로직 (안전을 위해 유지)
-  document.querySelectorAll('a.img, img, img.lazy, iframe, a.on, body').forEach(element => {
+  document.querySelectorAll('a.img, img, img.lazy, iframe, body').forEach(element => {
       element.setAttribute('tabindex', '-1');
   });
 
@@ -753,7 +753,9 @@ const scriptVersion = "2512031610";
 
 
   //검색 버튼 누르면 입력창으로 포커스 강제 이동
-  document.querySelector('.btn_search').addEventListener('click', function (e) {
+  const searchButtonQuery = document.querySelector('.btn_search')
+  if (searchButtonQuery !== null) {
+      document.querySelector('.btn_search').addEventListener('click', function (e) {
     e.preventDefault();
     const input = document.getElementById('sch_stx');
 
@@ -774,6 +776,10 @@ const scriptVersion = "2512031610";
         input.focus();// 포커스 다시 주기 (선택)
     }
   });
+
+  }
+
+
 
 })();
 // =======================================================
