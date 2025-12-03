@@ -20,7 +20,7 @@
 // 6. 기타
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512031610";
+const scriptVersion = "2512040210";
 
 // =======================================================
 // 1. 웹사이트 내 불필요한 요소 포커스 비활성화
@@ -265,7 +265,7 @@ const scriptVersion = "2512031610";
       // 공통 스타일
       Object.assign(focusOverlay.style, {
           position: 'absolute',
-          top: `${rect.top + window.scrollY}px`,
+          top: isSearchPageItem ? `${rect.top + window.scrollY -30}px`: `${rect.top + window.scrollY}px`,
           left: `${rect.left + window.scrollX}px`,
           width: isSearchPageItem ? '65%' : `${rect.width}px`,
           height: isDropDownItem ? `${rect.height}px` : `${rect.height + 30}px`,
@@ -723,6 +723,21 @@ const scriptVersion = "2512031610";
           const layer = active.nextElementSibling; // .filter_layer
           if (!layer) return;
 
+          //드롭다운이 열려있을때, 카테고리 필터 버튼 포커스 상태에서는 아래 방향키만 동작하게 만들기
+          if (e.key === 'ArrowLeft' || e.key == 'ArrowRight' || e.key === 'ArrowUp') {
+
+            const computed = window.getComputedStyle(layer);
+            const hasActiveClass = layer.classList && layer.classList.contains('active');
+            const displayVisible = (layer.style.display && layer.style.display !== 'none') || (computed.display && computed.display !== 'none');
+            const visibilityVisible = (layer.style.visibility && layer.style.visibility !== 'hidden') || (computed.visibility && computed.visibility !== 'hidden');
+            const offscreen = layer.style.left && (layer.style.left === '-9999px' || layer.style.left.indexOf('-') === 0);
+            const isOpen = hasActiveClass || (displayVisible && visibilityVisible && !offscreen);
+            if (isOpen) {
+              e.preventDefault();
+            }
+          }
+
+          //드롭다운이 열려있을때, 카테고리 필터 버튼 포커스 상태에서 아래 방향키를 누르면 자식 요소로 이동하게 하기
           if (e.key === 'ArrowDown') {
 
             //드롭다운이 열려있을때
@@ -738,8 +753,14 @@ const scriptVersion = "2512031610";
               e.preventDefault();
             }
           }
+
+      //드롭다운이 열려있고, 자식 요소들에 포커스가 있을 때
       } else if (active.closest('.filter_layer, .filter2_layer')) {
-          if (e.key === 'ArrowDown') {
+
+          //옆 방향키는 동작하지 않게 하기
+          if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+            e.preventDefault();
+          } else if (e.key === 'ArrowDown') {
               const next = active.nextElementSibling;
               if (next) next.focus();
               e.preventDefault();
