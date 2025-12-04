@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        tvFlixUserScirpt
 // @namespace   tvFlixUserScirpt
-// @version     2512041309
+// @version     2512031227
 // @description tvFlixUserScirpt
 // @author      Unknown
 // @include     /^https?:\/\/[^/]*tvwiki[^/]*\/.*$/
@@ -20,7 +20,7 @@
 // 6. 기타
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512041309";
+const scriptVersion = "2512031610";
 
 // =======================================================
 // 1. 웹사이트 내 불필요한 요소 포커스 비활성화
@@ -848,7 +848,7 @@ window.ApplyVideoNormalStyle = function() {
 
 
 
-//ApplyVideoNormalStyle();
+ApplyVideoNormalStyle();
 //ApplyVideoPipStyle();
 
 
