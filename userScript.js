@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        tvFlixUserScirpt
 // @namespace   tvFlixUserScirpt
-// @version     2512031227
+// @version     2512041309
 // @description tvFlixUserScirpt
 // @author      Unknown
 // @include     /^https?:\/\/[^/]*tvwiki[^/]*\/.*$/
@@ -20,7 +20,7 @@
 // 6. 기타
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512031610";
+const scriptVersion = "2512041309";
 
 // =======================================================
 // 1. 웹사이트 내 불필요한 요소 포커스 비활성화
@@ -804,7 +804,7 @@ const scriptVersion = "2512031610";
 
 
 
-function ApplyVideoPipStyle() {
+window.ApplyVideoPipStyle = function() {
     const movDiv = document.querySelector('.bo_v_mov');
     if (!movDiv) return;
 
@@ -836,7 +836,7 @@ function ApplyVideoPipStyle() {
     document.body.style.overflow = 'hidden';
 };
 
-function ApplyVideoNormalStyle() {
+window.ApplyVideoNormalStyle = function() {
     const movDiv = document.querySelector('.bo_v_mov');
     if (!movDiv) return;
     movDiv.style.setProperty('height', '0px', 'important');
@@ -844,11 +844,6 @@ function ApplyVideoNormalStyle() {
 };
 
 
-(function () {
-  if (typeof NativeApp !== "undefined" && typeof NativeApp[fn] === "function") {
-    ApplyVideoPipStyle();
-  }
-})();
 
 
 
