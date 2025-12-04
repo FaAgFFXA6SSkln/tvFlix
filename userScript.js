@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        tvFlixUserScirpt
 // @namespace   tvFlixUserScirpt
-// @version     2512041535
+// @version     2512041540
 // @description tvFlixUserScirpt
 // @author      Unknown
 // @include     /^https?:\/\/[^/]*tvwiki[^/]*\/.*$/
@@ -10,7 +10,7 @@
 // ==/UserScript==
 //
 // =======================================================
-// 본 스크립트의 목적
+// 이 스크립트의 목적
 // =======================================================
 // 1. 웹사이트 내 불필요한 요소 포커스 비활성화
 // 2. 웹사이트 요소 제거
@@ -20,7 +20,7 @@
 // 6. 기타
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512041535";
+const scriptVersion = "2512041540";
 
 // =======================================================
 // 1. 웹사이트 내 불필요한 요소 포커스 비활성화
@@ -197,7 +197,7 @@ const scriptVersion = "2512041535";
     // overlay 스타일 수정
     //overlay.style.position = 'relative';
     overlay.style.width = '100%';
-    overlay.style.setProperty('height', '300px', 'important');
+    overlay.style.setProperty('height', '330px', 'important');
 
 
     // **가운데 정렬**
