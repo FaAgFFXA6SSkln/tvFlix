@@ -14,7 +14,8 @@
 // 6. 기타
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512041556";
+const scriptVersion = "2512041707";
+const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 
 // =======================================================
 // 1. 웹사이트 내 불필요한 요소 포커스 비활성화
@@ -250,8 +251,10 @@ const scriptVersion = "2512041556";
     };
 });
 
-  //특수 포커스 효과
-  let focusOverlay = null;
+  //특수 포커스 효과(TV에서만 적용, 모바일은 적용하지 않음)
+  const userAgentString = navigator.userAgent;
+  if (isRunningOnTv) {
+      let focusOverlay = null;
   document.addEventListener('focusin', (e) => {
       const target = e.target.closest && e.target.closest('.title, .title2, .filter_layer a, .filter2_layer a');
       if (!target) return;
@@ -311,6 +314,10 @@ const scriptVersion = "2512041556";
         focusOverlay = null;
     }
 });
+
+  }
+
+
 
 })();
 // =======================================================
@@ -861,5 +868,10 @@ ApplyVideoNormalStyle();
 // =======================================================
 // =======================================================
 // =======================================================
+
+
+
+
+
 
 customLog("[kotlin]유저스크립트 version: " + scriptVersion);
