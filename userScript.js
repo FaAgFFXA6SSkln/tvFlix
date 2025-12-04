@@ -14,7 +14,7 @@
 // 6. 기타
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512041717";
+const scriptVersion = "2512041726";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 
 // =======================================================
@@ -856,7 +856,7 @@ window.ApplyVideoPipStyle = function() {
     }
 
     // 페이지 스크롤 제거
-    document.body.style.overflow = 'hidden';
+    //document.body.style.overflow = 'hidden';
 };
 window.ApplyVideoNormalStyle = function() {
     const movDiv = document.querySelector('.bo_v_mov');
@@ -864,12 +864,44 @@ window.ApplyVideoNormalStyle = function() {
     movDiv.style.setProperty('height', '0px', 'important');
     movDiv.style.setProperty('display', 'flex', 'important');
 };
+window.ApplyVideoMobileStyle = function() {
+    const movDiv = document.querySelector('.bo_v_mov');
+    if (!movDiv) return;
+
+    // 브라우저 전체 화면처럼 fixed
+    movDiv.style.position = 'fixed';
+    movDiv.style.top = '0';
+    movDiv.style.left = '0';
+    movDiv.style.width = '100vw';
+    movDiv.style.setProperty('height', '100vh', 'important');
+    movDiv.style.setProperty('display', 'block', 'important');
+    //movDiv.style.zIndex = '9999';
+    movDiv.style.backgroundColor = 'black';
+
+    // 중앙 정렬: flex 컨테이너
+    //movDiv.style.display = 'flex';
+
+    movDiv.style.alignItems = 'center';
+    movDiv.style.justifyContent = 'center';
+
+    // iframe 크기 지정: 부모 div에 맞게
+    const iframe = movDiv.querySelector('view_iframe');
+    if (iframe) {
+        iframe.style.maxWidth = '100%';
+        iframe.style.maxHeight = '100%';
+        iframe.style.border = 'none';
+    }
+
+    // 페이지 스크롤 제거
+    //document.body.style.overflow = 'hidden';
+};
 //ApplyVideoNormalStyle();
 
 if (isRunningOnTv) {
   ApplyVideoNormalStyle();
 } else {
-  ApplyVideoPipStyle();
+  //ApplyVideoPipStyle();
+  ApplyVideoMobileStyle();
 }
 
 // =======================================================
