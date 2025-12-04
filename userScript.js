@@ -197,7 +197,7 @@ const scriptVersion = "2512041540";
     // overlay 스타일 수정
     //overlay.style.position = 'relative';
     overlay.style.width = '100%';
-    overlay.style.setProperty('height', '330px', 'important');
+    overlay.style.setProperty('height', '360px', 'important');
 
 
     // **가운데 정렬**
