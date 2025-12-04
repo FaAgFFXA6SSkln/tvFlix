@@ -14,7 +14,7 @@
 // 6. 기타
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512041758";
+const scriptVersion = "2512050524";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 
 // =======================================================
@@ -58,9 +58,6 @@ const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 (function() {
   'use strict'
 
-  // =======================================================
-  // 2. UI 요소 제거
-  // =======================================================
   const elementsToRemove = [
       'div.notice', 'a.logo', '.gnb_mobile', '.top_btn', '.profile_info_ct',
       '.ep_search', '.good', '.emer-content', '#bo_v_atc', '.cast',
@@ -101,7 +98,8 @@ const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
       }
   }
 
-  // '.bo_v_tit' 요소에서 '다시보기' 텍스트 제거
+
+  // 재생 페이지 제목에서 '다시보기 텍스트 제거 ('.bo_v_tit' 요소에서 '다시보기' 텍스트 제거)
   document.querySelectorAll('.bo_v_tit').forEach(element => {
       // 정규 표현식을 사용하여 모든 '다시보기' 문자열을 빈 문자열로 대체하고 앞뒤 공백 제거
       if (element.textContent.includes('다시보기')) {
@@ -114,7 +112,8 @@ const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
   if (firstSlideWrap) {
       firstSlideWrap.remove();
   }
-  // 남은 Slide Wrap 제목 변경 로직
+
+  // 홈화면 남은 Slide Wrap 제목 변경 로직
   const slideWraps = document.querySelectorAll('.slide_wrap');
   const newTitles = ['드라마', '영화', '예능', '애니메이션'];
   slideWraps.forEach((wrap, index) => {
@@ -133,15 +132,18 @@ const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
       }
   });
 
-  //재생 페이지에서 회차 썸네일 제거
+  //재생 페이지 회차별 썸네일 제거(모바일은 유지)
+  if (isRunningOnTv) {
   // class가 searchText로 시작하는 모든 li 선택
-  const liElements = document.querySelectorAll('li[class^="searchText"]');
-  liElements.forEach(li => {
-      const img = li.querySelector('img');
-      if (img) {
-          img.remove();
-      }
-  });
+    const liElements = document.querySelectorAll('li[class^="searchText"]');
+    liElements.forEach(li => {
+        const img = li.querySelector('img');
+        if (img) {
+            img.remove();
+        }
+    });
+  }
+
 
 
   //재생 페이지에서 회차가 하나밖에 없는 경우, 회차 영역 전체를 제거
