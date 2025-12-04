@@ -14,7 +14,7 @@
 // 6. 기타
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512041730";
+const scriptVersion = "2512041758";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 
 // =======================================================
@@ -332,6 +332,52 @@ const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 // =======================================================
 // 4. 웹사이트 요소 변경
 // =======================================================
+//재생 페이지 이전화, 다음화 버튼 글씨 크기 조정
+(function() {
+    const css = `
+        /* 전체 버튼 글씨 키우기 */
+        .bo_v_nb_mobile li a {
+            font-size: 1.4rem !important;
+            font-weight: 600 !important;
+            padding: 12px 18px !important;
+        }
+
+        /* circle 크기 */
+        .bo_v_nb_mobile li a .circle {
+            width: 40px !important;
+            height: 40px !important;
+            font-size: 1.6rem !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+
+        /* 아이콘 크기 (font-awesome) */
+        .bo_v_nb_mobile li a .circle i {
+            font-size: 1.3rem !important;
+        }
+    `;
+
+    const style = document.createElement('style');
+    style.innerHTML = css;
+    document.head.appendChild(style);
+})();
+//재생 페이지 다른 회차 제목 글씨 크기 조정
+(function() {
+    'use strict';
+
+    const css = `
+        a.title.on {
+            font-size: 1.4rem !important;
+            font-weight: 600 !important;
+            line-height: 1.4 !important;
+        }
+    `;
+
+    const style = document.createElement('style');
+    style.textContent = css;
+    document.documentElement.appendChild(style);
+})();
 (function() {
   'use strict'
 
@@ -339,6 +385,9 @@ const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
   // 4. UI 요소 변경
   // =======================================================
   // D-Pad 포커스 테두리 (Outline) 스타일 개선 및 UI 조정 CSS
+
+
+
   const style = document.createElement('style');
   style.innerHTML = `
       /* 🚨 [위치 최종 수정] 커스텀 알림 모달 스타일: 뷰포트 고정(Fixed) 및 중앙 정렬 */
@@ -407,7 +456,7 @@ const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
       /* 🚨 [새로운 수정] "전체보기" 링크를 오른쪽에서 띄우기 위한 스타일 */
       /* 이 링크는 h2 내부에 있으므로, 오른쪽 끝에서 20px의 여백을 줍니다. */
       .more {
-          padding-right: 20px !important;
+          padding-right: 15px !important;
       }
 
       /* =========================================================== */
