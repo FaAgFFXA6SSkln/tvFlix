@@ -14,7 +14,7 @@
 // 6. 기타
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512041726";
+const scriptVersion = "2512041730";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 
 // =======================================================
@@ -864,13 +864,7 @@ window.ApplyVideoNormalStyle = function() {
     movDiv.style.setProperty('height', '0px', 'important');
     movDiv.style.setProperty('display', 'flex', 'important');
 };
-
-if (isRunningOnTv) {
-  ApplyVideoNormalStyle();
-} else {
-  ApplyVideoPipStyle();
-}
-
+ApplyVideoNormalStyle();
 // =======================================================
 // =======================================================
 // =======================================================
