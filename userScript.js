@@ -195,14 +195,14 @@ const scriptVersion = "2512031610";
 
 
     // overlay 스타일 수정
-    overlay.style.position = 'relative';
+    //overlay.style.position = 'relative';
     overlay.style.width = '100%';
-    overlay.style.height = '230px';
-    overlay.style.marginTop = '145px';
+    overlay.style.setProperty('height', '480px', 'important');
+
 
     // **가운데 정렬**
     overlay.style.display = 'flex';
-    //overlay.style.alignItems = 'center';     // 세로 중앙
+    overlay.style.alignItems = 'center';     // 세로 중앙
     overlay.style.justifyContent = 'center'; // 가로 중앙
 
     // 버튼 생성
@@ -226,12 +226,16 @@ const scriptVersion = "2512031610";
     overlay.appendChild(playButton);
     container.insertAdjacentElement('afterend', overlay);
 
+    /*
+
     // 컨테이너 높이가 변하면 overlay도 자동 조정
     const adjustHeight = () => {
         overlay.style.height = `${container.getBoundingClientRect().height}px`;
     };
     const observer = new MutationObserver(adjustHeight);
     observer.observe(container, { attributes: true, childList: true, subtree: true });
+
+    */
 
     // 클릭 이벤트
     playButton.onclick = () => {
@@ -467,11 +471,6 @@ const scriptVersion = "2512031610";
           font-size: 19px !important;
       }
 
-      .bo_v_mov{
-        background.color = black;
-
-      }
-
       /* =========================================================== */
 
 
@@ -504,6 +503,13 @@ const scriptVersion = "2512031610";
           margin: 0 !important;
           padding: 0 !important;
       }
+
+
+
+
+
+
+
 
 
 
@@ -798,7 +804,7 @@ const scriptVersion = "2512031610";
 
 
 
-(function() {
+function ApplyVideoPipStyle() {
     const movDiv = document.querySelector('.bo_v_mov');
     if (!movDiv) return;
 
@@ -807,22 +813,48 @@ const scriptVersion = "2512031610";
     movDiv.style.top = '0';
     movDiv.style.left = '0';
     movDiv.style.width = '100vw';
-    movDiv.style.height = '100vh';
+    movDiv.style.setProperty('height', '100vh', 'important');
+    movDiv.style.setProperty('display', 'block', 'important');
     movDiv.style.zIndex = '9999';
-    movDiv.style.backgroundColor = 'black'; // optional, 배경 검정 처리
+    movDiv.style.backgroundColor = 'black';
 
-    // iframe도 부모 div에 맞추기
-    const iframe = movDiv.querySelector('iframe');
+    // 중앙 정렬: flex 컨테이너
+    //movDiv.style.display = 'flex';
+
+    movDiv.style.alignItems = 'center';
+    movDiv.style.justifyContent = 'center';
+
+    // iframe 크기 지정: 부모 div에 맞게
+    const iframe = movDiv.querySelector('view_iframe');
     if (iframe) {
-        iframe.style.width = '100%';
-        iframe.style.height = '100%';
+        iframe.style.maxWidth = '100%';
+        iframe.style.maxHeight = '100%';
         iframe.style.border = 'none';
     }
 
     // 페이지 스크롤 제거
     document.body.style.overflow = 'hidden';
+};
+
+function ApplyVideoNormalStyle() {
+    const movDiv = document.querySelector('.bo_v_mov');
+    if (!movDiv) return;
+    movDiv.style.setProperty('height', '0px', 'important');
+    movDiv.style.setProperty('display', 'flex', 'important');
+};
+
+
+(function () {
+  if (typeof NativeApp !== "undefined" && typeof NativeApp[fn] === "function") {
+    ApplyVideoPipStyle();
+  }
 })();
 
+
+
+
+//ApplyVideoNormalStyle();
+//ApplyVideoPipStyle();
 
 
 
