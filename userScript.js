@@ -14,7 +14,7 @@
 // 6. 기타
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512060139";
+const scriptVersion = "2512060203";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 
 
@@ -206,7 +206,7 @@ const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
     // overlay 스타일 수정
     //overlay.style.position = 'relative';
     overlay.style.width = '100%';
-    const overlayHeight = (isRunningOnTv) ? '360px' : '240px';
+    const overlayHeight = (isRunningOnTv) ? '240px' : '240px';
     overlay.style.setProperty('height', overlayHeight, 'important');
 
 
@@ -345,6 +345,7 @@ const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 // =======================================================
 //
 
+//재생 페이지 작품 제목을 맨 위로 옮기기
 (function() {
     // 1. 부모 요소 (대상)를 가져옵니다.
     const boV = document.getElementById('bo_v');
@@ -357,16 +358,9 @@ const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
         if (headerElement) {
             // 3. prepend() 메소드를 사용하여 header 요소를 boV의 맨 앞으로 이동시킵니다.
             boV.prepend(headerElement);
-
-            console.log("Header 요소가 'bo_v'의 맨 위로 이동되었습니다.");
-        } else {
-            console.error("div#bo_v 내부에 header 요소를 찾을 수 없습니다.");
         }
-    } else {
-        console.error("ID 'bo_v'를 가진 요소를 찾을 수 없습니다.");
     }
 })();
-
 //재생 페이지 이전화, 다음화 버튼 글씨 크기 조정
 (function() {
     const css = `
