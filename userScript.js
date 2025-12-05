@@ -14,7 +14,7 @@
 // 6. 기타
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512060203";
+const scriptVersion = "2512060804";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 
 
@@ -22,27 +22,31 @@ const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 // 1. 웹사이트 내 불필요한 요소 포커스 비활성화
 // =======================================================
 (function() {
-  'use strict';
-  // .slide_wrap 내부의 '.title'을 제외한 모든 요소의 포커스 비활성화
-  document.querySelectorAll('.slide_wrap *').forEach(element => {
-  if (element.classList && !element.classList.contains('title') && !element.classList.contains('more')) {
-    element.setAttribute('tabindex', '-1');
-      }
-  });
+  'use strict';
 
-  // 기존의 기타 포커스 비활성화 로직 (안전을 위해 유지)
-  document.querySelectorAll('a.img, img, img.lazy, iframe, body').forEach(element => {
-      element.setAttribute('tabindex', '-1');
-  });
+  // 1-1. 단일 쿼리로 모든 포커스 비활성화 대상 요소를 가져옵니다. (DOM 쿼리 최소화)
+  const focusTargets = document.querySelectorAll('.slide_wrap *, a.img, img, img.lazy, iframe, body, #fboardlist, #sch_submit');
+  for (const element of focusTargets) {
+      // .slide_wrap 내부 요소에 대한 포커스 비활성화 조건
+      if (element.closest('.slide_wrap')) {
+          if (element.classList && !element.classList.contains('title') && !element.classList.contains('more')) {
+              element.setAttribute('tabindex', '-1');
+          }
+      } else {
+          // 기타 모든 대상에 대한 포커스 비활성화
+          element.setAttribute('tabindex', '-1');
+      }
+  }
 
-  const formElement = document.getElementById('fboardlist');
-  if (formElement) {
-    formElement.setAttribute('tabindex', '-1');
-  }
-  const searchElement= document.getElementById('sch_submit');
-  if (searchElement) {
-    searchElement.setAttribute('tabindex', '-1');
-  }
+  // ID 선택자는 쿼리 성능이 좋으므로 그대로 유지 (하지만 위 쿼리에 이미 포함됨, 안전을 위해 유지)
+  const formElement = document.getElementById('fboardlist');
+  if (formElement) {
+    formElement.setAttribute('tabindex', '-1');
+  }
+  const searchElement= document.getElementById('sch_submit');
+  if (searchElement) {
+    searchElement.setAttribute('tabindex', '-1');
+  }
 })();
 // =======================================================
 // =======================================================
@@ -179,7 +183,7 @@ const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 // =======================================================
 (function() {
   'use strict'
-  // 검색 버튼 텍스트 추가 로직 및 인라인 스타일 강제 오버라이드
+  // 메인 페이지, 카테고리 페이지, 검색 결과 페이지 상단에 검색 버튼 텍스트 추가 로직 및 인라인 스타일 강제 오버라이드
   const searchButton = document.querySelector('a.btn_search');
   if (searchButton) {
 
@@ -692,28 +696,76 @@ const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 })();
 //검색 결과 페이지 작품 설명 가로 크기 조정(모바일만 적용)
 (function() {
+    if (isRunningOnTv) return
+
     // 1. 부모 요소인 ul#mov_con_list를 찾습니다.
     const container = document.getElementById('mov_con_list');
 
     if (container) {
-        // 모든 .con 요소를 선택합니다.
+        // 모든 .con 요소를 선택합니다. (이 요소가 <p>의 기준점이 됩니다.)
         const contentBoxes = container.querySelectorAll('.con');
 
         // container 내부에 있는 모든 p 요소를 선택합니다.
         const paragraphs = container.querySelectorAll('.con p');
 
-        // 선택된 각 p 요소의 스타일을 변경합니다.
-        paragraphs.forEach(p => {
-            // 원하는 가로 크기를 문자열로 설정합니다.
-            // 예시: 250px 또는 '70%'
-            const newWidth = '75%';
-
-            // 인라인 스타일로 width 속성을 강제 적용합니다.
-            p.style.width = newWidth;
+        // ⭐ 1단계: .con 요소의 포지션 기준을 설정합니다.
+        contentBoxes.forEach(con => {
+            // 자식 요소인 <p>의 absolute 위치 지정을 위한 기준점 설정
+            con.style.position = 'relative';
         });
 
+        // 2단계: 선택된 각 p 요소의 스타일을 변경하고 위치를 고정합니다.
+        paragraphs.forEach(p => {
+            // 원하는 가로 크기를 문자열로 설정합니다. (기존 설정 유지)
+            const newWidth = '75%';
+            p.style.width = newWidth;
+
+            // --- [추가된 위치 강제 고정 설정] ---
+            p.style.position = 'absolute';
+            p.style.top = '50'; // 부모(.con) 요소의 맨 위(0px)에 고정
+            p.style.left = '0'; // (선택 사항) 왼쪽 위치도 0으로 고정
+
+            // 기존에 p 요소에 설정되어 있던 margin-top을 초기화하여 충돌 방지
+            p.style.marginTop = '0';
+            // ------------------------------------
+        });
+
+    } else {
+        console.error("ID 'mov_con_list'를 가진 요소를 찾을 수 없습니다.");
     }
 })();
+
+(function() {
+    // 1. 부모 요소인 ul#mov_con_list를 찾습니다.
+    const container = document.getElementById('mov_con_list');
+
+    if (container) {
+        // 2. container 내부에 있는 모든 img 요소를 선택합니다.
+        const images = container.querySelectorAll('.con img');
+
+        // 3. 선택된 각 img 요소에 스타일을 적용합니다.
+        images.forEach(img => {
+            // 이미지 크기가 부모 요소에 맞춰 유연하게 변하도록 설정
+            img.style.width = '100%';
+            img.style.height = '100%';
+
+            // ⭐ 핵심: object-fit을 사용하여 비율을 유지하면서 공간을 채우거나 맞춥니다.
+
+            // A. 비율을 유지하며 부모 공간을 최대한 채움 (일부 잘릴 수 있음)
+            img.style.objectFit = 'cover';
+
+            // B. 비율을 유지하며 부모 공간 안에 이미지 전체가 맞도록 함 (여백/레터박스가 생길 수 있음)
+            // img.style.objectFit = 'contain';
+
+            // (선택 사항) 이미지의 정렬 기준 설정 (가운데 정렬)
+            img.style.objectPosition = 'center';
+        });
+
+    } else {
+        console.error("ID 'mov_con_list'를 가진 요소를 찾을 수 없습니다.");
+    }
+})();
+
 // =======================================================
 // =======================================================
 // =======================================================
