@@ -14,7 +14,7 @@
 // 6. 기타
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512050524";
+const scriptVersion = "2512060139";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 
 
@@ -195,17 +195,19 @@ const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
       searchButton.prepend(searchLabel);
   }
 
+
   // 재생 페이지'.bo_v_mov'에 '동영상 재생하기' 버튼 추가 및 스타일 적용
   document.querySelectorAll('div.bo_v_mov').forEach(container => {
+
     // 새로운 컨테이너 생성
     const overlay = document.createElement('div');
     overlay.className = 'bo_v_mov_overlay';
 
-
     // overlay 스타일 수정
     //overlay.style.position = 'relative';
     overlay.style.width = '100%';
-    overlay.style.setProperty('height', '360px', 'important');
+    const overlayHeight = (isRunningOnTv) ? '360px' : '240px';
+    overlay.style.setProperty('height', overlayHeight, 'important');
 
 
     // **가운데 정렬**
@@ -215,17 +217,20 @@ const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 
     // 버튼 생성
     const playButton = document.createElement('button');
+    const playButtonWidth = (isRunningOnTv) ? "180px" : "140px";
+    const playButtonHeight = (isRunningOnTv) ? "80px" : "60px";
+    const playButtonFontSize = (isRunningOnTv) ? "24px" : "20px";
     playButton.textContent = '▶ 재생';
     playButton.style.cssText = `
         background-color: #ff0000;
         color: white;
         border: none;
         border-radius: 4px;
-        font-size: 24px;
+        font-size: ${playButtonFontSize};
         font-weight: bold;
         cursor: pointer;
-        width: 180px;
-        height: 80px;
+        width: ${playButtonWidth};
+        height: ${playButtonHeight};
         display: flex;
         align-items: center;
         justify-content: center;
