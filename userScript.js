@@ -17,6 +17,7 @@ const mainPageUrl = "tvwiki4.net";
 const scriptVersion = "2512050524";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 
+
 // =======================================================
 // 1. 웹사이트 내 불필요한 요소 포커스 비활성화
 // =======================================================
@@ -60,9 +61,9 @@ const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 
   const elementsToRemove = [
       'div.notice', 'a.logo', '.gnb_mobile', '.top_btn', '.profile_info_ct',
-      '.ep_search', '.good', '.emer-content', '#bo_v_atc', '.cast',
+      '.ep_search', '.good', '.emer-content',  '.cast',
       '.view-comment-area', '.over', '#bo_v_act', '#bo_vc', '#float',
-      'div.notice', 'ul.banner2', 'li.full.pc-only', 'li.full.mobile-only',
+      'div.notice', 'ul.banner2', 'li.full.pc-only', 'li.full.mobile-only', '.search_title_mobile', '.category',
       'nav.gnb.sf-js-enabled.sf-arrows', 'a.btn_login', '#bnb', '#footer', '.search_wrap ul', '.layer-footer', '.genre', '#other_list ul li p', '#footer_wrap'
   ];
 
@@ -81,6 +82,9 @@ const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
       const headerWrap = document.getElementById('header_wrap');
       if (headerWrap) {
           headerWrap.remove();
+              document.querySelectorAll("#gnb_mobile").forEach(element => {
+          element.remove();
+      });
       }
   } else {
       // 메인 페이지 또는 서브페이지일 때 실행
@@ -334,6 +338,30 @@ const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 // =======================================================
 // 4. 웹사이트 요소 변경
 // =======================================================
+//
+
+(function() {
+    // 1. 부모 요소 (대상)를 가져옵니다.
+    const boV = document.getElementById('bo_v');
+
+    if (boV) {
+        // 2. 이동시킬 요소 (<header>)를 가져옵니다.
+        // bo_v 내부에 있는 첫 번째 <header> 요소를 찾습니다.
+        const headerElement = boV.querySelector('header');
+
+        if (headerElement) {
+            // 3. prepend() 메소드를 사용하여 header 요소를 boV의 맨 앞으로 이동시킵니다.
+            boV.prepend(headerElement);
+
+            console.log("Header 요소가 'bo_v'의 맨 위로 이동되었습니다.");
+        } else {
+            console.error("div#bo_v 내부에 header 요소를 찾을 수 없습니다.");
+        }
+    } else {
+        console.error("ID 'bo_v'를 가진 요소를 찾을 수 없습니다.");
+    }
+})();
+
 //재생 페이지 이전화, 다음화 버튼 글씨 크기 조정
 (function() {
     const css = `
@@ -662,6 +690,30 @@ const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 
 
 
+})();
+//검색 결과 페이지 작품 설명 가로 크기 조정(모바일만 적용)
+(function() {
+    // 1. 부모 요소인 ul#mov_con_list를 찾습니다.
+    const container = document.getElementById('mov_con_list');
+
+    if (container) {
+        // 모든 .con 요소를 선택합니다.
+        const contentBoxes = container.querySelectorAll('.con');
+
+        // container 내부에 있는 모든 p 요소를 선택합니다.
+        const paragraphs = container.querySelectorAll('.con p');
+
+        // 선택된 각 p 요소의 스타일을 변경합니다.
+        paragraphs.forEach(p => {
+            // 원하는 가로 크기를 문자열로 설정합니다.
+            // 예시: 250px 또는 '70%'
+            const newWidth = '75%';
+
+            // 인라인 스타일로 width 속성을 강제 적용합니다.
+            p.style.width = newWidth;
+        });
+
+    }
 })();
 // =======================================================
 // =======================================================
