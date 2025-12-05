@@ -14,7 +14,7 @@
 // 6. 기타
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512060207";
+const scriptVersion = "2512060203";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 
 
@@ -206,7 +206,7 @@ const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
     // overlay 스타일 수정
     //overlay.style.position = 'relative';
     overlay.style.width = '100%';
-    const overlayHeight = (isRunningOnTv) ? '300px' : '240px';
+    const overlayHeight = (isRunningOnTv) ? '310px' : '240px';
     overlay.style.setProperty('height', overlayHeight, 'important');
 
 
