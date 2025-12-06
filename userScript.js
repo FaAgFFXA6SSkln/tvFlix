@@ -14,7 +14,7 @@
 // 6. 기타
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512061020";
+const scriptVersion = "2512061025";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 
 
@@ -709,6 +709,7 @@ const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
     // 1. 너비 조정을 수행하는 함수를 정의합니다. (변동 없음)
     // ------------------------------------------------
     function adjustConWidth() {
+        // 창 크기 변경 시마다 브라우저 너비를 다시 계산합니다.
         const browserWidth = window.innerWidth;
         const conCalculatedWidth = (browserWidth * 0.65).toFixed(0);
         const conNewWidth = `${conCalculatedWidth}px`;
@@ -719,9 +720,8 @@ const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
         });
     }
 
-    // ------------------------------------------------
-    // 2. 다른 스타일 설정은 로드 시 한 번만 실행되도록 유지합니다.
-    // ------------------------------------------------
+    // ... (2. 다른 스타일 설정은 로드 시 한 번만 실행되도록 유지하는 로직은 변동 없음) ...
+
     const listItems = container.querySelectorAll('li');
     listItems.forEach(li => {
         const newWidth = '100%';
@@ -737,15 +737,9 @@ const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
     boxes.forEach(box => {
         box.style.display = 'flex';
         box.style.alignItems = 'center';
-
-        // ⭐ 핵심 수정: a와 con 사이에 수평 간격(gap)을 강제로 추가합니다.
-        // row-gap (수평 간격)만 설정하거나, gap (수평/수직 모두)을 설정합니다.
-        box.style.gap = '20px'; // 원하는 간격(예: 20px)으로 설정하세요
-
-        // 참고: .con에 margin-left: '20px'을 적용해도 동일한 효과를 볼 수 있습니다.
+        box.style.gap = '20px';
     });
 
-    // ... (이미지 비율 유지 로직 생략) ...
     const images = container.querySelectorAll('.box img');
     images.forEach(img => {
         img.style.width = '100%';
@@ -755,10 +749,18 @@ const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
     });
 
     // ------------------------------------------------
-    // 3. 이벤트 리스너 등록 및 초기 실행
+    // ⭐ 3. 이벤트 리스너 등록 및 초기 실행 (수정된 부분)
     // ------------------------------------------------
+
+    // 1) 페이지 로드 시 한 번 실행
     adjustConWidth();
+
+    // 2) 브라우저 창 크기가 변경될 때마다 실행 (데스크톱 및 일부 모바일)
     window.addEventListener('resize', adjustConWidth);
+
+    // 3) ⭐ 모바일 기기의 방향(가로/세로)이 변경될 때마다 실행
+    //    이것이 모바일 회전 이슈를 해결하는 핵심입니다.
+    window.addEventListener('orientationchange', adjustConWidth);
 })();
 // =======================================================
 // =======================================================
