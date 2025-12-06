@@ -14,7 +14,7 @@
 // 6. 기타
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512060921";
+const scriptVersion = "2512061020";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 
 
@@ -694,11 +694,10 @@ const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 
 
 })();
-//검색 결과 페이지 작품 설명 가로 크기 조정(모바일만 적용)
-// 검색 결과 페이지 작품 설명 가로 크기 조정(모바일만 적용)
-// 검색 결과 페이지 작품 설명 가로 크기 조정(모바일만 적용)
-// 검색 결과 페이지 작품 설명 가로 크기 조정(모바일만 적용)
+// 검색 결과 페이지 재배치(모바일만 적용)
 (function() {
+    if (isRunningOnTv) return
+
     const container = document.getElementById('mov_con_list');
 
     if (!container) {
@@ -707,19 +706,15 @@ const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
     }
 
     // ------------------------------------------------
-    // ⭐ 1. 너비 조정을 수행하는 함수를 정의합니다.
+    // 1. 너비 조정을 수행하는 함수를 정의합니다. (변동 없음)
     // ------------------------------------------------
     function adjustConWidth() {
-        // 창 크기 변경 시마다 브라우저 너비를 다시 계산합니다.
         const browserWidth = window.innerWidth;
-        // 브라우저 너비의 65%를 픽셀 단위로 계산
         const conCalculatedWidth = (browserWidth * 0.65).toFixed(0);
         const conNewWidth = `${conCalculatedWidth}px`;
 
         const contentDivs = container.querySelectorAll('.con');
-
         contentDivs.forEach(con => {
-            // 인라인 스타일로 width 속성을 강제 적용합니다.
             con.style.width = conNewWidth;
         });
     }
@@ -730,7 +725,7 @@ const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
     const listItems = container.querySelectorAll('li');
     listItems.forEach(li => {
         const newWidth = '100%';
-        const newHeight = '250px';
+        const newHeight = '240px';
 
         li.style.width = newWidth;
         li.style.height = newHeight;
@@ -742,22 +737,29 @@ const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
     boxes.forEach(box => {
         box.style.display = 'flex';
         box.style.alignItems = 'center';
+
+        // ⭐ 핵심 수정: a와 con 사이에 수평 간격(gap)을 강제로 추가합니다.
+        // row-gap (수평 간격)만 설정하거나, gap (수평/수직 모두)을 설정합니다.
+        box.style.gap = '20px'; // 원하는 간격(예: 20px)으로 설정하세요
+
+        // 참고: .con에 margin-left: '20px'을 적용해도 동일한 효과를 볼 수 있습니다.
+    });
+
+    // ... (이미지 비율 유지 로직 생략) ...
+    const images = container.querySelectorAll('.box img');
+    images.forEach(img => {
+        img.style.width = '100%';
+        img.style.height = '100%';
+        img.style.objectFit = 'cover';
+        img.style.objectPosition = 'center';
     });
 
     // ------------------------------------------------
-    // ⭐ 3. 이벤트 리스너 등록 및 초기 실행
+    // 3. 이벤트 리스너 등록 및 초기 실행
     // ------------------------------------------------
-
-    // 1) 페이지 로드 시 한 번 실행
     adjustConWidth();
-
-    // 2) 브라우저 창 크기가 변경될 때마다 실행
     window.addEventListener('resize', adjustConWidth);
 })();
-
-
-
-
 // =======================================================
 // =======================================================
 // =======================================================
