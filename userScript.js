@@ -14,7 +14,7 @@
 // 6. 기타
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512060804";
+const scriptVersion = "2512060921";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 
 
@@ -695,76 +695,68 @@ const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 
 })();
 //검색 결과 페이지 작품 설명 가로 크기 조정(모바일만 적용)
+// 검색 결과 페이지 작품 설명 가로 크기 조정(모바일만 적용)
+// 검색 결과 페이지 작품 설명 가로 크기 조정(모바일만 적용)
+// 검색 결과 페이지 작품 설명 가로 크기 조정(모바일만 적용)
 (function() {
-    if (isRunningOnTv) return
-
-    // 1. 부모 요소인 ul#mov_con_list를 찾습니다.
     const container = document.getElementById('mov_con_list');
 
-    if (container) {
-        // 모든 .con 요소를 선택합니다. (이 요소가 <p>의 기준점이 됩니다.)
-        const contentBoxes = container.querySelectorAll('.con');
-
-        // container 내부에 있는 모든 p 요소를 선택합니다.
-        const paragraphs = container.querySelectorAll('.con p');
-
-        // ⭐ 1단계: .con 요소의 포지션 기준을 설정합니다.
-        contentBoxes.forEach(con => {
-            // 자식 요소인 <p>의 absolute 위치 지정을 위한 기준점 설정
-            con.style.position = 'relative';
-        });
-
-        // 2단계: 선택된 각 p 요소의 스타일을 변경하고 위치를 고정합니다.
-        paragraphs.forEach(p => {
-            // 원하는 가로 크기를 문자열로 설정합니다. (기존 설정 유지)
-            const newWidth = '75%';
-            p.style.width = newWidth;
-
-            // --- [추가된 위치 강제 고정 설정] ---
-            p.style.position = 'absolute';
-            p.style.top = '50'; // 부모(.con) 요소의 맨 위(0px)에 고정
-            p.style.left = '0'; // (선택 사항) 왼쪽 위치도 0으로 고정
-
-            // 기존에 p 요소에 설정되어 있던 margin-top을 초기화하여 충돌 방지
-            p.style.marginTop = '0';
-            // ------------------------------------
-        });
-
-    } else {
+    if (!container) {
         console.error("ID 'mov_con_list'를 가진 요소를 찾을 수 없습니다.");
+        return;
     }
+
+    // ------------------------------------------------
+    // ⭐ 1. 너비 조정을 수행하는 함수를 정의합니다.
+    // ------------------------------------------------
+    function adjustConWidth() {
+        // 창 크기 변경 시마다 브라우저 너비를 다시 계산합니다.
+        const browserWidth = window.innerWidth;
+        // 브라우저 너비의 65%를 픽셀 단위로 계산
+        const conCalculatedWidth = (browserWidth * 0.65).toFixed(0);
+        const conNewWidth = `${conCalculatedWidth}px`;
+
+        const contentDivs = container.querySelectorAll('.con');
+
+        contentDivs.forEach(con => {
+            // 인라인 스타일로 width 속성을 강제 적용합니다.
+            con.style.width = conNewWidth;
+        });
+    }
+
+    // ------------------------------------------------
+    // 2. 다른 스타일 설정은 로드 시 한 번만 실행되도록 유지합니다.
+    // ------------------------------------------------
+    const listItems = container.querySelectorAll('li');
+    listItems.forEach(li => {
+        const newWidth = '100%';
+        const newHeight = '250px';
+
+        li.style.width = newWidth;
+        li.style.height = newHeight;
+        li.style.display = 'flex';
+        li.style.alignItems = 'center';
+    });
+
+    const boxes = container.querySelectorAll('.box');
+    boxes.forEach(box => {
+        box.style.display = 'flex';
+        box.style.alignItems = 'center';
+    });
+
+    // ------------------------------------------------
+    // ⭐ 3. 이벤트 리스너 등록 및 초기 실행
+    // ------------------------------------------------
+
+    // 1) 페이지 로드 시 한 번 실행
+    adjustConWidth();
+
+    // 2) 브라우저 창 크기가 변경될 때마다 실행
+    window.addEventListener('resize', adjustConWidth);
 })();
 
-(function() {
-    // 1. 부모 요소인 ul#mov_con_list를 찾습니다.
-    const container = document.getElementById('mov_con_list');
 
-    if (container) {
-        // 2. container 내부에 있는 모든 img 요소를 선택합니다.
-        const images = container.querySelectorAll('.con img');
 
-        // 3. 선택된 각 img 요소에 스타일을 적용합니다.
-        images.forEach(img => {
-            // 이미지 크기가 부모 요소에 맞춰 유연하게 변하도록 설정
-            img.style.width = '100%';
-            img.style.height = '100%';
-
-            // ⭐ 핵심: object-fit을 사용하여 비율을 유지하면서 공간을 채우거나 맞춥니다.
-
-            // A. 비율을 유지하며 부모 공간을 최대한 채움 (일부 잘릴 수 있음)
-            img.style.objectFit = 'cover';
-
-            // B. 비율을 유지하며 부모 공간 안에 이미지 전체가 맞도록 함 (여백/레터박스가 생길 수 있음)
-            // img.style.objectFit = 'contain';
-
-            // (선택 사항) 이미지의 정렬 기준 설정 (가운데 정렬)
-            img.style.objectPosition = 'center';
-        });
-
-    } else {
-        console.error("ID 'mov_con_list'를 가진 요소를 찾을 수 없습니다.");
-    }
-})();
 
 // =======================================================
 // =======================================================
