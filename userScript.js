@@ -14,8 +14,9 @@
 // 6. 기타
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512061025";
+const scriptVersion = "2512061259";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
+var nextEpisodeLink = "";
 
 
 // =======================================================
@@ -63,6 +64,7 @@ const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 (function() {
   'use strict'
 
+  var thisEpisodeTitle = "";
   const elementsToRemove = [
       'div.notice', 'a.logo', '.gnb_mobile', '.top_btn', '.profile_info_ct',
       '.ep_search', '.good', '.emer-content',  '.cast',
@@ -90,7 +92,8 @@ const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
           element.remove();
       });
       }
-  } else {
+  }
+  else {
       // 메인 페이지 또는 서브페이지일 때 실행
       const headerWrap = document.getElementById('header_wrap');
       if (headerWrap) {
@@ -112,6 +115,7 @@ const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
       // 정규 표현식을 사용하여 모든 '다시보기' 문자열을 빈 문자열로 대체하고 앞뒤 공백 제거
       if (element.textContent.includes('다시보기')) {
           element.textContent = element.textContent.replace(/다시보기/g, '').trim();
+          thisEpisodeTitle = element.textContent;
       }
   });
 
@@ -152,21 +156,51 @@ const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
     });
   }
 
-
-
   //재생 페이지에서 회차가 하나밖에 없는 경우, 회차 영역 전체를 제거
-  const target = document.querySelector('#other_list');
-  if (target) {
+  //재셍 페이지에서 회차가 여러개인 경우, 다음화 자동재생을 위해 에피소드 제목을 목록 배열에 추가
+const target = document.querySelector('#other_list');
+// isEpisodesExist, nextEpisodeLink, thisEpisodeTitle은 외부에서 선언되었다고 가정합니다.
+
+if (target) {
     const ul = target.querySelector('ul');
     if (ul) {
-      const items = ul.querySelectorAll('li');
-      if (items.length <= 1) {
-        target.remove();
-      }
-    }
-  }
+        const items = ul.querySelectorAll('li');
 
-  // =======================================================
+        // 에피소드 리스트에 에피소드가 하나밖에 없다면, 에피소드 리스트 자체를 제거
+        if (items.length <= 1) {
+            target.remove();
+
+        // 에피소드 리스트에 에피소드가 여러개라면, 현재 에피소드 제목과 리스트를 비교하여 다음 에피소드 링크를 저장
+        } else {
+            // isEpisodesExist = true; // 외부 변수라고 가정하고 주석 처리
+            let link_let = [];
+            let linkCount = 0; // var 대신 let 사용을 권장합니다.
+
+            // ⭐ 수정된 부분: forEach 대신 for...of 루프를 사용합니다.
+            for (const li of items) {
+                // <li> 내부의 회차 제목 태그 (a.title.on)를 찾습니다.
+                const titleElement = li.querySelector('a.title.on');
+
+                if (titleElement) {
+                    const title_let = titleElement.textContent.trim();
+
+                    // 현재 에피소드 제목을 찾았고, 이전 에피소드 링크가 저장되어 있다면
+                    // (참고: linkCount != 0 조건은 필요 없습니다. link_let.length를 사용하면 됩니다.)
+                    if (link_let.length > 0 && thisEpisodeTitle == title_let) {
+                        nextEpisodeLink = link_let[link_let.length - 1]; // link_let의 마지막 요소 = 이전 에피소드 링크
+                        break; // ⭐ for...of 루프에서는 break를 사용할 수 있습니다.
+                    } else {
+                        link_let.push(titleElement.href);
+                        // linkCount는 더 이상 필요 없지만, 기존 로직 유지를 위해 남겨둡니다.
+                        linkCount = linkCount + 1;
+                    }
+                }
+            }
+        }
+    }
+}
+
+
 
 })();
 // =======================================================
@@ -404,6 +438,7 @@ const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
             font-size: 1.4rem !important;
             font-weight: 600 !important;
             line-height: 1.4 !important;
+            color: #ffffff !important;
         }
     `;
 
@@ -411,6 +446,7 @@ const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
     style.textContent = css;
     document.documentElement.appendChild(style);
 })();
+//기타 UI 요소 변경
 (function() {
   'use strict'
 
@@ -694,14 +730,14 @@ const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 
 
 })();
-// 검색 결과 페이지 재배치(모바일만 적용)
+//검색 결과 페이지 재배치(모바일만 적용)
 (function() {
     if (isRunningOnTv) return
 
     const container = document.getElementById('mov_con_list');
 
     if (!container) {
-        console.error("ID 'mov_con_list'를 가진 요소를 찾을 수 없습니다.");
+        //console.error("ID 'mov_con_list'를 가진 요소를 찾을 수 없습니다.");
         return;
     }
 
@@ -776,7 +812,7 @@ const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 // =======================================================
 (function() {
   'use strict'
-
+  //네이티브에서 ESC혹은 뒤로가기 실행시 호출할 함수
   window.handleBackButton = function() {
     // 1. 검색창에서 ESC, 뒤로가기 눌렀을 때 동작
     const isSearchLayerOpen = document.querySelector('.search_layer.active') !== null;// 검색창이 활성화 상태인지 여부 (true / false)
@@ -851,6 +887,21 @@ const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
         history.back();
     }
   }
+
+  //다음 회차가 있는지 체크하는 함수
+  window.checkIfNextEpisodeExsit = function() {
+    if (nextEpisodeLink != "") {
+      NativeApp.videoFinished();
+    }
+  }
+
+  //다음 회차로 이동하는 함수
+  window.moveToNextEpisode = function() {
+    window.location.href = nextEpisodeLink;
+  }
+
+
+
 })();
 // =======================================================
 // =======================================================
@@ -1019,6 +1070,22 @@ ApplyVideoNormalStyle();
 // =======================================================
 // =======================================================
 
+
+
+//재생 종료 후 다음화 재생 기능
+
+
+
+
+// =======================================================
+// 7. PIP 지원============================================
+// =======================================================
+
+
+
+if (nextEpisodeLink != "") {
+  console.log(nextEpisodeLink);
+}
 
 
 
