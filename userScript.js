@@ -14,7 +14,7 @@
 // 6. 기타
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512061259";
+const scriptVersion = "2512061435";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 var nextEpisodeLink = "";
 
@@ -889,9 +889,9 @@ if (target) {
   }
 
   //다음 회차가 있는지 체크하는 함수
-  window.checkIfNextEpisodeExsit = function() {
+  window.checkIfNextEpisodeExist = function() {
     if (nextEpisodeLink != "") {
-      NativeApp.videoFinished();
+      NativeApp.showNextEpisodeAlert();
     }
   }
 
@@ -1080,15 +1080,5 @@ ApplyVideoNormalStyle();
 // =======================================================
 // 7. PIP 지원============================================
 // =======================================================
-
-
-
-if (nextEpisodeLink != "") {
-  console.log(nextEpisodeLink);
-}
-
-
-
-
 
 customLog("[kotlin]유저스크립트 version: " + scriptVersion);
