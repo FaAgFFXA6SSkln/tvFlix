@@ -12,10 +12,13 @@
 // 4. 웹사이트 요소 변경
 // 5. 네이티브에서 호출할 함수
 // 6. 기타
+// 7. PIP 지원
+// 8. TMDB(The Move Database) Api 적용
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512071931";
+const scriptVersion = "2512080440";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
+const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
 
 
@@ -243,72 +246,65 @@ var nextEpisodeLink = "";
       searchButton.prepend(searchLabel);
   }
 
+  // 재생 페이지'.bo_v_mov'에 '동영상 재생하기' 버튼 추가 및 스타일 적용(일반 웹브라우저에서는 적용하지 않기)
+  if (!isWebBrowser) {
+    document.querySelectorAll('div.bo_v_mov').forEach(container => {
 
-  // 재생 페이지'.bo_v_mov'에 '동영상 재생하기' 버튼 추가 및 스타일 적용
-  document.querySelectorAll('div.bo_v_mov').forEach(container => {
+      // 새로운 컨테이너 생성
+      const overlay = document.createElement('div');
+      overlay.className = 'bo_v_mov_overlay';
 
-    // 새로운 컨테이너 생성
-    const overlay = document.createElement('div');
-    overlay.className = 'bo_v_mov_overlay';
-
-    // overlay 스타일 수정
-    //overlay.style.position = 'relative';
-    overlay.style.width = '100%';
-    const overlayHeight = (isRunningOnTv) ? '310px' : '240px';
-    overlay.style.setProperty('height', overlayHeight, 'important');
+      // overlay 스타일 수정
+      //overlay.style.position = 'relative';
+      overlay.style.width = '100%';
+      const overlayHeight = (isRunningOnTv) ? '310px' : '240px';
+      overlay.style.setProperty('height', overlayHeight, 'important');
 
 
-    // **가운데 정렬**
-    overlay.style.display = 'flex';
-    overlay.style.alignItems = 'center';     // 세로 중앙
-    overlay.style.justifyContent = 'center'; // 가로 중앙
+      // **가운데 정렬**
+      overlay.style.display = 'flex';
+      overlay.style.alignItems = 'center';     // 세로 중앙
+      overlay.style.justifyContent = 'center'; // 가로 중앙
 
-    // 버튼 생성
-    const playButton = document.createElement('button');
-    const playButtonWidth = (isRunningOnTv) ? "180px" : "140px";
-    const playButtonHeight = (isRunningOnTv) ? "80px" : "60px";
-    const playButtonFontSize = (isRunningOnTv) ? "24px" : "20px";
-    playButton.textContent = '▶ 재생';
-    playButton.style.cssText = `
-        background-color: #ff0000;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        font-size: ${playButtonFontSize};
-        font-weight: bold;
-        cursor: pointer;
-        width: ${playButtonWidth};
-        height: ${playButtonHeight};
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    `;
+      // 버튼 생성
+      const playButton = document.createElement('button');
+      const playButtonWidth = (isRunningOnTv) ? "180px" : "140px";
+      const playButtonHeight = (isRunningOnTv) ? "80px" : "60px";
+      const playButtonFontSize = (isRunningOnTv) ? "24px" : "20px";
+      playButton.textContent = '▶ 재생';
+      playButton.style.cssText = `
+          background-color: #ff0000;
+          color: white;
+          border: none;
+          border-radius: 4px;
+          font-size: ${playButtonFontSize};
+          font-weight: bold;
+          cursor: pointer;
+          width: ${playButtonWidth};
+          height: ${playButtonHeight};
+          display: flex;
+          align-items: center;
+          justify-content: center;
+      `;
 
-    overlay.appendChild(playButton);
-    container.insertAdjacentElement('afterend', overlay);
+      overlay.appendChild(playButton);
+      container.insertAdjacentElement('afterend', overlay);
 
-    /*
-
-    // 컨테이너 높이가 변하면 overlay도 자동 조정
-    const adjustHeight = () => {
-        overlay.style.height = `${container.getBoundingClientRect().height}px`;
-    };
-    const observer = new MutationObserver(adjustHeight);
-    observer.observe(container, { attributes: true, childList: true, subtree: true });
-
-    */
-
-    // 클릭 이벤트
-    playButton.onclick = () => {
+      // 클릭 이벤트
+      playButton.onclick = () => {
         if (typeof NativeApp !== 'undefined' && NativeApp.handlePlayButtonClick) {
             NativeApp.handlePlayButtonClick();
         }
         else {
-
+          document.querySelector('.bo_v_mov_overlay').remove();
+          const bovmov = document.querySelector('.bo_v_mov');
+          bovmov.style.setProperty('height', '480px', 'important');
+          bovmov.style.setProperty('display', 'block', 'important');
         }
+      };
+  });
 
-    };
-});
+  }
 
   //특수 포커스 효과(TV에서만 적용, 모바일은 적용하지 않음)
   const userAgentString = navigator.userAgent;
@@ -1038,7 +1034,9 @@ var nextEpisodeLink = "";
 // =======================================================
 // 7. PIP 지원============================================
 // =======================================================
-window.ApplyVideoPipStyle = function() {
+(function() {
+  if (isWebBrowser) return;//일반 웹브라우저에서는 사용하지 않음
+  window.ApplyVideoPipStyle = function() {
     const movDiv = document.querySelector('.bo_v_mov');
     if (!movDiv) return;
 
@@ -1069,13 +1067,13 @@ window.ApplyVideoPipStyle = function() {
     // 페이지 스크롤 제거
     //document.body.style.overflow = 'hidden';
 };
-window.ApplyVideoNormalStyle = function() {
+  window.ApplyVideoNormalStyle = function() {
     const movDiv = document.querySelector('.bo_v_mov');
     if (!movDiv) return;
     movDiv.style.setProperty('height', '0px', 'important');
     movDiv.style.setProperty('display', 'flex', 'important');
 };
-ApplyVideoNormalStyle();
+})();
 // =======================================================
 // =======================================================
 // =======================================================
@@ -1084,19 +1082,9 @@ ApplyVideoNormalStyle();
 
 
 
-
-
-
 // =======================================================
-// 7. PIP 지원============================================
+// 8. TMDB(The Movie Database) Api 적용
 // =======================================================
-
-
-
-
-
-
-// 8. tmdb api
 /*
 (function(){
     'use strict';
@@ -1231,6 +1219,9 @@ ApplyVideoNormalStyle();
     });
 })();
 */
+// =======================================================
+// =======================================================
+// =======================================================
 
 
 
@@ -1238,13 +1229,5 @@ ApplyVideoNormalStyle();
 
 
 
-
-
-
-
-
-
-
-
-
+if (!isWebBrowser) ApplyVideoNormalStyle();
 customLog("[kotlin]유저스크립트 version: " + scriptVersion);
