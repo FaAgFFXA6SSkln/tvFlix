@@ -313,12 +313,10 @@ var nextEpisodeLink = "";
 
   const style = document.createElement('style');
   style.innerHTML = `
-
-      /* 모든 포커스 가능한 요소의 테두리 스타일을 재정의 */
-      :focus {
-
+      /* 포커스 가능한 요소 중 tabindex="-1"인 요소는 제외 */
+      :focus:not([tabindex="-1"]) {
           z-index: 9999 !important;
-          background-color: #552E00 !important; /* 노란색 배경 */
+          background-color: #552E00 !important;
           outline: 4px solid #FFD700 !important;
           outline-offset: 0px !important;
 
