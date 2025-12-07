@@ -16,7 +16,7 @@
 // 8. TMDB(The Move Database) Api 적용
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512080817";
+const scriptVersion = "2512080847";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -309,88 +309,82 @@ var nextEpisodeLink = "";
   //특수 포커스 효과(TV에서만 적용, 모바일은 적용하지 않음)
   const userAgentString = navigator.userAgent;
   if (isRunningOnTv) {
+  const style = document.createElement('style');
+  style.innerHTML = `
+      /* 포커스 가능한 요소 중, body 또는 tabindex="-1"인 요소는 제외 */
+      :focus:not(body):not([tabindex="-1"]) {
+          z-index: 9999 !important;
+          background-color: #552E00 !important;
+          outline: 4px solid #FFD700 !important;
+          outline-offset: 0px !important;
 
+          box-shadow:
+              0 0 0 400px #552E00 inset,
+              0 0 400px rgba(255, 215, 0, 1) !important;
 
-const style = document.createElement('style');
-style.innerHTML = `
-    /* 포커스 가능한 요소 중, body 또는 tabindex="-1"인 요소는 제외 */
-    :focus:not(body):not([tabindex="-1"]) {
-        z-index: 9999 !important;
-        background-color: #552E00 !important;
-        outline: 4px solid #FFD700 !important;
-        outline-offset: 0px !important;
+          transition: outline-color 0.2s, box-shadow 0.2s;
+      }
+  `;
+  document.head.appendChild(style);
 
-        box-shadow:
-            0 0 0 400px #552E00 inset,
-            0 0 400px rgba(255, 215, 0, 1) !important;
+  let focusOverlay = null;
+  document.addEventListener('focusin', (e) => {
+      const target = e.target.closest && e.target.closest('.title, .title2, .filter_layer a, .filter2_layer a');
+      if (!target) return;
+      const parentDiv = target.parentElement;
+      const isSearchPageItem = parentDiv && parentDiv.tagName === 'DIV' && parentDiv.classList.contains('con');// 검색 결과창 페이지에서의 title이라면(그렇다면 길이를 다른 title과는 다르게 취급해야함)
+      const isDropDownItem = e.target.closest('.filter_layer a, .filter2_layer a');
+      const rect = target.getBoundingClientRect();
 
-        transition: outline-color 0.2s, box-shadow 0.2s;
-    }
-`;
-document.head.appendChild(style);
+      // 원본 투명화
+      target.style.opacity = '0';
 
+      // overlay 생성
+      focusOverlay = document.createElement('div');
+      focusOverlay.textContent = target.textContent;
 
+      // 공통 스타일
+      Object.assign(focusOverlay.style, {
+          position: 'absolute',
+          top: isSearchPageItem ? `${rect.top + window.scrollY -30}px`: `${rect.top + window.scrollY}px`,
+          left: `${rect.left + window.scrollX}px`,
+          width: isSearchPageItem ? '65%' : `${rect.width}px`,
+          height: isDropDownItem ? `${rect.height}px` : `${rect.height + 30}px`,
+          color: '#FFF',
+          fontWeight: 'bold',
+          background: '#552E00',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: '999999',
+          pointerEvents: 'none',
+          padding: '4px 10px',
+          outline: '4px solid #FFD700',
+          outlineOffset: '0',
+          boxShadow: `
+              0 0 0 400px #552E00 inset,
+              0 0 400px rgba(255, 215, 0, 1)
+          `,
+          transition: 'outline-color 0.2s, box-shadow 0.2s',
+      });
 
+      // 글꼴 스타일 원본 복사
+      const cs = window.getComputedStyle(target);
+      focusOverlay.style.fontSize = cs.fontSize;
+      focusOverlay.style.fontFamily = cs.fontFamily;
 
+      document.body.appendChild(focusOverlay);
+  });
+  document.addEventListener('focusout', (e) => {
+  const el = e.target;
+  // 원본 복원
+  el.style.opacity = '';
 
-    let focusOverlay = null;
-    document.addEventListener('focusin', (e) => {
-        const target = e.target.closest && e.target.closest('.title, .title2, .filter_layer a, .filter2_layer a');
-        if (!target) return;
-        const parentDiv = target.parentElement;
-        const isSearchPageItem = parentDiv && parentDiv.tagName === 'DIV' && parentDiv.classList.contains('con');// 검색 결과창 페이지에서의 title이라면(그렇다면 길이를 다른 title과는 다르게 취급해야함)
-        const isDropDownItem = e.target.closest('.filter_layer a, .filter2_layer a');
-        const rect = target.getBoundingClientRect();
-
-        // 원본 투명화
-        target.style.opacity = '0';
-
-        // overlay 생성
-        focusOverlay = document.createElement('div');
-        focusOverlay.textContent = target.textContent;
-
-        // 공통 스타일
-        Object.assign(focusOverlay.style, {
-            position: 'absolute',
-            top: isSearchPageItem ? `${rect.top + window.scrollY -30}px`: `${rect.top + window.scrollY}px`,
-            left: `${rect.left + window.scrollX}px`,
-            width: isSearchPageItem ? '65%' : `${rect.width}px`,
-            height: isDropDownItem ? `${rect.height}px` : `${rect.height + 30}px`,
-            color: '#FFF',
-            fontWeight: 'bold',
-            background: '#552E00',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: '999999',
-            pointerEvents: 'none',
-            padding: '4px 10px',
-            outline: '4px solid #FFD700',
-            outlineOffset: '0',
-            boxShadow: `
-                0 0 0 400px #552E00 inset,
-                0 0 400px rgba(255, 215, 0, 1)
-            `,
-            transition: 'outline-color 0.2s, box-shadow 0.2s',
-        });
-
-        // 글꼴 스타일 원본 복사
-        const cs = window.getComputedStyle(target);
-        focusOverlay.style.fontSize = cs.fontSize;
-        focusOverlay.style.fontFamily = cs.fontFamily;
-
-        document.body.appendChild(focusOverlay);
-    });
-    document.addEventListener('focusout', (e) => {
-    const el = e.target;
-    // 원본 복원
-    el.style.opacity = '';
-
-    // 오버레이 제거
-    if (focusOverlay) {
-        focusOverlay.remove();
-        focusOverlay = null;
-    }
+  // 오버레이 제거
+  if (focusOverlay) {
+      focusOverlay.remove();
+      focusOverlay = null;
+  }
 });
 
   }
@@ -489,139 +483,150 @@ document.head.appendChild(style);
   const style = document.createElement('style');
   style.innerHTML = `
 
-      /* 🚨 [새로운 수정] "전체보기" 링크를 오른쪽에서 띄우기 위한 스타일 */
-      /* 이 링크는 h2 내부에 있으므로, 오른쪽 끝에서 20px의 여백을 줍니다. */
+    /* =========================================================== */
+    /* 메인 페이지 '전체보기' 링크 오른쪽에서 띄우기 */
+    /* =========================================================== */
       .more {
           padding-right: 15px !important;
       }
 
-      /* =========================================================== */
-      /* [FIX 2] Title Link Font Size and Vertical Alignment */
-      /* 높은 명시도로 폰트 크기 및 수직 정렬을 강제 적용합니다. */
-      .owl-carousel .owl-item .title,
-      .owl-carousel .owl-item .box a.title, a.more /* 명시도 확보를 위한 추가 셀렉터 */
-      a.title {
-          /* 1. 높이 유지 (50px) 및 수직 중앙 정렬을 위해 line-height를 높이와 동일하게 설정 */
-          height: 50px !important;
-          line-height: 50px !important;
-
-          /* 2. 폰트 크기 키우기 (명시도 + 크기 강제) */
-          font-size: 1.4em !important;
-      }
-
-      a.more {
-          font-size: 0.9em !important;
-      }
-
-      h2 {
-          font-size: 1.7em !important;
-      }
-      /* =========================================================== */
-
-      /* (기존 포커스 및 UI 스타일 유지) */
-
-      /* =========================================================== */
-      /* [FIX] Owl Carousel: Restore Sliding, Keep Aspect Ratio (2:3 assumed) */
+    /* =========================================================== */
+    /* =========================================================== */
+    /* =========================================================== */
 
 
-      /* 2. Owl Stage의 transform 및 width 초기화 제거 */
-      /* -> Owl Carousel JS가 슬라이딩을 위해 설정하는 transform을 복구합니다. */
+    /* =========================================================== */
+    /* 메인 페이지 작품 레이아웃 수정 */
+    /* =========================================================== */
 
 
-      /* 3. 이미지 컨테이너 (.img)에 비율 유지 핵 적용 (썸네일 비율 2:3 가정) */
-      /* * 비율 유지를 위해 .img 요소에 padding-top: 150%만 적용 */
-      .owl-carousel .owl-item .box > a.img {
-          /* position: relative 필수: 자식 img가 absolute로 배치될 기준점 */
-          position: relative !important;
-          width: 100% !important;
-          height: 0 !important; /* 높이는 padding-top으로 대체 */
+    /* =========================================================== */
+    /* [FIX 2] Title Link Font Size and Vertical Alignment */
+    /* 높은 명시도로 폰트 크기 및 수직 정렬을 강제 적용합니다. */
+    .owl-carousel .owl-item .title,
+    .owl-carousel .owl-item .box a.title, a.more /* 명시도 확보를 위한 추가 셀렉터 */
+    a.title {
+        /* 1. 높이 유지 (50px) 및 수직 중앙 정렬을 위해 line-height를 높이와 동일하게 설정 */
+        height: 50px !important;
+        line-height: 50px !important;
 
-          /* Aspect Ratio Hack: 가로 2 : 세로 3 (150%) 비율 유지 */
-          padding-top: 150% !important;
-          overflow: hidden !important;
-          display: block !important;
-      }
+        /* 2. 폰트 크기 키우기 (명시도 + 크기 강제) */
+        font-size: 1.4em !important;
+    }
 
-      /* 4. 비율 유지 컨테이너 내부의 이미지 크기 강제 */
-      .owl-carousel .owl-item .box > a.img > img {
-          position: absolute !important;
-          top: 0 !important;
-          left: 0 !important;
-          width: 100% !important;
-          height: 100% !important;
-          object-fit: cover !important; /* 이미지 잘림 없이 컨테이너에 맞춤 */
-      }
+    a.more {
+        font-size: 0.9em !important;
+    }
 
+    h2 {
+        font-size: 1.7em !important;
+    }
+    /* =========================================================== */
 
+    /* (기존 포커스 및 UI 스타일 유지) */
 
-      /* 5. 제목(.title) 높이도 줄어든 크기에 맞게 조정 */
-      /* (이 부분은 비율과 관계 없지만 전체 세로 길이 축소를 위해 유지) */
-      .owl-carousel .owl-item .title {
-          height: 35px !important;
-          line-height: 1.2 !important;
-          font-size: 14px !important;
-      }
-      a.title2{
-                  height: 35px !important;
-          line-height: 1.2 !important;
-          font-size: 19px !important;
-      }
-
-      /* =========================================================== */
-
-      /* [NEW FIX: 부모 li 확장] #tnb 내부의 li에 걸린 고정 크기 및 float를 해제하여 버튼이 확장할 공간을 확보 */
-      #header_wrap #header #tnb ul li {
-          float: none !important;
-          display: inline-block !important;
-          width: auto !important;
-          height: auto !important;
-          min-width: unset !important;
-          margin: 0 !important;
-          padding: 0 !important;
-      }
-
-      /* [MAX SPECIFICITY FIX] ID 선택자를 모두 포함하여 명시도를 최상으로 높임 */
-      #header_wrap #header #tnb ul li a.btn_search {
-          /* Flexbox로 가로 정렬 강제 */
-          display: flex !important;
-          flex-direction: row !important;
-          flex-wrap: nowrap !important; /* 줄바꿈 절대 금지 */
-          align-items: center !important; /* 수직 중앙 정렬 */
-
-          /* 너비/높이 고정값 무효화 및 내용물에 맞게 확장 */
-          width: auto !important;
-          height: auto !important;
-          min-width: 0 !important; /* 최소 너비 제한 해제 */
-
-          justify-content: flex-start !important;
-          padding: 8px 15px !important;
-          line-height: normal !important; /* 폰트 관련 문제 해결 */
-          box-sizing: content-box !important; /* 패딩이 너비에 영향을 주지 않도록 함 */
-      }
-
-      /* 텍스트와 아이콘도 명시도를 높여서 가로 배치에 협조하도록 강제 */
-      #header_wrap #header #tnb ul li a.btn_search span.search-label,
-      #header_wrap #header #tnb ul li a.btn_search i {
-          display: inline-block !important; /* Flex 아이템으로 잘 동작하도록 설정 */
-          margin: 0 !important; /* 외부 마진 초기화 */
-          padding: 0 !important; /* 외부 패딩 초기화 */
-          white-space: nowrap !important;
-          flex-shrink: 0 !important; /* 공간이 부족해도 축소되지 않도록 함 */
-          line-height: 1 !important;
-      }
-
-      /* 텍스트와 아이콘 사이의 간격 재설정 */
-      #header_wrap #header #tnb ul li a.btn_search span.search-label {
-          margin-right: 8px !important;
-          font-weight: bold;
-          color: inherit;
-          /* CSS도 충분히 높여서 혹시 모를 경우 대비 (JS에서 최종 오버라이드 됨) */
-          font-size: 1.7em !important;
-      }
+    /* =========================================================== */
+    /* [FIX] Owl Carousel: Restore Sliding, Keep Aspect Ratio (2:3 assumed) */
 
 
-      #body_wrap {
-          margin-top: 20px;
+    /* 2. Owl Stage의 transform 및 width 초기화 제거 */
+    /* -> Owl Carousel JS가 슬라이딩을 위해 설정하는 transform을 복구합니다. */
+
+
+    /* 3. 이미지 컨테이너 (.img)에 비율 유지 핵 적용 (썸네일 비율 2:3 가정) */
+    /* * 비율 유지를 위해 .img 요소에 padding-top: 150%만 적용 */
+    .owl-carousel .owl-item .box > a.img {
+        /* position: relative 필수: 자식 img가 absolute로 배치될 기준점 */
+        position: relative !important;
+        width: 100% !important;
+        height: 0 !important; /* 높이는 padding-top으로 대체 */
+
+        /* Aspect Ratio Hack: 가로 2 : 세로 3 (150%) 비율 유지 */
+        padding-top: 150% !important;
+        overflow: hidden !important;
+        display: block !important;
+    }
+
+    /* 4. 비율 유지 컨테이너 내부의 이미지 크기 강제 */
+    .owl-carousel .owl-item .box > a.img > img {
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important; /* 이미지 잘림 없이 컨테이너에 맞춤 */
+    }
+
+
+
+    /* 5. 제목(.title) 높이도 줄어든 크기에 맞게 조정 */
+    /* (이 부분은 비율과 관계 없지만 전체 세로 길이 축소를 위해 유지) */
+    .owl-carousel .owl-item .title {
+        height: 35px !important;
+        line-height: 1.2 !important;
+        font-size: 14px !important;
+    }
+    a.title2{
+                height: 35px !important;
+        line-height: 1.2 !important;
+        font-size: 19px !important;
+    }
+
+    /* =========================================================== */
+
+    /* [NEW FIX: 부모 li 확장] #tnb 내부의 li에 걸린 고정 크기 및 float를 해제하여 버튼이 확장할 공간을 확보 */
+    #header_wrap #header #tnb ul li {
+        float: none !important;
+        display: inline-block !important;
+        width: auto !important;
+        height: auto !important;
+        min-width: unset !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* [MAX SPECIFICITY FIX] ID 선택자를 모두 포함하여 명시도를 최상으로 높임 */
+    #header_wrap #header #tnb ul li a.btn_search {
+        /* Flexbox로 가로 정렬 강제 */
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important; /* 줄바꿈 절대 금지 */
+        align-items: center !important; /* 수직 중앙 정렬 */
+
+        /* 너비/높이 고정값 무효화 및 내용물에 맞게 확장 */
+        width: auto !important;
+        height: auto !important;
+        min-width: 0 !important; /* 최소 너비 제한 해제 */
+
+        justify-content: flex-start !important;
+        padding: 8px 15px !important;
+        line-height: normal !important; /* 폰트 관련 문제 해결 */
+        box-sizing: content-box !important; /* 패딩이 너비에 영향을 주지 않도록 함 */
+    }
+
+    /* 텍스트와 아이콘도 명시도를 높여서 가로 배치에 협조하도록 강제 */
+    #header_wrap #header #tnb ul li a.btn_search span.search-label,
+    #header_wrap #header #tnb ul li a.btn_search i {
+        display: inline-block !important; /* Flex 아이템으로 잘 동작하도록 설정 */
+        margin: 0 !important; /* 외부 마진 초기화 */
+        padding: 0 !important; /* 외부 패딩 초기화 */
+        white-space: nowrap !important;
+        flex-shrink: 0 !important; /* 공간이 부족해도 축소되지 않도록 함 */
+        line-height: 1 !important;
+    }
+
+    /* 텍스트와 아이콘 사이의 간격 재설정 */
+    #header_wrap #header #tnb ul li a.btn_search span.search-label {
+        margin-right: 8px !important;
+        font-weight: bold;
+        color: inherit;
+        /* CSS도 충분히 높여서 혹시 모를 경우 대비 (JS에서 최종 오버라이드 됨) */
+        font-size: 1.7em !important;
+    }
+
+
+    #body_wrap {
+        margin-top: 20px;
 }
 
   `;
@@ -669,41 +674,41 @@ document.head.appendChild(style);
 })();
 //검색 결과 페이지 재배치(모바일만 적용)
 (function() {
-    if (isRunningOnTv) return
+    if (isRunningOnTv) return;
 
     const container = document.getElementById('mov_con_list');
-
-    if (!container) {
-        //console.error("ID 'mov_con_list'를 가진 요소를 찾을 수 없습니다.");
-        return;
-    }
+    if (!container) return;
 
     // ------------------------------------------------
-    // 1. 너비 조정을 수행하는 함수를 정의합니다. (변동 없음)
+    // 1. 너비 조정을 수행하는 함수
     // ------------------------------------------------
     function adjustConWidth() {
-        // 창 크기 변경 시마다 브라우저 너비를 다시 계산합니다.
         const browserWidth = window.innerWidth;
-        const conCalculatedWidth = (browserWidth * 0.65).toFixed(0);
+
+        // 화면 너비보다 절대 커지지 않도록 Math.floor와 maxWidth 적용
+        let conCalculatedWidth = Math.floor(browserWidth * 0.65);
+        const maxWidth = browserWidth;
+        if (conCalculatedWidth > maxWidth) conCalculatedWidth = maxWidth;
+
         const conNewWidth = `${conCalculatedWidth}px`;
 
         const contentDivs = container.querySelectorAll('.con');
         contentDivs.forEach(con => {
             con.style.width = conNewWidth;
+            con.style.boxSizing = 'border-box'; // 패딩/보더 포함
         });
     }
 
-    // ... (2. 다른 스타일 설정은 로드 시 한 번만 실행되도록 유지하는 로직은 변동 없음) ...
-
+    // ------------------------------------------------
+    // 2. 초기 스타일 적용
+    // ------------------------------------------------
     const listItems = container.querySelectorAll('li');
     listItems.forEach(li => {
-        const newWidth = '100%';
-        const newHeight = '240px';
-
-        li.style.width = newWidth;
-        li.style.height = newHeight;
+        li.style.width = '100%';
+        li.style.height = '240px';
         li.style.display = 'flex';
         li.style.alignItems = 'center';
+        li.style.boxSizing = 'border-box'; // 패딩 포함 계산
     });
 
     const boxes = container.querySelectorAll('.box');
@@ -711,6 +716,8 @@ document.head.appendChild(style);
         box.style.display = 'flex';
         box.style.alignItems = 'center';
         box.style.gap = '20px';
+        box.style.flexWrap = 'wrap'; // 줄넘김 허용
+        box.style.boxSizing = 'border-box';
     });
 
     const images = container.querySelectorAll('.box img');
@@ -719,22 +726,27 @@ document.head.appendChild(style);
         img.style.height = '100%';
         img.style.objectFit = 'cover';
         img.style.objectPosition = 'center';
+        img.style.display = 'block'; // img 여백 제거
     });
 
     // ------------------------------------------------
-    // ⭐ 3. 이벤트 리스너 등록 및 초기 실행 (수정된 부분)
+    // 3. 이벤트 리스너 등록 및 초기 실행
     // ------------------------------------------------
-
-    // 1) 페이지 로드 시 한 번 실행
     adjustConWidth();
 
-    // 2) 브라우저 창 크기가 변경될 때마다 실행 (데스크톱 및 일부 모바일)
+    // 브라우저 크기 변경 시
     window.addEventListener('resize', adjustConWidth);
 
-    // 3) ⭐ 모바일 기기의 방향(가로/세로)이 변경될 때마다 실행
-    //    이것이 모바일 회전 이슈를 해결하는 핵심입니다.
+    // 모바일 회전 시
     window.addEventListener('orientationchange', adjustConWidth);
+
+    // ------------------------------------------------
+    // 4. 가로 스크롤 방지 (CSS로 강제)
+    // ------------------------------------------------
+    container.style.overflowX = 'hidden';
+    container.style.boxSizing = 'border-box';
 })();
+
 // =======================================================
 // =======================================================
 // =======================================================
