@@ -14,7 +14,7 @@
 // 6. 기타
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512071857";
+const scriptVersion = "2512071931";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 var nextEpisodeLink = "";
 
@@ -157,48 +157,58 @@ var nextEpisodeLink = "";
   }
 
   //재생 페이지에서 회차가 하나밖에 없는 경우, 회차 영역 전체를 제거
-  //재셍 페이지에서 회차가 여러개인 경우, 다음화 자동재생을 위해 에피소드 제목을 목록 배열에 추가
-const target = document.querySelector('#other_list');
-// isEpisodesExist, nextEpisodeLink, thisEpisodeTitle은 외부에서 선언되었다고 가정합니다.
+  //재생 페이지에서 회차가 여러개인 경우, 다음화 자동재생을 위해 에피소드 제목을 목록 배열에 추가
+  const target = document.querySelector('#other_list');
 
-if (target) {
-    const ul = target.querySelector('ul');
-    if (ul) {
-        const items = ul.querySelectorAll('li');
+  if (target) {
+      const ul = target.querySelector('ul');
+      if (ul) {
+          const items = ul.querySelectorAll('li');
 
-        // 에피소드 리스트에 에피소드가 하나밖에 없다면, 에피소드 리스트 자체를 제거
-        if (items.length <= 1) {
-            target.remove();
+          // 에피소드 리스트에 에피소드가 하나밖에 없다면, 에피소드 리스트 자체를 제거
+          if (items.length <= 1) {
+              target.remove();
 
-        // 에피소드 리스트에 에피소드가 여러개라면, 현재 에피소드 제목과 리스트를 비교하여 다음 에피소드 링크를 저장
-        } else {
-            // isEpisodesExist = true; // 외부 변수라고 가정하고 주석 처리
-            let link_let = [];
-            let linkCount = 0; // var 대신 let 사용을 권장합니다.
+          // 에피소드 리스트에 에피소드가 여러개라면, 현재 에피소드 제목과 리스트를 비교하여 다음 에피소드 링크를 저장
+          } else {
 
-            // ⭐ 수정된 부분: forEach 대신 for...of 루프를 사용합니다.
-            for (const li of items) {
-                // <li> 내부의 회차 제목 태그 (a.title.on)를 찾습니다.
-                const titleElement = li.querySelector('a.title.on');
+              //현재 회차가 마지막 회차라면 다음화 버튼을 제거
+              if (thisEpisodeTitle == target.querySelector('li a.title.on').textContent.trim()) {
+                  const btn_next = document.querySelector('.btn_next a');
+                    if (btn_next) {
+                      btn_next.remove();
 
-                if (titleElement) {
-                    const title_let = titleElement.textContent.trim();
-
-                    // 현재 에피소드 제목을 찾았고, 이전 에피소드 링크가 저장되어 있다면
-                    // (참고: linkCount != 0 조건은 필요 없습니다. link_let.length를 사용하면 됩니다.)
-                    if (link_let.length > 0 && thisEpisodeTitle == title_let) {
-                        nextEpisodeLink = link_let[link_let.length - 1]; // link_let의 마지막 요소 = 이전 에피소드 링크
-                        break; // ⭐ for...of 루프에서는 break를 사용할 수 있습니다.
-                    } else {
-                        link_let.push(titleElement.href);
-                        // linkCount는 더 이상 필요 없지만, 기존 로직 유지를 위해 남겨둡니다.
-                        linkCount = linkCount + 1;
                     }
-                }
-            }
-        }
-    }
-}
+              }
+
+
+              let linkCount = 0; // var 대신 let 사용을 권장합니다.
+              let link_let = [];
+
+
+              // ⭐ 수정된 부분: forEach 대신 for...of 루프를 사용합니다.
+              for (const li of items) {
+                  // <li> 내부의 회차 제목 태그 (a.title.on)를 찾습니다.
+                  const titleElement = li.querySelector('a.title.on');
+
+                  if (titleElement) {
+                      const title_let = titleElement.textContent.trim();
+
+                      // 현재 에피소드 제목을 찾았고, 이전 에피소드 링크가 저장되어 있다면
+                      // (참고: linkCount != 0 조건은 필요 없습니다. link_let.length를 사용하면 됩니다.)
+                      if (link_let.length > 0 && thisEpisodeTitle == title_let) {
+                          nextEpisodeLink = link_let[link_let.length - 1]; // link_let의 마지막 요소 = 이전 에피소드 링크
+                          break; // ⭐ for...of 루프에서는 break를 사용할 수 있습니다.
+                      } else {
+                          link_let.push(titleElement.href);
+                          // linkCount는 더 이상 필요 없지만, 기존 로직 유지를 위해 남겨둡니다.
+                          linkCount = linkCount + 1;
+                      }
+                  }
+              }
+          }
+      }
+  }
 
 
 
