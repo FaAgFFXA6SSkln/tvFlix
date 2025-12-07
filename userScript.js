@@ -311,24 +311,24 @@ var nextEpisodeLink = "";
   if (isRunningOnTv) {
 
 
-  const style = document.createElement('style');
-  style.innerHTML = `
-      /* 포커스 가능한 요소 중 tabindex="-1"인 요소는 제외 */
-      :focus:not([tabindex="-1"]) {
-          z-index: 9999 !important;
-          background-color: #552E00 !important;
-          outline: 4px solid #FFD700 !important;
-          outline-offset: 0px !important;
+const style = document.createElement('style');
+style.innerHTML = `
+    /* 포커스 가능한 요소 중, body 또는 tabindex="-1"인 요소는 제외 */
+    :focus:not(body):not([tabindex="-1"]) {
+        z-index: 9999 !important;
+        background-color: #552E00 !important;
+        outline: 4px solid #FFD700 !important;
+        outline-offset: 0px !important;
 
-          box-shadow:
-              0 0 0 400px #552E00 inset,
-              0 0 400px rgba(255, 215, 0, 1) !important;
+        box-shadow:
+            0 0 0 400px #552E00 inset,
+            0 0 400px rgba(255, 215, 0, 1) !important;
 
-          transition: outline-color 0.2s, box-shadow 0.2s;
-      }
-  `;
+        transition: outline-color 0.2s, box-shadow 0.2s;
+    }
+`;
+document.head.appendChild(style);
 
-  document.head.appendChild(style);
 
 
 
