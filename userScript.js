@@ -16,7 +16,7 @@
 // 8. TMDB(The Move Database) Api 적용
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512080756";
+const scriptVersion = "2512080817";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
