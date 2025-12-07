@@ -14,7 +14,7 @@
 // 6. 기타
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512061435";
+const scriptVersion = "2512071857";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 var nextEpisodeLink = "";
 
@@ -1072,7 +1072,7 @@ ApplyVideoNormalStyle();
 
 
 
-//재생 종료 후 다음화 재생 기능
+
 
 
 
@@ -1080,5 +1080,161 @@ ApplyVideoNormalStyle();
 // =======================================================
 // 7. PIP 지원============================================
 // =======================================================
+
+
+
+
+
+
+// 8. tmdb api
+/*
+(function(){
+    'use strict';
+
+    const bovTitle = document.querySelector('.bo_v_tit');
+    if (bovTitle == null) return;
+    const originalTitle = bovTitle.textContent;
+
+    // --- 호환성 래퍼 ---
+    function gmRequest(options) {
+        if (typeof GM_xmlhttpRequest === 'function') {
+            GM_xmlhttpRequest({
+                method: options.method || 'GET',
+                url: options.url,
+                headers: options.headers,
+                responseType: options.responseType || 'text',
+                onload: options.onload,
+                onerror: options.onerror
+            });
+            return;
+        }
+        if (typeof GM === 'object' && typeof GM.xmlHttpRequest === 'function') {
+            GM.xmlHttpRequest({
+                method: options.method || 'GET',
+                url: options.url,
+                headers: options.headers,
+                responseType: options.responseType || 'text',
+                onload: options.onload,
+                onerror: options.onerror
+            });
+            return;
+        }
+        if (typeof GM === 'object' && typeof GM.fetch === 'function') {
+            GM.fetch(options.url, { method: options.method || 'GET', headers: options.headers })
+              .then(response => response.text().then(text => options.onload?.({ responseText: text, status: response.status })))
+              .catch(err => options.onerror?.(err));
+            return;
+        }
+        // fallback: standard fetch (requires CORS to be allowed by the API)
+        fetch(options.url, { method: options.method || 'GET', headers: options.headers, credentials: 'omit' })
+          .then(response => response.text().then(text => options.onload?.({ responseText: text, status: response.status })))
+          .catch(err => options.onerror?.(err));
+    }
+
+    // --- 실제 사용 (제목 → 검색 → 상세) ---
+    const API_KEY = "8c0ffa89de81017aeee4dba11012b5d6"; // <-- 반드시 여기에 API 키 입력
+    const lang = "ko-KR";
+    var category = (location.hostname.includes("movie")) ? "movie" : "tv";
+
+    //검색 실행
+    function searchByTitle(title, cb) {
+        const url = `https://api.themoviedb.org/3/search/${category}?api_key=${API_KEY}&query=${encodeURIComponent(title)}&language=${lang}`;
+        gmRequest({
+            method: 'GET',
+            url: url,
+            onload: function(res) {
+                try {
+                    const data = JSON.parse(res.responseText);
+                    cb(null, data);
+                } catch (e) { cb(e); }
+            },
+            onerror: function(err) { cb(err); }
+        });
+    }
+
+    //정보 얻기
+    function getMovieDetails(movie_id, cb) {
+        const url = `https://api.themoviedb.org/3/${category}/${movie_id}?api_key=${API_KEY}&language=${lang}`;
+        gmRequest({
+            method: 'GET',
+            url: url,
+            onload: function(res) {
+                try {
+                    const data = JSON.parse(res.responseText);
+                    cb(null, data);
+                } catch (e) { cb(e); }
+            },
+            onerror: function(err) { cb(err); }
+        });
+    }
+
+    //제목 문자열 처리 함수
+    function cleanTitle(str) {
+        let s = str;
+
+        // ---------------------------------------------------------
+        // 0) "숫자 + 화" 로 끝나는지 검사하고 사전 처리
+        // 예: "드라마 12화" → "드라마 12화"
+        //     하지만 "드라마 12화 OST" 는 로직 적용 X (마지막이 "화"일 때만)
+        // ---------------------------------------------------------
+        // 패턴: 마지막 단어가 숫자+화 인지
+        const lastWordMatch = s.match(/(\d+)화$/);
+        if (lastWordMatch) {
+            // 마지막 공백을 찾는다
+            const lastSpaceIdx = s.lastIndexOf(" ");
+            if (lastSpaceIdx !== -1) {
+                s = s.substring(0, lastSpaceIdx);
+            }
+        }
+
+        // ---------------------------------------------------------
+        // 1) " 시즌" 포함 시, 해당 위치부터 뒤 모두 제거
+        // ---------------------------------------------------------
+        const idx = s.indexOf(" 시즌");
+        if (idx !== -1) {
+            s = s.substring(0, idx);
+        }
+
+        // ---------------------------------------------------------
+        // 2) "(무자막)" 제거
+        // ---------------------------------------------------------
+        s = s.replace(/\(무자막\)/g, "");
+
+        // ---------------------------------------------------------
+        // 최종 정리
+        // ---------------------------------------------------------
+        return s.trim();
+    }
+
+
+    const titleToSearch = cleanTitle(originalTitle);
+
+    searchByTitle(titleToSearch, function(err, data) {
+      if (err) return console.error("검색 오류:", err);
+      if (!data.results || data.results.length === 0) return console.log("검색 결과 없음");
+        const movie = data.results[0];
+        const fullUrl = `https://image.tmdb.org/t/p/w780${movie.backdrop_path}`;  // w780 대신 원하는 크기
+        document.querySelector(".bo_v_mov_overlay").style.backgroundImage = `url('${fullUrl}')`;
+        getMovieDetails(movie.id, function(err2, info) {
+        if (err2) return console.error("상세 조회 오류:", err2);
+        });
+    });
+})();
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 customLog("[kotlin]유저스크립트 version: " + scriptVersion);
