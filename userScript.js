@@ -16,7 +16,7 @@
 // 8. TMDB(The Move Database) Api 적용
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512080440";
+const scriptVersion = "2512080756";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -309,57 +309,82 @@ var nextEpisodeLink = "";
   //특수 포커스 효과(TV에서만 적용, 모바일은 적용하지 않음)
   const userAgentString = navigator.userAgent;
   if (isRunningOnTv) {
-      let focusOverlay = null;
-  document.addEventListener('focusin', (e) => {
-      const target = e.target.closest && e.target.closest('.title, .title2, .filter_layer a, .filter2_layer a');
-      if (!target) return;
-      const parentDiv = target.parentElement;
-      const isSearchPageItem = parentDiv && parentDiv.tagName === 'DIV' && parentDiv.classList.contains('con');// 검색 결과창 페이지에서의 title이라면(그렇다면 길이를 다른 title과는 다르게 취급해야함)
-      const isDropDownItem = e.target.closest('.filter_layer a, .filter2_layer a');
-      const rect = target.getBoundingClientRect();
 
-      // 원본 투명화
-      target.style.opacity = '0';
 
-      // overlay 생성
-      focusOverlay = document.createElement('div');
-      focusOverlay.textContent = target.textContent;
+  const style = document.createElement('style');
+  style.innerHTML = `
 
-      // 공통 스타일
-      Object.assign(focusOverlay.style, {
-          position: 'absolute',
-          top: isSearchPageItem ? `${rect.top + window.scrollY -30}px`: `${rect.top + window.scrollY}px`,
-          left: `${rect.left + window.scrollX}px`,
-          width: isSearchPageItem ? '65%' : `${rect.width}px`,
-          height: isDropDownItem ? `${rect.height}px` : `${rect.height + 30}px`,
-          color: '#FFF',
-          fontWeight: 'bold',
-          background: '#552E00',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: '999999',
-          pointerEvents: 'none',
-          padding: '4px 10px',
-          outline: '4px solid #FFD700',
-          outlineOffset: '0',
-          boxShadow: `
+      /* 모든 포커스 가능한 요소의 테두리 스타일을 재정의 */
+      :focus {
+
+          z-index: 9999 !important;
+          background-color: #552E00 !important; /* 노란색 배경 */
+          outline: 4px solid #FFD700 !important;
+          outline-offset: 0px !important;
+
+          box-shadow:
               0 0 0 400px #552E00 inset,
-              0 0 400px rgba(255, 215, 0, 1)
-          `,
-          transition: 'outline-color 0.2s, box-shadow 0.2s',
-      });
+              0 0 400px rgba(255, 215, 0, 1) !important;
 
-      // 글꼴 스타일 원본 복사
-      const cs = window.getComputedStyle(target);
-      focusOverlay.style.fontSize = cs.fontSize;
-      focusOverlay.style.fontFamily = cs.fontFamily;
+          transition: outline-color 0.2s, box-shadow 0.2s;
+      }
+  `;
 
-      document.body.appendChild(focusOverlay);
-  });
-  document.addEventListener('focusout', (e) => {
+  document.head.appendChild(style);
+
+
+
+
+    let focusOverlay = null;
+    document.addEventListener('focusin', (e) => {
+        const target = e.target.closest && e.target.closest('.title, .title2, .filter_layer a, .filter2_layer a');
+        if (!target) return;
+        const parentDiv = target.parentElement;
+        const isSearchPageItem = parentDiv && parentDiv.tagName === 'DIV' && parentDiv.classList.contains('con');// 검색 결과창 페이지에서의 title이라면(그렇다면 길이를 다른 title과는 다르게 취급해야함)
+        const isDropDownItem = e.target.closest('.filter_layer a, .filter2_layer a');
+        const rect = target.getBoundingClientRect();
+
+        // 원본 투명화
+        target.style.opacity = '0';
+
+        // overlay 생성
+        focusOverlay = document.createElement('div');
+        focusOverlay.textContent = target.textContent;
+
+        // 공통 스타일
+        Object.assign(focusOverlay.style, {
+            position: 'absolute',
+            top: isSearchPageItem ? `${rect.top + window.scrollY -30}px`: `${rect.top + window.scrollY}px`,
+            left: `${rect.left + window.scrollX}px`,
+            width: isSearchPageItem ? '65%' : `${rect.width}px`,
+            height: isDropDownItem ? `${rect.height}px` : `${rect.height + 30}px`,
+            color: '#FFF',
+            fontWeight: 'bold',
+            background: '#552E00',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: '999999',
+            pointerEvents: 'none',
+            padding: '4px 10px',
+            outline: '4px solid #FFD700',
+            outlineOffset: '0',
+            boxShadow: `
+                0 0 0 400px #552E00 inset,
+                0 0 400px rgba(255, 215, 0, 1)
+            `,
+            transition: 'outline-color 0.2s, box-shadow 0.2s',
+        });
+
+        // 글꼴 스타일 원본 복사
+        const cs = window.getComputedStyle(target);
+        focusOverlay.style.fontSize = cs.fontSize;
+        focusOverlay.style.fontFamily = cs.fontFamily;
+
+        document.body.appendChild(focusOverlay);
+    });
+    document.addEventListener('focusout', (e) => {
     const el = e.target;
-
     // 원본 복원
     el.style.opacity = '';
 
@@ -465,68 +490,6 @@ var nextEpisodeLink = "";
 
   const style = document.createElement('style');
   style.innerHTML = `
-      /* 🚨 [위치 최종 수정] 커스텀 알림 모달 스타일: 뷰포트 고정(Fixed) 및 중앙 정렬 */
-      .custom-alert-backdrop {
-          position: fixed !important; /* 뷰포트에 고정되어 스크롤 시 따라옴 */
-          top: 0 !important;
-          left: 0 !important;
-          width: 100% !important;
-          height: 100% !important;
-          background-color: rgba(0, 0, 0, 0.7) !important;
-          z-index: 10000 !important; /* Z-index를 높게 설정 */
-          display: block !important;
-          /* 렌더링 최적화를 위한 힌트 추가 (종종 Fixed 버그 해결에 도움) */
-          will-change: transform, opacity;
-      }
-      .custom-alert-modal {
-          /* 모달 자체를 중앙에 위치시킵니다. */
-          position: absolute !important;
-          top: 50% !important;
-          left: 50% !important;
-          transform: translate(-50%, -50%) !important;
-          z-index: 10001 !important; /* 배경보다 한 단계 더 높게 */
-
-          background: #2c2c2c; /* 다크 모드 배경 */
-          color: #f0f0f0; /* 밝은 텍스트 */
-          padding: 20px;
-          border-radius: 12px;
-          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-          max-width: 400px;
-          width: 90%;
-          text-align: center;
-          border: 2px solid #FFD700; /* 포커스 색상 */
-      }
-      .custom-alert-title {
-          font-size: 1.5rem;
-          font-weight: bold;
-          margin-bottom: 15px;
-          color: #FFD700;
-      }
-      .custom-alert-message {
-          margin-bottom: 20px;
-          font-size: 1rem;
-          word-break: break-word;
-      }
-      .custom-alert-actions button {
-          background-color: #555;
-          color: white;
-          border: none;
-          padding: 10px 20px;
-          margin: 0 5px;
-          border-radius: 8px;
-          cursor: pointer;
-          transition: background-color 0.2s, box-shadow 0.2s;
-      }
-      .custom-alert-actions button:focus,
-      .custom-alert-actions button:hover {
-          background-color: #FFD700;
-          color: #111;
-          outline: none;
-          box-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
-      }
-
-
-
 
       /* 🚨 [새로운 수정] "전체보기" 링크를 오른쪽에서 띄우기 위한 스타일 */
       /* 이 링크는 h2 내부에 있으므로, 오른쪽 끝에서 20px의 여백을 줍니다. */
@@ -608,26 +571,6 @@ var nextEpisodeLink = "";
 
       /* =========================================================== */
 
-
-
-
-      /* 모든 포커스 가능한 요소의 테두리 스타일을 재정의 */
-      :focus {
-
-          z-index: 9999 !important;
-          background-color: #552E00 !important; /* 노란색 배경 */
-          outline: 4px solid #FFD700 !important;
-          outline-offset: 0px !important;
-
-          box-shadow:
-              0 0 0 400px #552E00 inset,
-              0 0 400px rgba(255, 215, 0, 1) !important;
-
-          transition: outline-color 0.2s, box-shadow 0.2s;
-      }
-
-
-
       /* [NEW FIX: 부모 li 확장] #tnb 내부의 li에 걸린 고정 크기 및 float를 해제하여 버튼이 확장할 공간을 확보 */
       #header_wrap #header #tnb ul li {
           float: none !important;
@@ -638,16 +581,6 @@ var nextEpisodeLink = "";
           margin: 0 !important;
           padding: 0 !important;
       }
-
-
-
-
-
-
-
-
-
-
 
       /* [MAX SPECIFICITY FIX] ID 선택자를 모두 포함하여 명시도를 최상으로 높임 */
       #header_wrap #header #tnb ul li a.btn_search {
@@ -689,8 +622,8 @@ var nextEpisodeLink = "";
       }
 
 
-#body_wrap {
-    margin-top: 20px;
+      #body_wrap {
+          margin-top: 20px;
 }
 
   `;
