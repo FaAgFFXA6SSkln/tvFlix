@@ -16,7 +16,7 @@
 // 8. TMDB(The Move Database) Api 적용
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512080847";
+const scriptVersion = "2512080909";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -503,8 +503,7 @@ var nextEpisodeLink = "";
     /* =========================================================== */
     /* [FIX 2] Title Link Font Size and Vertical Alignment */
     /* 높은 명시도로 폰트 크기 및 수직 정렬을 강제 적용합니다. */
-    .owl-carousel .owl-item .title,
-    .owl-carousel .owl-item .box a.title, a.more /* 명시도 확보를 위한 추가 셀렉터 */
+    .owl-carousel .owl-item .title, .owl-carousel .owl-item .box a.title, a.more /* 명시도 확보를 위한 추가 셀렉터 */
     a.title {
         /* 1. 높이 유지 (50px) 및 수직 중앙 정렬을 위해 line-height를 높이와 동일하게 설정 */
         height: 50px !important;
@@ -675,9 +674,9 @@ var nextEpisodeLink = "";
 //검색 결과 페이지 재배치(모바일만 적용)
 (function() {
     if (isRunningOnTv) return;
-
     const container = document.getElementById('mov_con_list');
     if (!container) return;
+    container.style.overflowY = 'hidden';
 
     // ------------------------------------------------
     // 1. 너비 조정을 수행하는 함수
@@ -705,10 +704,11 @@ var nextEpisodeLink = "";
     const listItems = container.querySelectorAll('li');
     listItems.forEach(li => {
         li.style.width = '100%';
-        li.style.height = '240px';
-        li.style.display = 'flex';
+        li.style.minHeight = '120px'; // 최소 높이
+        li.style.height = 'auto';      // 내용에 따라 높이 확장
         li.style.alignItems = 'center';
         li.style.boxSizing = 'border-box'; // 패딩 포함 계산
+
     });
 
     const boxes = container.querySelectorAll('.box');
