@@ -4,7 +4,7 @@
 // ==/UserScript==
 //
 // =======================================================
-// 이 스크립트의 목적
+// 본 스크립트의 목적
 // =======================================================
 // 1. 웹사이트 내 불필요한 요소 포커스 비활성화
 // 2. 웹사이트 요소 제거
@@ -16,10 +16,11 @@
 // 8. TMDB(The Move Database) Api 적용
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512080909";
+const scriptVersion = "2512080951";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
+var isOnlyVideo = false;
 
 
 // =======================================================
@@ -171,16 +172,15 @@ var nextEpisodeLink = "";
           // 에피소드 리스트에 에피소드가 하나밖에 없다면, 에피소드 리스트 자체를 제거
           if (items.length <= 1) {
               target.remove();
+            isOnlyVideo = true;
 
           // 에피소드 리스트에 에피소드가 여러개라면, 현재 에피소드 제목과 리스트를 비교하여 다음 에피소드 링크를 저장
           } else {
-
               //현재 회차가 마지막 회차라면 다음화 버튼을 제거
               if (thisEpisodeTitle == target.querySelector('li a.title.on').textContent.trim()) {
                   const btn_next = document.querySelector('.btn_next a');
                     if (btn_next) {
                       btn_next.remove();
-
                     }
               }
 
@@ -1028,9 +1028,12 @@ var nextEpisodeLink = "";
 // =======================================================
 // 8. TMDB(The Movie Database) Api 적용
 // =======================================================
-/*
+
 (function(){
     'use strict';
+    if (isRunningOnTv) return
+    if (isWebBrowser) return
+    if (!isOnlyVideo) return
 
     const bovTitle = document.querySelector('.bo_v_tit');
     if (bovTitle == null) return;
@@ -1161,7 +1164,8 @@ var nextEpisodeLink = "";
         });
     });
 })();
-*/
+
+
 // =======================================================
 // =======================================================
 // =======================================================
