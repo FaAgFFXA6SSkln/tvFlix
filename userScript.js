@@ -16,7 +16,7 @@
 // 8. TMDB(The Move Database) Api 적용
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512080953";
+const scriptVersion = "2512081054";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -468,6 +468,14 @@ var isOnlyVideo = false;
     const style = document.createElement('style');
     style.textContent = css;
     document.documentElement.appendChild(style);
+})();
+//재생 페이지 회차가 하나밖에 없는 컨텐츠라면 컨텐츠 정보 표시
+(function() {
+  if (!isOnlyVideo) {
+    document.querySelectorAll('#bo_v_atc').forEach(el => el.remove());
+  }
+
+
 })();
 //기타 UI 요소 변경
 (function() {
@@ -1164,8 +1172,6 @@ var isOnlyVideo = false;
 // =======================================================
 // =======================================================
 // =======================================================
-
-
 
 
 
