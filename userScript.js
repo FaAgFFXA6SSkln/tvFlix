@@ -16,7 +16,7 @@
 // 8. TMDB(The Move Database) Api 적용
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512080951";
+const scriptVersion = "2512080953";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -1028,13 +1028,9 @@ var isOnlyVideo = false;
 // =======================================================
 // 8. TMDB(The Movie Database) Api 적용
 // =======================================================
-
+/*
 (function(){
     'use strict';
-    if (isRunningOnTv) return
-    if (isWebBrowser) return
-    if (!isOnlyVideo) return
-
     const bovTitle = document.querySelector('.bo_v_tit');
     if (bovTitle == null) return;
     const originalTitle = bovTitle.textContent;
@@ -1164,8 +1160,7 @@ var isOnlyVideo = false;
         });
     });
 })();
-
-
+*/
 // =======================================================
 // =======================================================
 // =======================================================
