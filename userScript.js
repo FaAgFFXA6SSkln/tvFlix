@@ -1229,9 +1229,10 @@ function cleanTitle(str) {
     //링크 추출
     const videoLink = window.location.href
     //포스터이미지 추출
+    const videoImage = "https://img-requset5.digitalorio3nx.com//v/f/80114be688dd2e208e82b73ba942aade3f89f/thumb.png"
 
     if (typeof NativeApp !== 'undefined') {
-      NativeApp.receiveVideoTitleLinkImage(videoTitleText, videoLink, videoLink);
+      NativeApp.receiveVideoTitleLinkImage(videoTitleText, videoLink, videoImage);
     }
 })();
 
