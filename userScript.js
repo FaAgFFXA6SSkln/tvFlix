@@ -295,8 +295,9 @@ var isOnlyVideo = false;
       // 클릭 이벤트
       playButton.onclick = () => {
         if (typeof NativeApp !== 'undefined' && NativeApp.handlePlayButtonClick) {
+            sendWatchListAddSignToNative();
             NativeApp.handlePlayButtonClick();
-            NativeApp.sendWatchListAddSignToNative();
+
         }
         else {
           document.querySelector('.bo_v_mov_overlay').remove();
