@@ -304,7 +304,7 @@ function sendWatchListAddSignToNative(){
 
 
   // 재생 페이지'.bo_v_mov'에 '동영상 재생하기' 버튼 추가 및 스타일 적용(일반 웹브라우저에서는 적용하지 않기)
-  if (isWebBrowser) {
+  if (!isWebBrowser) {
     document.querySelectorAll('div.bo_v_mov').forEach(container => {
 
       // 새로운 컨테이너 생성
