@@ -17,7 +17,7 @@
 // 9. 시청목록 시스템 추가
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512100541";
+const scriptVersion = "2512100730";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -230,6 +230,59 @@ var isOnlyVideo = false;
 // =======================================================
 // 3. 웹사이트 요소 추가(검색버튼 텍스트, 동영상 재생버튼, 특수 포커스 효과, 시청목록 시스템)
 // =======================================================
+
+
+//시청목록 시스템 1. 제목 정리
+function cleanTitle(str) {
+    let s = str;
+
+    // ---------------------------------------------------------
+    // 0) "숫자 + 화" 로 끝나는지 검사하고 사전 처리
+    // 예: "드라마 12화" → "드라마 12화"
+    //     하지만 "드라마 12화 OST" 는 로직 적용 X (마지막이 "화"일 때만)
+    // ---------------------------------------------------------
+    // 패턴: 마지막 단어가 숫자+화 인지
+    const lastWordMatch = s.match(/(\d+)화$/);
+    if (lastWordMatch) {
+        // 마지막 공백을 찾는다
+        const lastSpaceIdx = s.lastIndexOf(" ");
+        if (lastSpaceIdx !== -1) {
+            s = s.substring(0, lastSpaceIdx);
+        }
+    }
+
+    // ---------------------------------------------------------
+    // 1) " 시즌" 포함 시, 해당 위치부터 뒤 모두 제거
+    // ---------------------------------------------------------
+    const idx = s.indexOf(" 시즌");
+    if (idx !== -1) {
+        s = s.substring(0, idx);
+    }
+
+    // ---------------------------------------------------------
+    // 2) "(무자막)" 제거
+    // ---------------------------------------------------------
+    s = s.replace(/\(무자막\)/g, "");
+
+    // ---------------------------------------------------------
+    // 최종 정리
+    // ---------------------------------------------------------
+    return s.trim();
+}
+//시청목록 시스템 2. 네이티브로 정보 보내기
+function sendWatchListAddSignToNative(){
+  const videoTitleElement = document.querySelector('.bo_v_tit');
+  if (videoTitleElement) {
+    //제목 추출
+    const videoTitleText = cleanTitle(videoTitleElement.textContent);
+    //링크 추출
+    const videoLink = window.location.href
+    //포스터이미지 추출
+    const videoImage = "https://img-requset5.digitalorio3nx.com//v/f/80114be688dd2e208e82b73ba942aade3f89f/thumb.png"
+    if (typeof NativeApp !== 'undefined') NativeApp.receiveVideoTitleLinkImage(videoTitleText, videoLink, videoImage);
+  }
+}
+
 (function() {
   'use strict'
   // 메인 페이지, 카테고리 페이지, 검색 결과 페이지 상단에 검색 버튼 텍스트 추가 로직 및 인라인 스타일 강제 오버라이드
@@ -248,8 +301,10 @@ var isOnlyVideo = false;
       searchButton.prepend(searchLabel);
   }
 
+
+
   // 재생 페이지'.bo_v_mov'에 '동영상 재생하기' 버튼 추가 및 스타일 적용(일반 웹브라우저에서는 적용하지 않기)
-  if (!isWebBrowser) {
+  if (isWebBrowser) {
     document.querySelectorAll('div.bo_v_mov').forEach(container => {
 
       // 새로운 컨테이너 생성
@@ -295,9 +350,8 @@ var isOnlyVideo = false;
       // 클릭 이벤트
       playButton.onclick = () => {
         if (typeof NativeApp !== 'undefined' && NativeApp.handlePlayButtonClick) {
-            sendWatchListAddSignToNative();
             NativeApp.handlePlayButtonClick();
-
+            sendWatchListAddSignToNative();
         }
         else {
           document.querySelector('.bo_v_mov_overlay').remove();
@@ -393,57 +447,7 @@ var isOnlyVideo = false;
 
   }
 
-  //시청목록 시스템
-  function cleanTitle(str) {
-      let s = str;
 
-      // ---------------------------------------------------------
-      // 0) "숫자 + 화" 로 끝나는지 검사하고 사전 처리
-      // 예: "드라마 12화" → "드라마 12화"
-      //     하지만 "드라마 12화 OST" 는 로직 적용 X (마지막이 "화"일 때만)
-      // ---------------------------------------------------------
-      // 패턴: 마지막 단어가 숫자+화 인지
-      const lastWordMatch = s.match(/(\d+)화$/);
-      if (lastWordMatch) {
-          // 마지막 공백을 찾는다
-          const lastSpaceIdx = s.lastIndexOf(" ");
-          if (lastSpaceIdx !== -1) {
-              s = s.substring(0, lastSpaceIdx);
-          }
-      }
-
-      // ---------------------------------------------------------
-      // 1) " 시즌" 포함 시, 해당 위치부터 뒤 모두 제거
-      // ---------------------------------------------------------
-      const idx = s.indexOf(" 시즌");
-      if (idx !== -1) {
-          s = s.substring(0, idx);
-      }
-
-      // ---------------------------------------------------------
-      // 2) "(무자막)" 제거
-      // ---------------------------------------------------------
-      s = s.replace(/\(무자막\)/g, "");
-
-      // ---------------------------------------------------------
-      // 최종 정리
-      // ---------------------------------------------------------
-      return s.trim();
-  }
-  function sendWatchListAddSignToNative(){
-    const videoTitleElement = document.querySelector('.bo_v_tit');
-    if (!videoTitleElement) {
-      //제목 추출
-      const videoTitleText = cleanTitle(videoTitleElement.textContent);
-      //링크 추출
-      const videoLink = window.location.href
-      //포스터이미지 추출
-      const videoImage = "https://img-requset5.digitalorio3nx.com//v/f/80114be688dd2e208e82b73ba942aade3f89f/thumb.png"
-
-      if (typeof NativeApp !== 'undefined') NativeApp.receiveVideoTitleLinkImage(videoTitleText, videoLink, videoImage);
-
-    }
-  }
 
 
 
