@@ -17,7 +17,7 @@
 // 9. 시청목록 시스템 추가
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "251211107";
+const scriptVersion = "251211116";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -100,6 +100,11 @@ var isOnlyVideo = false;
       el.setAttribute('tabindex', '-1');
       el.height = '0px';
     });
+
+    const btn_search = document.querySelector('.btn_search');
+    btn_search.style.display = 'none';
+    btn_search.setAttribute('tabindex', '-1');
+
   }
 
   //TV 이외 환경에서는 재생 페이지에서는 보이지 않게 처리하고, 그외 메인 페이지나 카테고리, 검색 페이지 등에서는 레이아웃 변경
@@ -108,13 +113,16 @@ var isOnlyVideo = false;
     if (pathSegments.length > 1) {
         const headerWrap = document.getElementById('header_wrap');
         if (headerWrap) {
-            //headerWrap.remove();
             headerWrap.style.height = '0px';
 
             document.querySelectorAll("#gnb_mobile").forEach(element => {
               element.remove();
               element.style.height = '0px';
-          });
+            });
+
+            const btn_search = document.querySelector('.btn_search');
+            btn_search.style.setProperty('display', 'none', 'important');
+            btn_search.setAttribute('tabindex', '-1');
         }
     }
     else {
