@@ -18,7 +18,7 @@
 // 9. 시청목록 시스템 추가
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512110432";
+const scriptVersion = "2512110642";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -1140,161 +1140,13 @@ function sendWatchListAddSignToNative(){
 
 
 // =======================================================
-// 8. 검색어 자동완성 기능
+// 8. 검색어 자동완성 기능: TMDB(The Move Database) Api 적용
 // =======================================================
+//네이티브 앱
 (function() {
-
-  if (isWebBrowser) {
-
-    'use strict';
-
-    const TMDB_API_KEY = '8c0ffa89de81017aeee4dba11012b5d6';
-    const input = document.querySelector('#sch_stx');
-    const searchWrap = document.querySelector('.search_wrap')
-
-    if (!input) {
-        console.log("[Autocomplete] 검색창(#sch_stx) 없음");
-        return;
-    }
-
-    if (!searchWrap) {
-        console.log("[Autocomplete] 검색창(#sch_stx) 없음");
-        return;
-    }
-
-    // 검색창의 부모 요소에 컨테이너 추가
-    //const parent = input.parentElement || document.body;
-    const parent = searchWrap.parentElement || document.body;
-
-    const container = document.createElement('div');
-    container.style.position = 'fixed';  // fixed로 변경
-    container.style.background = '#ffffff';
-    container.style.border = '1px solid #ccc';
-    container.style.maxHeight = '250px';
-    container.style.overflowY = 'auto';
-    container.style.zIndex = '999999';   // 최상단
-    container.style.display = 'none';
-    container.style.fontSize = '14px';
-    container.style.boxSizing = 'border-box';
-    container.style.padding = '0';
-    container.style.margin = '0';
-
-    parent.appendChild(container);
-
-    let suggestions = [];
-    let currentIndex = -1;
-
-    // 위치 업데이트 (fixed 기준 → 화면상의 절대 좌표)
-    function updatePosition() {
-        const rect = input.getBoundingClientRect();
-        container.style.left = rect.left + 'px';
-        container.style.top = (rect.bottom) + 'px';
-        container.style.width = rect.width + 'px';
-    }
-
-    // DOM 렌더 완료 후 위치 정확히 계산
-    setTimeout(updatePosition, 300);
-    window.addEventListener('resize', updatePosition);
-    window.addEventListener('scroll', updatePosition);
-
-
-    // TMDB 검색 함수
-    function fetchTMDB(query) {
-        if (!query) {
-            container.style.display = 'none';
-            return;
-        }
-
-        GM_xmlhttpRequest({
-            method: 'GET',
-            url: `https://api.themoviedb.org/3/search/multi?api_key=${TMDB_API_KEY}&language=ko-KR&query=${encodeURIComponent(query)}`,
-            onload: function(res) {
-                const data = JSON.parse(res.responseText);
-                suggestions = (data.results || [])
-                    .filter(item => item.media_type === 'movie' || item.media_type === 'tv')
-                    .slice(0, 10);
-
-                renderSuggestions();
-            }
-        });
-    }
-
-    // 자동완성 리스트 렌더링
-    function renderSuggestions() {
-        container.innerHTML = '';
-        currentIndex = -1;
-
-        if (suggestions.length === 0) {
-            container.style.display = 'none';
-            return;
-        }
-
-        suggestions.forEach((item, idx) => {
-            const row = document.createElement('div');
-            row.textContent = item.title || item.name;
-            row.style.padding = '8px 10px';
-            row.style.cursor = 'pointer';
-            row.style.background = '#fff';
-
-            row.addEventListener('mouseenter', () => highlight(idx));
-            row.addEventListener('mouseleave', () => unhighlight(idx));
-            row.addEventListener('click', () => {
-                input.value = item.title || item.name;
-                container.style.display = 'none';
-            });
-
-            container.appendChild(row);
-        });
-
-        updatePosition(); // 위치 재확인
-        container.style.display = 'block'; // 강제 표시
-    }
-
-    function highlight(idx) {
-        [...container.children].forEach((row, i) => {
-            row.style.background = i === idx ? '#eeeeee' : '#ffffff';
-        });
-        currentIndex = idx;
-    }
-
-    function unhighlight(idx) {
-        container.children[idx].style.background = '#ffffff';
-    }
-
-    input.addEventListener('keyup', (e) => {
-        const key = e.key;
-
-        if (key === 'ArrowDown') {
-            if (currentIndex < suggestions.length - 1) highlight(currentIndex + 1);
-            return;
-        }
-        if (key === 'ArrowUp') {
-            if (currentIndex > 0) highlight(currentIndex - 1);
-            return;
-        }
-        if (key === 'Enter') {
-            if (currentIndex >= 0) {
-                input.value = suggestions[currentIndex].title || suggestions[currentIndex].name;
-                container.style.display = 'none';
-            }
-            return;
-        }
-
-        fetchTMDB(input.value);
-    });
-
-    // 외부 클릭 시 닫기
-    document.addEventListener('mousedown', (e) => {
-        if (!container.contains(e.target) && e.target !== input) {
-            container.style.display = 'none';
-        }
-    });
-
-
-
-  }
-
-  else {
+    // isWebBrowser 플래그가 정의되어 있다면 해당 로직을 따름
+    // 이 코드가 웹뷰에서 실행되도록 isWebBrowser가 true일 때만 return하도록 수정
+    // if (typeof isWebBrowser !== 'undefined' && isWebBrowser) return; // 주석 처리 또는 제거
 
     'use strict';
 
@@ -1310,6 +1162,7 @@ function sendWatchListAddSignToNative(){
     const parent = searchWrap.parentElement || document.body;
     const container = document.createElement('div');
     container.style.position = 'fixed';
+    // 다크 모드를 고려하여 대비를 확실히 줄 수 있도록 흰색 배경으로 고정합니다.
     container.style.background = '#ffffff';
     container.style.border = '1px solid #ccc';
     container.style.maxHeight = '250px';
@@ -1319,10 +1172,27 @@ function sendWatchListAddSignToNative(){
     container.style.fontSize = '14px';
     container.style.boxSizing = 'border-box';
     container.style.padding = '0';
-    container.style.margin = '0';
-    container.style.color = '#000'; // 글자색 강제 지정 (혹시 배경이 어두운 테마일 경우 대비)
+    // 텍스트 색상도 흰색 배경에 맞춰 검은색으로 고정
+    container.style.color = '#000000';
 
     parent.appendChild(container);
+
+    // 내부에서 사용할 CSS 클래스를 추가합니다.
+    const style = document.createElement('style');
+    style.textContent = `
+        .autocomplete-item-focused {
+            /* 키보드 포커스 시 노란색 윤곽선 추가 */
+            outline: 2px solid yellow !important;
+            outline-offset: -2px; /* 윤곽선이 경계선 안으로 들어가도록 */
+            background: #f0f0f0 !important; /* 포커스 시 배경색 변경 (선택됨 표시) */
+        }
+        .autocomplete-item {
+            /* 기본 상태의 텍스트 색상과 배경 */
+            color: #000000;
+            background: #ffffff;
+        }
+    `;
+    document.head.appendChild(style);
 
     let suggestions = [];
     let currentIndex = -1;
@@ -1338,26 +1208,21 @@ function sendWatchListAddSignToNative(){
     window.addEventListener('resize', updatePosition);
     window.addEventListener('scroll', updatePosition);
 
-    // --- [핵심 변경] 안드로이드와 통신하는 부분 ---
+    // --- 안드로이드와 통신하는 부분 (기존과 동일) ---
 
-    // 1. 검색 요청 함수
     function fetchTMDB(query) {
         if (!query) {
             container.style.display = 'none';
             return;
         }
 
-        // 안드로이드 앱 환경인지 확인
         if (window.NativeApp && typeof window.NativeApp.searchTmdb === 'function') {
-            // 안드로이드 앱에게 네트워크 요청 위임
             window.NativeApp.searchTmdb(query);
         } else {
             console.log("NativeApp 인터페이스를 찾을 수 없습니다.");
         }
     }
 
-    // 2. 데이터 수신 함수 (안드로이드에서 호출함)
-    // 전역(window)에 선언해야 안드로이드에서 접근 가능
     window.receiveTmdbData = function(jsonString) {
         try {
             const data = JSON.parse(jsonString);
@@ -1370,7 +1235,7 @@ function sendWatchListAddSignToNative(){
         }
     };
 
-    // --- 렌더링 및 이벤트 처리 (기존 로직 유지) ---
+    // --- 렌더링 및 이벤트 처리 수정 ---
     function renderSuggestions() {
         container.innerHTML = '';
         currentIndex = -1;
@@ -1382,22 +1247,19 @@ function sendWatchListAddSignToNative(){
 
         suggestions.forEach((item, idx) => {
             const row = document.createElement('div');
-            // 제목이 길 경우를 대비해 스타일 조금 보강
             row.textContent = item.title || item.name;
             row.style.padding = '8px 10px';
             row.style.cursor = 'pointer';
-            row.style.background = '#fff';
             row.style.borderBottom = '1px solid #eee';
+
+            // 클래스 추가
+            row.classList.add('autocomplete-item');
 
             row.addEventListener('mouseenter', () => highlight(idx));
             row.addEventListener('mouseleave', () => unhighlight(idx));
             row.addEventListener('click', () => {
                 input.value = item.title || item.name;
                 container.style.display = 'none';
-
-                // 클릭 시 바로 검색 버튼을 누르게 하려면 아래 주석 해제
-                // const searchBtn = document.querySelector('#btn_search');
-                // if(searchBtn) searchBtn.click();
             });
 
             container.appendChild(row);
@@ -1407,28 +1269,52 @@ function sendWatchListAddSignToNative(){
         container.style.display = 'block';
     }
 
+    /**
+     * 특정 인덱스 항목을 하이라이트/포커스 처리합니다.
+     * @param {number} idx - 포커스를 줄 항목의 인덱스
+     */
     function highlight(idx) {
         [...container.children].forEach((row, i) => {
-            row.style.background = i === idx ? '#eeeeee' : '#ffffff';
+            if (i === idx) {
+                // 포커스 스타일 적용
+                row.classList.add('autocomplete-item-focused');
+            } else {
+                // 다른 모든 항목에서 포커스 스타일 제거
+                row.classList.remove('autocomplete-item-focused');
+            }
         });
         currentIndex = idx;
     }
 
+    /**
+     * 특정 인덱스 항목에서 포커스 스타일을 제거합니다. (마우스가 벗어났을 때 사용)
+     * @param {number} idx - 포커스를 제거할 항목의 인덱스
+     */
     function unhighlight(idx) {
-        if(container.children[idx]) {
-            container.children[idx].style.background = '#ffffff';
+        // 마우스가 벗어날 때만 클래스를 제거합니다.
+        // 참고: 키보드 이동 시에는 highlight 함수 내에서 이전 포커스를 제거합니다.
+        if (container.children[idx]) {
+             container.children[idx].classList.remove('autocomplete-item-focused');
         }
+        // 마우스가 벗어나도 currentIndex는 키보드 처리를 위해 유지합니다.
     }
+
+
+    // 디바운싱 타이머 (이전에 제안했던 디바운싱 코드를 적용하는 것이 좋지만, 현재 사용자 코드를 유지하기 위해 이 코드를 사용)
+    let debounceTimer;
 
     input.addEventListener('keyup', (e) => {
         const key = e.key;
 
         if (key === 'ArrowDown') {
+            // 키보드 이동 시 highlight 함수를 통해 포커스 스타일이 즉시 적용됨
             if (currentIndex < suggestions.length - 1) highlight(currentIndex + 1);
+            else if (suggestions.length > 0) highlight(0); // 끝에서 처음으로 순환
             return;
         }
         if (key === 'ArrowUp') {
             if (currentIndex > 0) highlight(currentIndex - 1);
+            else if (suggestions.length > 0) highlight(suggestions.length - 1); // 처음에서 끝으로 순환
             return;
         }
         if (key === 'Enter') {
@@ -1439,8 +1325,11 @@ function sendWatchListAddSignToNative(){
             return;
         }
 
-        // 디바운싱 없이 입력할 때마다 호출 (필요시 setTimeout으로 디바운싱 추가 가능)
-        fetchTMDB(input.value);
+        // --- 디바운싱 적용 (느린 초기 로딩 문제 해결을 위해 이전에 제안했던 방식) ---
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+            fetchTMDB(input.value);
+        }, 300);
     });
 
     document.addEventListener('mousedown', (e) => {
@@ -1448,157 +1337,165 @@ function sendWatchListAddSignToNative(){
             container.style.display = 'none';
         }
     });
+
+})();
+//monkey 지원 브라우저
+(function() {
+  if (!isWebBrowser) return;
+
+  'use strict';
+
+  const TMDB_API_KEY = '8c0ffa89de81017aeee4dba11012b5d6';
+  const input = document.querySelector('#sch_stx');
+  const searchWrap = document.querySelector('.search_wrap')
+
+  if (!input) {
+      console.log("[Autocomplete] 검색창(#sch_stx) 없음");
+      return;
   }
 
+  if (!searchWrap) {
+      console.log("[Autocomplete] 검색창(#sch_stx) 없음");
+      return;
+  }
+
+  // 검색창의 부모 요소에 컨테이너 추가
+  //const parent = input.parentElement || document.body;
+  const parent = searchWrap.parentElement || document.body;
+
+  const container = document.createElement('div');
+  container.style.position = 'fixed';  // fixed로 변경
+  container.style.background = '#000000';
+  container.style.border = '1px solid #ccc';
+  container.style.maxHeight = '250px';
+  container.style.overflowY = 'auto';
+  container.style.zIndex = '999999';   // 최상단
+  container.style.display = 'none';
+  container.style.fontSize = '14px';
+  container.style.boxSizing = 'border-box';
+  container.style.padding = '0';
+  container.style.margin = '0';
+
+  parent.appendChild(container);
+
+  let suggestions = [];
+  let currentIndex = -1;
+
+  // 위치 업데이트 (fixed 기준 → 화면상의 절대 좌표)
+  function updatePosition() {
+      const rect = input.getBoundingClientRect();
+      container.style.left = rect.left + 'px';
+      container.style.top = (rect.bottom) + 'px';
+      container.style.width = rect.width + 'px';
+  }
+
+  // DOM 렌더 완료 후 위치 정확히 계산
+  setTimeout(updatePosition, 300);
+  window.addEventListener('resize', updatePosition);
+  window.addEventListener('scroll', updatePosition);
+
+
+  // TMDB 검색 함수
+  function fetchTMDB(query) {
+      if (!query) {
+          container.style.display = 'none';
+          return;
+      }
+
+      GM_xmlhttpRequest({
+          method: 'GET',
+          url: `https://api.themoviedb.org/3/search/multi?api_key=${TMDB_API_KEY}&language=ko-KR&query=${encodeURIComponent(query)}`,
+          onload: function(res) {
+              const data = JSON.parse(res.responseText);
+              suggestions = (data.results || [])
+                  .filter(item => item.media_type === 'movie' || item.media_type === 'tv')
+                  .slice(0, 10);
+
+              renderSuggestions();
+          }
+      });
+  }
+
+  // 자동완성 리스트 렌더링
+  function renderSuggestions() {
+      container.innerHTML = '';
+      currentIndex = -1;
+
+      if (suggestions.length === 0) {
+          container.style.display = 'none';
+          return;
+      }
+
+      suggestions.forEach((item, idx) => {
+          const row = document.createElement('div');
+          row.textContent = item.title || item.name;
+          row.style.padding = '8px 10px';
+          row.style.cursor = 'pointer';
+          row.style.background = '#111111';
+
+          row.addEventListener('mouseenter', () => highlight(idx));
+          row.addEventListener('mouseleave', () => unhighlight(idx));
+          row.addEventListener('click', () => {
+              input.value = item.title || item.name;
+              container.style.display = 'none';
+          });
+
+          container.appendChild(row);
+      });
+
+      updatePosition(); // 위치 재확인
+      container.style.display = 'block'; // 강제 표시
+  }
+
+  function highlight(idx) {
+      [...container.children].forEach((row, i) => {
+          row.style.background = i === idx ? '#552E00' : '#000000';
+      });
+      currentIndex = idx;
+  }
+
+  function unhighlight(idx) {
+      container.children[idx].style.background = '#000000';
+  }
+
+  input.addEventListener('keyup', (e) => {
+      const key = e.key;
+
+      if (key === 'ArrowDown') {
+          if (currentIndex < suggestions.length - 1) highlight(currentIndex + 1);
+          return;
+      }
+      if (key === 'ArrowUp') {
+          if (currentIndex > 0) highlight(currentIndex - 1);
+          return;
+      }
+      if (key === 'Enter') {
+          if (currentIndex >= 0) {
+              input.value = suggestions[currentIndex].title || suggestions[currentIndex].name;
+              container.style.display = 'none';
+          }
+          return;
+      }
+
+      fetchTMDB(input.value);
+  });
+
+  // 외부 클릭 시 닫기
+  document.addEventListener('mousedown', (e) => {
+      if (!container.contains(e.target) && e.target !== input) {
+          container.style.display = 'none';
+      }
+  });
+
+
+
+
+
 })();
 // =======================================================
 // =======================================================
 // =======================================================
 
-
-
-
-
-
-// =======================================================
-// TMDB(The Movie Database) Api 적용
-// =======================================================
-/*
-(function(){
-    'use strict';
-    const bovTitle = document.querySelector('.bo_v_tit');
-    if (bovTitle == null) return;
-    const originalTitle = bovTitle.textContent;
-
-    // --- 호환성 래퍼 ---
-    function gmRequest(options) {
-        if (typeof GM_xmlhttpRequest === 'function') {
-            GM_xmlhttpRequest({
-                method: options.method || 'GET',
-                url: options.url,
-                headers: options.headers,
-                responseType: options.responseType || 'text',
-                onload: options.onload,
-                onerror: options.onerror
-            });
-            return;
-        }
-        if (typeof GM === 'object' && typeof GM.xmlHttpRequest === 'function') {
-            GM.xmlHttpRequest({
-                method: options.method || 'GET',
-                url: options.url,
-                headers: options.headers,
-                responseType: options.responseType || 'text',
-                onload: options.onload,
-                onerror: options.onerror
-            });
-            return;
-        }
-        if (typeof GM === 'object' && typeof GM.fetch === 'function') {
-            GM.fetch(options.url, { method: options.method || 'GET', headers: options.headers })
-              .then(response => response.text().then(text => options.onload?.({ responseText: text, status: response.status })))
-              .catch(err => options.onerror?.(err));
-            return;
-        }
-        // fallback: standard fetch (requires CORS to be allowed by the API)
-        fetch(options.url, { method: options.method || 'GET', headers: options.headers, credentials: 'omit' })
-          .then(response => response.text().then(text => options.onload?.({ responseText: text, status: response.status })))
-          .catch(err => options.onerror?.(err));
-    }
-
-    // --- 실제 사용 (제목 → 검색 → 상세) ---
-    const API_KEY = "8c0ffa89de81017aeee4dba11012b5d6"; // <-- 반드시 여기에 API 키 입력
-    const lang = "ko-KR";
-    var category = (location.hostname.includes("movie")) ? "movie" : "tv";
-
-    //검색 실행
-    function searchByTitle(title, cb) {
-        const url = `https://api.themoviedb.org/3/search/${category}?api_key=${API_KEY}&query=${encodeURIComponent(title)}&language=${lang}`;
-        gmRequest({
-            method: 'GET',
-            url: url,
-            onload: function(res) {
-                try {
-                    const data = JSON.parse(res.responseText);
-                    cb(null, data);
-                } catch (e) { cb(e); }
-            },
-            onerror: function(err) { cb(err); }
-        });
-    }
-
-    //정보 얻기
-    function getMovieDetails(movie_id, cb) {
-        const url = `https://api.themoviedb.org/3/${category}/${movie_id}?api_key=${API_KEY}&language=${lang}`;
-        gmRequest({
-            method: 'GET',
-            url: url,
-            onload: function(res) {
-                try {
-                    const data = JSON.parse(res.responseText);
-                    cb(null, data);
-                } catch (e) { cb(e); }
-            },
-            onerror: function(err) { cb(err); }
-        });
-    }
-
-    //제목 문자열 처리 함수
-    function cleanTitle(str) {
-        let s = str;
-
-        // ---------------------------------------------------------
-        // 0) "숫자 + 화" 로 끝나는지 검사하고 사전 처리
-        // 예: "드라마 12화" → "드라마 12화"
-        //     하지만 "드라마 12화 OST" 는 로직 적용 X (마지막이 "화"일 때만)
-        // ---------------------------------------------------------
-        // 패턴: 마지막 단어가 숫자+화 인지
-        const lastWordMatch = s.match(/(\d+)화$/);
-        if (lastWordMatch) {
-            // 마지막 공백을 찾는다
-            const lastSpaceIdx = s.lastIndexOf(" ");
-            if (lastSpaceIdx !== -1) {
-                s = s.substring(0, lastSpaceIdx);
-            }
-        }
-
-        // ---------------------------------------------------------
-        // 1) " 시즌" 포함 시, 해당 위치부터 뒤 모두 제거
-        // ---------------------------------------------------------
-        const idx = s.indexOf(" 시즌");
-        if (idx !== -1) {
-            s = s.substring(0, idx);
-        }
-
-        // ---------------------------------------------------------
-        // 2) "(무자막)" 제거
-        // ---------------------------------------------------------
-        s = s.replace(/\(무자막\)/g, "");
-
-        // ---------------------------------------------------------
-        // 최종 정리
-        // ---------------------------------------------------------
-        return s.trim();
-    }
-
-
-    const titleToSearch = cleanTitle(originalTitle);
-
-    searchByTitle(titleToSearch, function(err, data) {
-      if (err) return console.error("검색 오류:", err);
-      if (!data.results || data.results.length === 0) return console.log("검색 결과 없음");
-        const movie = data.results[0];
-        const fullUrl = `https://image.tmdb.org/t/p/w780${movie.backdrop_path}`;  // w780 대신 원하는 크기
-        document.querySelector(".bo_v_mov_overlay").style.backgroundImage = `url('${fullUrl}')`;
-        getMovieDetails(movie.id, function(err2, info) {
-        if (err2) return console.error("상세 조회 오류:", err2);
-        });
-    });
-})();
-*/
-// =======================================================
-// =======================================================
-// =======================================================
 
 
 
