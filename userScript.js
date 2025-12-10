@@ -17,7 +17,7 @@
 // 9. 시청목록 시스템 추가
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "251211137";
+const scriptVersion = "2512111356";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -180,15 +180,20 @@ var videoThumbUrl = "";
 
   //재생 페이지 회차별 썸네일 제거(모바일은 유지)
   //삭제하기 전에 비디오 썸네일 주소 저장
-  const currentVideoTitle = document.querySelector('.bo_v_tit').textContent;
-  const items = document.querySelectorAll('#other_list li.searchText');
-  items.forEach(li => {
-      var listTitle = li.classList.value.replace("searchText ", "");
-      if (listTitle == currentVideoTitle) {
-          const img = li.querySelector('img.lazy');
-          if (img) { videoThumbUrl = img.getAttribute('data-original') }
-      }
-  });
+  const currentVideoTitle = document.querySelector('.bo_v_tit');
+  if (currentVideoTitle) {
+    const videoTitleText = currentVideoTitle.textContent;
+    const items = document.querySelectorAll('#other_list li.searchText');
+    items.forEach(li => {
+        var listTitle = li.classList.value.replace("searchText ", "");
+        if (listTitle == currentVideoTitle) {
+            const img = li.querySelector('img.lazy');
+            if (img) { videoThumbUrl = img.getAttribute('data-original') }
+        }
+    });
+
+  }
+
   //삭제
   if (isRunningOnTv) {
   // class가 searchText로 시작하는 모든 li 선택
