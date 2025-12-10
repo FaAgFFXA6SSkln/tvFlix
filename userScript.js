@@ -230,8 +230,6 @@ var isOnlyVideo = false;
 // =======================================================
 // 3. 웹사이트 요소 추가(검색버튼 텍스트, 동영상 재생버튼, 특수 포커스 효과, 시청목록 시스템)
 // =======================================================
-
-
 //시청목록 시스템 1. 제목 정리
 function cleanTitle(str) {
     let s = str;
@@ -282,7 +280,6 @@ function sendWatchListAddSignToNative(){
     if (typeof NativeApp !== 'undefined') NativeApp.receiveVideoTitleLinkImage(videoTitleText, videoLink, videoImage);
   }
 }
-
 (function() {
   'use strict'
   // 메인 페이지, 카테고리 페이지, 검색 결과 페이지 상단에 검색 버튼 텍스트 추가 로직 및 인라인 스타일 강제 오버라이드
@@ -921,10 +918,20 @@ function sendWatchListAddSignToNative(){
   window.moveToNextEpisode = function() {
     window.location.href = nextEpisodeLink;
   }
-
-
-
-
+  
+  //검색 버튼 누르기 함수
+  window.clickSearchButton = function() {
+    var element = document.querySelector('.${className}');
+    if (element) {
+        element.click();
+        console.log('Search button clicked successfully.');
+        return true;
+    } else {
+        console.error('Search button element not found: .${className}');
+        return false;
+    }        
+  }
+  
 })();
 // =======================================================
 // =======================================================
