@@ -17,7 +17,7 @@
 // 9. 시청목록 시스템 추가
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512111356";
+const scriptVersion = "2512111425";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -186,12 +186,13 @@ var videoThumbUrl = "";
     const items = document.querySelectorAll('#other_list li.searchText');
     items.forEach(li => {
         var listTitle = li.classList.value.replace("searchText ", "");
-        if (listTitle == currentVideoTitle) {
+        if (listTitle == videoTitleText) {
             const img = li.querySelector('img.lazy');
-            if (img) { videoThumbUrl = img.getAttribute('data-original') }
+            if (img) {
+              videoThumbUrl = img.getAttribute('data-original')
+            }
         }
     });
-
   }
 
   //삭제
@@ -594,15 +595,6 @@ function sendWatchListAddSignToNative(){
       .more {
           padding-right: 15px !important;
       }
-
-    /* =========================================================== */
-    /* =========================================================== */
-    /* =========================================================== */
-
-
-    /* =========================================================== */
-    /* 메인 페이지 작품 레이아웃 수정 */
-    /* =========================================================== */
 
 
     /* =========================================================== */
