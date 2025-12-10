@@ -18,7 +18,7 @@
 // 9. 시청목록 시스템 추가
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512110415";
+const scriptVersion = "2512110432";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -1135,7 +1135,17 @@ function sendWatchListAddSignToNative(){
 // =======================================================
 
 
+
+
+
+
+// =======================================================
+// 8. 검색어 자동완성 기능
+// =======================================================
 (function() {
+
+  if (isWebBrowser) {
+
     'use strict';
 
     const TMDB_API_KEY = '8c0ffa89de81017aeee4dba11012b5d6';
@@ -1173,7 +1183,7 @@ function sendWatchListAddSignToNative(){
 
     let suggestions = [];
     let currentIndex = -1;
-    console.log("자동완성 테스트1");
+
     // 위치 업데이트 (fixed 기준 → 화면상의 절대 좌표)
     function updatePosition() {
         const rect = input.getBoundingClientRect();
@@ -1208,7 +1218,7 @@ function sendWatchListAddSignToNative(){
             }
         });
     }
-    console.log("자동완성 테스트2");
+
     // 자동완성 리스트 렌더링
     function renderSuggestions() {
         container.innerHTML = '';
@@ -1246,7 +1256,7 @@ function sendWatchListAddSignToNative(){
         });
         currentIndex = idx;
     }
-    console.log("자동완성 테스트3");
+
     function unhighlight(idx) {
         container.children[idx].style.background = '#ffffff';
     }
@@ -1280,7 +1290,170 @@ function sendWatchListAddSignToNative(){
         }
     });
 
+
+
+  }
+
+  else {
+
+    'use strict';
+
+    const input = document.querySelector('#sch_stx');
+    const searchWrap = document.querySelector('.search_wrap');
+
+    if (!input || !searchWrap) {
+        // console.log("[Autocomplete] 검색창 요소를 찾을 수 없습니다.");
+        return;
+    }
+
+    // --- UI 생성 부분 (기존과 동일) ---
+    const parent = searchWrap.parentElement || document.body;
+    const container = document.createElement('div');
+    container.style.position = 'fixed';
+    container.style.background = '#ffffff';
+    container.style.border = '1px solid #ccc';
+    container.style.maxHeight = '250px';
+    container.style.overflowY = 'auto';
+    container.style.zIndex = '999999';
+    container.style.display = 'none';
+    container.style.fontSize = '14px';
+    container.style.boxSizing = 'border-box';
+    container.style.padding = '0';
+    container.style.margin = '0';
+    container.style.color = '#000'; // 글자색 강제 지정 (혹시 배경이 어두운 테마일 경우 대비)
+
+    parent.appendChild(container);
+
+    let suggestions = [];
+    let currentIndex = -1;
+
+    function updatePosition() {
+        const rect = input.getBoundingClientRect();
+        container.style.left = rect.left + 'px';
+        container.style.top = (rect.bottom) + 'px';
+        container.style.width = rect.width + 'px';
+    }
+
+    setTimeout(updatePosition, 300);
+    window.addEventListener('resize', updatePosition);
+    window.addEventListener('scroll', updatePosition);
+
+    // --- [핵심 변경] 안드로이드와 통신하는 부분 ---
+
+    // 1. 검색 요청 함수
+    function fetchTMDB(query) {
+        if (!query) {
+            container.style.display = 'none';
+            return;
+        }
+
+        // 안드로이드 앱 환경인지 확인
+        if (window.NativeApp && typeof window.NativeApp.searchTmdb === 'function') {
+            // 안드로이드 앱에게 네트워크 요청 위임
+            window.NativeApp.searchTmdb(query);
+        } else {
+            console.log("NativeApp 인터페이스를 찾을 수 없습니다.");
+        }
+    }
+
+    // 2. 데이터 수신 함수 (안드로이드에서 호출함)
+    // 전역(window)에 선언해야 안드로이드에서 접근 가능
+    window.receiveTmdbData = function(jsonString) {
+        try {
+            const data = JSON.parse(jsonString);
+            suggestions = (data.results || [])
+                .filter(item => item.media_type === 'movie' || item.media_type === 'tv')
+                .slice(0, 10);
+            renderSuggestions();
+        } catch (e) {
+            console.error("JSON 파싱 에러:", e);
+        }
+    };
+
+    // --- 렌더링 및 이벤트 처리 (기존 로직 유지) ---
+    function renderSuggestions() {
+        container.innerHTML = '';
+        currentIndex = -1;
+
+        if (suggestions.length === 0) {
+            container.style.display = 'none';
+            return;
+        }
+
+        suggestions.forEach((item, idx) => {
+            const row = document.createElement('div');
+            // 제목이 길 경우를 대비해 스타일 조금 보강
+            row.textContent = item.title || item.name;
+            row.style.padding = '8px 10px';
+            row.style.cursor = 'pointer';
+            row.style.background = '#fff';
+            row.style.borderBottom = '1px solid #eee';
+
+            row.addEventListener('mouseenter', () => highlight(idx));
+            row.addEventListener('mouseleave', () => unhighlight(idx));
+            row.addEventListener('click', () => {
+                input.value = item.title || item.name;
+                container.style.display = 'none';
+
+                // 클릭 시 바로 검색 버튼을 누르게 하려면 아래 주석 해제
+                // const searchBtn = document.querySelector('#btn_search');
+                // if(searchBtn) searchBtn.click();
+            });
+
+            container.appendChild(row);
+        });
+
+        updatePosition();
+        container.style.display = 'block';
+    }
+
+    function highlight(idx) {
+        [...container.children].forEach((row, i) => {
+            row.style.background = i === idx ? '#eeeeee' : '#ffffff';
+        });
+        currentIndex = idx;
+    }
+
+    function unhighlight(idx) {
+        if(container.children[idx]) {
+            container.children[idx].style.background = '#ffffff';
+        }
+    }
+
+    input.addEventListener('keyup', (e) => {
+        const key = e.key;
+
+        if (key === 'ArrowDown') {
+            if (currentIndex < suggestions.length - 1) highlight(currentIndex + 1);
+            return;
+        }
+        if (key === 'ArrowUp') {
+            if (currentIndex > 0) highlight(currentIndex - 1);
+            return;
+        }
+        if (key === 'Enter') {
+            if (currentIndex >= 0 && suggestions[currentIndex]) {
+                input.value = suggestions[currentIndex].title || suggestions[currentIndex].name;
+                container.style.display = 'none';
+            }
+            return;
+        }
+
+        // 디바운싱 없이 입력할 때마다 호출 (필요시 setTimeout으로 디바운싱 추가 가능)
+        fetchTMDB(input.value);
+    });
+
+    document.addEventListener('mousedown', (e) => {
+        if (!container.contains(e.target) && e.target !== input) {
+            container.style.display = 'none';
+        }
+    });
+  }
+
 })();
+// =======================================================
+// =======================================================
+// =======================================================
 
 
 
