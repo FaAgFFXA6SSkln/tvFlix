@@ -17,7 +17,7 @@
 // 9. 시청목록 시스템 추가
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "251210911";
+const scriptVersion = "251211038";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -918,10 +918,10 @@ function sendWatchListAddSignToNative(){
   window.moveToNextEpisode = function() {
     window.location.href = nextEpisodeLink;
   }
-  
+  clickSearchButton
   //검색 버튼 누르기 함수
   window.clickSearchButton = function() {
-    var element = document.querySelector('.${className}');
+    var element = document.querySelector('.btn_search');
     if (element) {
         element.click();
         console.log('Search button clicked successfully.');
@@ -929,9 +929,9 @@ function sendWatchListAddSignToNative(){
     } else {
         console.error('Search button element not found: .${className}');
         return false;
-    }        
+    }
   }
-  
+
 })();
 // =======================================================
 // =======================================================
