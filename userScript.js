@@ -17,7 +17,7 @@
 // 9. 시청목록 시스템 추가
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512100730";
+const scriptVersion = "251210911";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -898,11 +898,16 @@ function sendWatchListAddSignToNative(){
     const path = window.location.pathname.replace(/\/$/, ""); // 끝의 / 제거
     // 메인 페이지는 path가 빈 문자열 또는 '/'로 간주
     const isMainPage = host === mainPageUrl && (path === "" || path === "/");
+
+    NativeApp.showNativeMenu();
+
+    /*
     if (isMainPage) {
         NativeApp.finishApp();
     } else {
         history.back();
     }
+    */
   }
 
   //다음 회차가 있는지 체크하는 함수
