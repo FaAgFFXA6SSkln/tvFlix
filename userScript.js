@@ -17,11 +17,12 @@
 // 9. 시청목록 시스템 추가
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "251211125";
+const scriptVersion = "2512101328";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
 var isOnlyVideo = false;
+var videoThumbUrl = "";
 
 
 // =======================================================
@@ -178,6 +179,19 @@ var isOnlyVideo = false;
   });
 
   //재생 페이지 회차별 썸네일 제거(모바일은 유지)
+  //삭제하기 전에 비디오 썸네일 주소 저장
+  const currentVideoTitle = document.querySelector('.bo_v_tit').textContent;
+  console.log(currentVideoTitle);
+  const items = document.querySelectorAll('#other_list li.searchText');
+  items.forEach(li => {
+      var listTitle = li.classList.value.replace("searchText ", "");
+      console.log(listTitle);
+      if (listTitle == currentVideoTitle) {
+          const img = li.querySelector('img.lazy');
+          if (img) { videoThumbUrl = img.getAttribute('data-original') }
+      }
+  });
+  //삭제
   if (isRunningOnTv) {
   // class가 searchText로 시작하는 모든 li 선택
     const liElements = document.querySelectorAll('li[class^="searchText"]');
@@ -188,11 +202,9 @@ var isOnlyVideo = false;
         }
     });
   }
-
   //재생 페이지에서 회차가 하나밖에 없는 경우, 회차 영역 전체를 제거
   //재생 페이지에서 회차가 여러개인 경우, 다음화 자동재생을 위해 에피소드 제목을 목록 배열에 추가
   const target = document.querySelector('#other_list');
-
   if (target) {
       const ul = target.querySelector('ul');
       if (ul) {
@@ -302,9 +314,8 @@ function sendWatchListAddSignToNative(){
     const videoTitleText = cleanTitle(videoTitleElement.textContent);
     //링크 추출
     const videoLink = window.location.href
-    //포스터이미지 추출
-    const videoImage = "https://img-requset5.digitalorio3nx.com//v/f/80114be688dd2e208e82b73ba942aade3f89f/thumb.png"
-    if (typeof NativeApp !== 'undefined') NativeApp.receiveVideoTitleLinkImage(videoTitleText, videoLink, videoImage);
+
+    if (typeof NativeApp !== 'undefined') NativeApp.receiveVideoTitleLinkImage(videoTitleText, videoLink, videoThumbUrl);
   }
 }
 (function() {
@@ -324,8 +335,6 @@ function sendWatchListAddSignToNative(){
     // 3. 버튼 아이콘 앞에 텍스트 추가
       searchButton.prepend(searchLabel);
   }
-
-
 
   // 재생 페이지'.bo_v_mov'에 '동영상 재생하기' 버튼 추가 및 스타일 적용(일반 웹브라우저에서는 적용하지 않기)
   if (!isWebBrowser) {
