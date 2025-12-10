@@ -1,6 +1,7 @@
 // ==UserScript==
 // @name        tvFlixUserScirpt
 // @include     /^https?:\/\/[^/]*tvwiki[^/]*\/.*$/
+// @grant        GM_xmlhttpRequest
 // ==/UserScript==
 //
 // =======================================================
@@ -17,7 +18,7 @@
 // 9. 시청목록 시스템 추가
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512101842";
+const scriptVersion = "2512110415";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -1139,7 +1140,7 @@ function sendWatchListAddSignToNative(){
 
     const TMDB_API_KEY = '8c0ffa89de81017aeee4dba11012b5d6';
     const input = document.querySelector('#sch_stx');
-    const searchWrap = document.querySelector('.search_wrap');
+    const searchWrap = document.querySelector('.search_wrap')
 
     if (!input) {
         console.log("[Autocomplete] 검색창(#sch_stx) 없음");
@@ -1147,19 +1148,21 @@ function sendWatchListAddSignToNative(){
     }
 
     if (!searchWrap) {
-        console.log("[Autocomplete] 검색창(.search_wrap) 없음");
+        console.log("[Autocomplete] 검색창(#sch_stx) 없음");
         return;
     }
 
+    // 검색창의 부모 요소에 컨테이너 추가
+    //const parent = input.parentElement || document.body;
     const parent = searchWrap.parentElement || document.body;
 
     const container = document.createElement('div');
-    container.style.position = 'fixed';
+    container.style.position = 'fixed';  // fixed로 변경
     container.style.background = '#ffffff';
     container.style.border = '1px solid #ccc';
     container.style.maxHeight = '250px';
     container.style.overflowY = 'auto';
-    container.style.zIndex = '999999';
+    container.style.zIndex = '999999';   // 최상단
     container.style.display = 'none';
     container.style.fontSize = '14px';
     container.style.boxSizing = 'border-box';
@@ -1170,7 +1173,8 @@ function sendWatchListAddSignToNative(){
 
     let suggestions = [];
     let currentIndex = -1;
-
+    console.log("자동완성 테스트1");
+    // 위치 업데이트 (fixed 기준 → 화면상의 절대 좌표)
     function updatePosition() {
         const rect = input.getBoundingClientRect();
         container.style.left = rect.left + 'px';
@@ -1178,10 +1182,13 @@ function sendWatchListAddSignToNative(){
         container.style.width = rect.width + 'px';
     }
 
+    // DOM 렌더 완료 후 위치 정확히 계산
     setTimeout(updatePosition, 300);
     window.addEventListener('resize', updatePosition);
     window.addEventListener('scroll', updatePosition);
 
+
+    // TMDB 검색 함수
     function fetchTMDB(query) {
         if (!query) {
             container.style.display = 'none';
@@ -1201,7 +1208,8 @@ function sendWatchListAddSignToNative(){
             }
         });
     }
-
+    console.log("자동완성 테스트2");
+    // 자동완성 리스트 렌더링
     function renderSuggestions() {
         container.innerHTML = '';
         currentIndex = -1;
@@ -1228,37 +1236,19 @@ function sendWatchListAddSignToNative(){
             container.appendChild(row);
         });
 
-        updatePosition();
-        container.style.display = 'block';
+        updatePosition(); // 위치 재확인
+        container.style.display = 'block'; // 강제 표시
     }
 
     function highlight(idx) {
         [...container.children].forEach((row, i) => {
-            if (i === idx) {
-                row.style.setProperty('z-index', '9999', 'important');
-                row.style.setProperty('background-color', '#552E00', 'important');
-                row.style.setProperty('outline', '4px solid #FFD700', 'important');
-                row.style.setProperty('outline-offset', '0px', 'important');
-                row.style.setProperty('box-shadow', '0 0 0 400px #552E00 inset, 0 0 400px rgba(255, 215, 0, 1)', 'important');
-                row.style.setProperty('transition', 'outline-color 0.2s, box-shadow 0.2s', 'important');
-                row.style.setProperty('color', '#fff', 'important');
-            } else {
-                unhighlight(i);
-            }
+            row.style.background = i === idx ? '#eeeeee' : '#ffffff';
         });
         currentIndex = idx;
     }
-
+    console.log("자동완성 테스트3");
     function unhighlight(idx) {
-        const row = container.children[idx];
-        if (!row) return;
-        row.style.removeProperty('z-index');
-        row.style.removeProperty('background-color');
-        row.style.removeProperty('outline');
-        row.style.removeProperty('outline-offset');
-        row.style.removeProperty('box-shadow');
-        row.style.removeProperty('transition');
-        row.style.removeProperty('color');
+        container.children[idx].style.background = '#ffffff';
     }
 
     input.addEventListener('keyup', (e) => {
@@ -1283,6 +1273,7 @@ function sendWatchListAddSignToNative(){
         fetchTMDB(input.value);
     });
 
+    // 외부 클릭 시 닫기
     document.addEventListener('mousedown', (e) => {
         if (!container.contains(e.target) && e.target !== input) {
             container.style.display = 'none';
