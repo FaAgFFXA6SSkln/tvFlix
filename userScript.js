@@ -17,7 +17,7 @@
 // 9. 시청목록 시스템 추가
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512111425";
+const scriptVersion = "2512101842";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -1134,11 +1134,170 @@ function sendWatchListAddSignToNative(){
 // =======================================================
 
 
+(function() {
+    'use strict';
+
+    const TMDB_API_KEY = '8c0ffa89de81017aeee4dba11012b5d6';
+    const input = document.querySelector('#sch_stx');
+    const searchWrap = document.querySelector('.search_wrap');
+
+    if (!input) {
+        console.log("[Autocomplete] 검색창(#sch_stx) 없음");
+        return;
+    }
+
+    if (!searchWrap) {
+        console.log("[Autocomplete] 검색창(.search_wrap) 없음");
+        return;
+    }
+
+    const parent = searchWrap.parentElement || document.body;
+
+    const container = document.createElement('div');
+    container.style.position = 'fixed';
+    container.style.background = '#ffffff';
+    container.style.border = '1px solid #ccc';
+    container.style.maxHeight = '250px';
+    container.style.overflowY = 'auto';
+    container.style.zIndex = '999999';
+    container.style.display = 'none';
+    container.style.fontSize = '14px';
+    container.style.boxSizing = 'border-box';
+    container.style.padding = '0';
+    container.style.margin = '0';
+
+    parent.appendChild(container);
+
+    let suggestions = [];
+    let currentIndex = -1;
+
+    function updatePosition() {
+        const rect = input.getBoundingClientRect();
+        container.style.left = rect.left + 'px';
+        container.style.top = (rect.bottom) + 'px';
+        container.style.width = rect.width + 'px';
+    }
+
+    setTimeout(updatePosition, 300);
+    window.addEventListener('resize', updatePosition);
+    window.addEventListener('scroll', updatePosition);
+
+    function fetchTMDB(query) {
+        if (!query) {
+            container.style.display = 'none';
+            return;
+        }
+
+        GM_xmlhttpRequest({
+            method: 'GET',
+            url: `https://api.themoviedb.org/3/search/multi?api_key=${TMDB_API_KEY}&language=ko-KR&query=${encodeURIComponent(query)}`,
+            onload: function(res) {
+                const data = JSON.parse(res.responseText);
+                suggestions = (data.results || [])
+                    .filter(item => item.media_type === 'movie' || item.media_type === 'tv')
+                    .slice(0, 10);
+
+                renderSuggestions();
+            }
+        });
+    }
+
+    function renderSuggestions() {
+        container.innerHTML = '';
+        currentIndex = -1;
+
+        if (suggestions.length === 0) {
+            container.style.display = 'none';
+            return;
+        }
+
+        suggestions.forEach((item, idx) => {
+            const row = document.createElement('div');
+            row.textContent = item.title || item.name;
+            row.style.padding = '8px 10px';
+            row.style.cursor = 'pointer';
+            row.style.background = '#fff';
+
+            row.addEventListener('mouseenter', () => highlight(idx));
+            row.addEventListener('mouseleave', () => unhighlight(idx));
+            row.addEventListener('click', () => {
+                input.value = item.title || item.name;
+                container.style.display = 'none';
+            });
+
+            container.appendChild(row);
+        });
+
+        updatePosition();
+        container.style.display = 'block';
+    }
+
+    function highlight(idx) {
+        [...container.children].forEach((row, i) => {
+            if (i === idx) {
+                row.style.setProperty('z-index', '9999', 'important');
+                row.style.setProperty('background-color', '#552E00', 'important');
+                row.style.setProperty('outline', '4px solid #FFD700', 'important');
+                row.style.setProperty('outline-offset', '0px', 'important');
+                row.style.setProperty('box-shadow', '0 0 0 400px #552E00 inset, 0 0 400px rgba(255, 215, 0, 1)', 'important');
+                row.style.setProperty('transition', 'outline-color 0.2s, box-shadow 0.2s', 'important');
+                row.style.setProperty('color', '#fff', 'important');
+            } else {
+                unhighlight(i);
+            }
+        });
+        currentIndex = idx;
+    }
+
+    function unhighlight(idx) {
+        const row = container.children[idx];
+        if (!row) return;
+        row.style.removeProperty('z-index');
+        row.style.removeProperty('background-color');
+        row.style.removeProperty('outline');
+        row.style.removeProperty('outline-offset');
+        row.style.removeProperty('box-shadow');
+        row.style.removeProperty('transition');
+        row.style.removeProperty('color');
+    }
+
+    input.addEventListener('keyup', (e) => {
+        const key = e.key;
+
+        if (key === 'ArrowDown') {
+            if (currentIndex < suggestions.length - 1) highlight(currentIndex + 1);
+            return;
+        }
+        if (key === 'ArrowUp') {
+            if (currentIndex > 0) highlight(currentIndex - 1);
+            return;
+        }
+        if (key === 'Enter') {
+            if (currentIndex >= 0) {
+                input.value = suggestions[currentIndex].title || suggestions[currentIndex].name;
+                container.style.display = 'none';
+            }
+            return;
+        }
+
+        fetchTMDB(input.value);
+    });
+
+    document.addEventListener('mousedown', (e) => {
+        if (!container.contains(e.target) && e.target !== input) {
+            container.style.display = 'none';
+        }
+    });
+
+})();
+
+
+
 
 
 
 // =======================================================
-// 8. TMDB(The Movie Database) Api 적용
+// TMDB(The Movie Database) Api 적용
 // =======================================================
 /*
 (function(){
@@ -1276,6 +1435,9 @@ function sendWatchListAddSignToNative(){
 // =======================================================
 // =======================================================
 // =======================================================
+
+
+
 
 
 if (!isWebBrowser) ApplyVideoNormalStyle();
