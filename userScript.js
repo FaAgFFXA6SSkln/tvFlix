@@ -17,7 +17,7 @@
 // 9. 시청목록 시스템 추가
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "251211058";
+const scriptVersion = "251211107";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -98,11 +98,13 @@ var isOnlyVideo = false;
     headerWrap.style.height = '0px';
     headerWrap.querySelectorAll('*').forEach(el => {
       el.setAttribute('tabindex', '-1');
+      el.height = '0px';
     });
   }
 
   //TV 이외 환경에서는 재생 페이지에서는 보이지 않게 처리하고, 그외 메인 페이지나 카테고리, 검색 페이지 등에서는 레이아웃 변경
   else {
+
     if (pathSegments.length > 1) {
         const headerWrap = document.getElementById('header_wrap');
         if (headerWrap) {
@@ -130,34 +132,6 @@ var isOnlyVideo = false;
             parent.style.alignItems = 'center';
         }
     }
-  }
-
-  if (pathSegments.length > 1) {
-      const headerWrap = document.getElementById('header_wrap');
-      if (headerWrap) {
-          headerWrap.remove();
-          headerWrap.style.height = '0px';
-
-          document.querySelectorAll("#gnb_mobile").forEach(element => {
-            element.remove();
-            element.style.height = '0px';
-        });
-      }
-  }
-  else {
-      // 메인 페이지 또는 서브페이지일 때 실행
-      const headerWrap = document.getElementById('header_wrap');
-      if (headerWrap) {
-          headerWrap.style.height = '80px';
-      }
-
-      // 검색 버튼 수직 중앙 정렬
-      const headerElement = document.getElementById('header');
-      if (headerElement && headerElement.parentElement) {
-          const parent = headerElement.parentElement;
-          parent.style.display = 'flex';
-          parent.style.alignItems = 'center';
-      }
   }
 
 
