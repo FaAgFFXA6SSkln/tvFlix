@@ -970,6 +970,11 @@ function sendWatchListAddSignToNative(){
     var element = document.querySelector('.btn_search');
     if (element) {
         element.click();
+        //검색버튼 누르고 키보드 강제호출
+        const input = document.getElementById('sch_stx');
+        input.style.display = 'block';
+        input.focus();
+        input.click();  // 모바일에서 키보드 강제 호출에 필요함
         return true;
     } else {
         return false;
