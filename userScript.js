@@ -18,7 +18,7 @@
 // 9. 시청목록 시스템 추가
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512120728";
+const scriptVersion = "2512120759";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -1249,6 +1249,35 @@ function sendWatchListAddSignToNative(){
         }
         // 마우스가 벗어나도 currentIndex는 키보드 처리를 위해 유지합니다.
     }
+
+
+// --- input 요소에서 키보드 이벤트를 수동으로 처리 ---
+    input.addEventListener('keydown', (e) => {
+        const key = e.key;
+
+        if (container.style.display === 'block' && suggestions.length > 0) {
+            // 아래 화살표 키를 눌렀을 때
+            if (key === 'ArrowDown') {
+                e.preventDefault(); // ⭐️ 시스템의 기본 포커스 이동을 막습니다. ⭐️
+
+                // 첫 번째 추천 검색어 항목으로 포커스를 바로 이동시킵니다.
+                // highlight 함수를 호출하여 포커스 스타일을 적용하고
+                highlight(0);
+
+                // 실제 DOM 포커스를 컨테이너 내부의 항목으로 이동시킵니다.
+                const firstItem = container.children[0];
+                if (firstItem) {
+                    firstItem.focus();
+                }
+                return;
+            }
+        }
+
+        // 추천 검색어 목록이 열려 있고, 항목 간의 이동을 수동으로 처리하고 싶다면,
+        // 이 곳에서 'ArrowUp', 'ArrowDown', 'Enter' 키를 처리해야 합니다.
+        // 현재는 첫 이동만 처리하고 나머지 항목 간 이동은 시스템에 맡기겠습니다.
+        // 하지만 TV 환경에서는 포커스 이동 전체를 수동으로 제어하는 것이 좋습니다.
+    });
 
 
     // 디바운싱 타이머 (이전에 제안했던 디바운싱 코드를 적용하는 것이 좋지만, 현재 사용자 코드를 유지하기 위해 이 코드를 사용)
