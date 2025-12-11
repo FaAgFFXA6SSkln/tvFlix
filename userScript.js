@@ -18,7 +18,7 @@
 // 9. 시청목록 시스템 추가
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512120642";
+const scriptVersion = "2512120718";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -1255,25 +1255,6 @@ function sendWatchListAddSignToNative(){
     input.addEventListener('keyup', (e) => {
         const key = e.key;
 
-        if (key === 'ArrowDown') {
-            // 키보드 이동 시 highlight 함수를 통해 포커스 스타일이 즉시 적용됨
-            if (currentIndex < suggestions.length - 1) highlight(currentIndex + 1);
-            else if (suggestions.length > 0) highlight(0); // 끝에서 처음으로 순환
-            return;
-        }
-        if (key === 'ArrowUp') {
-            if (currentIndex > 0) highlight(currentIndex - 1);
-            else if (suggestions.length > 0) highlight(suggestions.length - 1); // 처음에서 끝으로 순환
-            return;
-        }
-        if (key === 'Enter') {
-            if (currentIndex >= 0 && suggestions[currentIndex]) {
-                input.value = suggestions[currentIndex].title || suggestions[currentIndex].name;
-                container.style.display = 'none';
-            }
-            return;
-        }
-
         // --- 디바운싱 적용 (느린 초기 로딩 문제 해결을 위해 이전에 제안했던 방식) ---
         clearTimeout(debounceTimer);
         debounceTimer = setTimeout(() => {
@@ -1413,24 +1394,6 @@ function sendWatchListAddSignToNative(){
 
   input.addEventListener('keyup', (e) => {
       const key = e.key;
-      /*
-      if (key === 'ArrowDown') {
-          if (currentIndex < suggestions.length - 1) highlight(currentIndex + 1);
-          return;
-      }
-      if (key === 'ArrowUp') {
-          if (currentIndex > 0) highlight(currentIndex - 1);
-          return;
-      }
-      if (key === 'Enter') {
-          if (currentIndex >= 0) {
-              input.value = suggestions[currentIndex].title || suggestions[currentIndex].name;
-              container.style.display = 'none';
-          }
-          return;
-      }
-      */
-
       fetchTMDB(input.value);
   });
 
@@ -1476,8 +1439,9 @@ function sendWatchListAddSignToNative(){
           //console.log("추천 검색어 존재");  // block, none, flex 등 출력
           if (el.id == 'sch_stx') {
             //console.log("검색창에 포커스가 가있음");
-            const autocomplete_child = autocomplete_parent.querySelector('.autocomplete_child');
-            autocomplete_child.focus();
+            const autocomplete_child = autocomplete_parent.querySelectorAll('.autocomplete_child');
+            autocomplete_child[0].focus();
+            console.log(autocomplete_child[0]);
             console.log("추천검색어 첫번째로 포커스 이동");
             e.preventDefault();
           }
