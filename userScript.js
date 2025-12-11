@@ -18,7 +18,7 @@
 // 9. 시청목록 시스템 추가
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512111003";
+const scriptVersion = "2512111105";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -92,7 +92,7 @@ function removeById(id) {
       });
   });
 
- 
+
 
 
   // 메인 페이지('/')가 아닌 하위 페이지일 경우 #header_wrap (로고, 검색버튼)을 삭제
@@ -1155,12 +1155,8 @@ function sendWatchListAddSignToNative(){
 // =======================================================
 //네이티브 앱
 (function() {
-    // isWebBrowser 플래그가 정의되어 있다면 해당 로직을 따름
-    // 이 코드가 웹뷰에서 실행되도록 isWebBrowser가 true일 때만 return하도록 수정
-    // if (typeof isWebBrowser !== 'undefined' && isWebBrowser) return; // 주석 처리 또는 제거
-
-    if (isWebBrowser) return;
     'use strict';
+    if (isWebBrowser) return;
 
     const input = document.querySelector('#sch_stx');
     const searchWrap = document.querySelector('.search_wrap');
@@ -1174,8 +1170,7 @@ function sendWatchListAddSignToNative(){
     const parent = searchWrap.parentElement || document.body;
     const container = document.createElement('div');
     container.style.position = 'fixed';
-    // 다크 모드를 고려하여 대비를 확실히 줄 수 있도록 흰색 배경으로 고정합니다.
-    container.style.background = '#ffffff';
+    container.style.background = '#000000';
     container.style.border = '1px solid #ccc';
     container.style.maxHeight = '250px';
     container.style.overflowY = 'auto';
@@ -1184,10 +1179,12 @@ function sendWatchListAddSignToNative(){
     container.style.fontSize = '14px';
     container.style.boxSizing = 'border-box';
     container.style.padding = '0';
-    // 텍스트 색상도 흰색 배경에 맞춰 검은색으로 고정
-    container.style.color = '#000000';
-
+    container.style.color = '#ffffff';
+    container.tabindex = '-1';
     parent.appendChild(container);
+
+
+
 
     // 내부에서 사용할 CSS 클래스를 추가합니다.
     const style = document.createElement('style');
@@ -1200,8 +1197,8 @@ function sendWatchListAddSignToNative(){
         }
         .autocomplete-item {
             /* 기본 상태의 텍스트 색상과 배경 */
-            color: #000000;
-            background: #ffffff;
+            color: #ffffff;
+            background: #000000;
         }
     `;
     document.head.appendChild(style);
