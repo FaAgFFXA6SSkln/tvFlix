@@ -27,7 +27,6 @@ var videoThumbUrl = "";
 function removeById(id) {
   const el = document.getElementById(id);
   if (el) el.remove();
-
 }
 
 
@@ -906,7 +905,8 @@ function sendWatchListAddSignToNative(){
       if (isOpen) {
         layer2.classList.remove('active');// 닫기: 사이트가 어떤 방식으로 열어놨든 안전하게 닫도록 여러 속성 설정
         // 원래 버튼으로 포커스 복귀
-        const btn = document.querySelector('.filter2 .btn_filter');
+        var btn = document.querySelector('.filter2 .btn_filter')
+        if (!btn) btn = document.querySelector('.filter2 .btn_filter2')
         btn.focus();
         btn.click();
         e.preventDefault();
@@ -1002,61 +1002,7 @@ function sendWatchListAddSignToNative(){
   document.querySelectorAll('.filter_layer a').forEach(a => {
       a.setAttribute('tabindex', '0');
   });
-  document.addEventListener('keydown', (e) => {
-      const active = document.activeElement;
 
-      if (active.classList.contains('btn_filter')) {
-          const layer = active.nextElementSibling; // .filter_layer
-          if (!layer) return;
-
-          //드롭다운이 열려있을때, 카테고리 필터 버튼 포커스 상태에서는 아래 방향키만 동작하게 만들기
-          if (e.key === 'ArrowLeft' || e.key == 'ArrowRight' || e.key === 'ArrowUp') {
-
-            const computed = window.getComputedStyle(layer);
-            const hasActiveClass = layer.classList && layer.classList.contains('active');
-            const displayVisible = (layer.style.display && layer.style.display !== 'none') || (computed.display && computed.display !== 'none');
-            const visibilityVisible = (layer.style.visibility && layer.style.visibility !== 'hidden') || (computed.visibility && computed.visibility !== 'hidden');
-            const offscreen = layer.style.left && (layer.style.left === '-9999px' || layer.style.left.indexOf('-') === 0);
-            const isOpen = hasActiveClass || (displayVisible && visibilityVisible && !offscreen);
-            if (isOpen) {
-              e.preventDefault();
-            }
-          }
-
-          //드롭다운이 열려있을때, 카테고리 필터 버튼 포커스 상태에서 아래 방향키를 누르면 자식 요소로 이동하게 하기
-          if (e.key === 'ArrowDown') {
-
-            //드롭다운이 열려있을때
-            const computed = window.getComputedStyle(layer);
-            const hasActiveClass = layer.classList && layer.classList.contains('active');
-            const displayVisible = (layer.style.display && layer.style.display !== 'none') || (computed.display && computed.display !== 'none');
-            const visibilityVisible = (layer.style.visibility && layer.style.visibility !== 'hidden') || (computed.visibility && computed.visibility !== 'hidden');
-            const offscreen = layer.style.left && (layer.style.left === '-9999px' || layer.style.left.indexOf('-') === 0);
-            const isOpen = hasActiveClass || (displayVisible && visibilityVisible && !offscreen);
-            if (isOpen) {
-              const first = layer.querySelector('a');
-              first?.focus();
-              e.preventDefault();
-            }
-          }
-
-      //드롭다운이 열려있고, 자식 요소들에 포커스가 있을 때
-      } else if (active.closest('.filter_layer, .filter2_layer')) {
-
-          //옆 방향키는 동작하지 않게 하기
-          if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
-            e.preventDefault();
-          } else if (e.key === 'ArrowDown') {
-              const next = active.nextElementSibling;
-              if (next) next.focus();
-              e.preventDefault();
-          } else if (e.key === 'ArrowUp') {
-              const prev = active.previousElementSibling;
-              if (prev) prev.focus();
-              e.preventDefault();
-          }
-      }
-  });
 
 
   //검색 버튼 누르면 입력창으로 포커스 강제 이동
@@ -1487,7 +1433,7 @@ function sendWatchListAddSignToNative(){
           return;
       }
 
-      fetchTMDB(input.value);
+      fetchTMDB(input.value);n
   });
 
   // 외부 클릭 시 닫기
@@ -1505,6 +1451,78 @@ function sendWatchListAddSignToNative(){
 // =======================================================
 // =======================================================
 // =======================================================
+
+
+//키 입력 종합
+(function(){
+
+  document.addEventListener('keydown', (e) => {
+    const active = document.activeElement;
+
+    if (active.classList.contains('.search_wrap')) {
+      if (NativeApp) {
+        customLog("검색창 열린 상태")
+      }
+    }
+
+
+
+    if (active.classList.contains('btn_filter')) {
+      const layer = active.nextElementSibling; // .filter_layer
+      if (!layer) return;
+
+      //드롭다운이 열려있을때, 카테고리 필터 버튼 포커스 상태에서는 아래 방향키만 동작하게 만들기
+      if (e.key === 'ArrowLeft' || e.key == 'ArrowRight' || e.key === 'ArrowUp') {
+
+        const computed = window.getComputedStyle(layer);
+        const hasActiveClass = layer.classList && layer.classList.contains('active');
+        const displayVisible = (layer.style.display && layer.style.display !== 'none') || (computed.display && computed.display !== 'none');
+        const visibilityVisible = (layer.style.visibility && layer.style.visibility !== 'hidden') || (computed.visibility && computed.visibility !== 'hidden');
+        const offscreen = layer.style.left && (layer.style.left === '-9999px' || layer.style.left.indexOf('-') === 0);
+        const isOpen = hasActiveClass || (displayVisible && visibilityVisible && !offscreen);
+        if (isOpen) {
+          e.preventDefault();
+        }
+      }
+
+      //드롭다운이 열려있을때, 카테고리 필터 버튼 포커스 상태에서 아래 방향키를 누르면 자식 요소로 이동하게 하기
+      if (e.key === 'ArrowDown') {
+
+        //드롭다운이 열려있을때
+        const computed = window.getComputedStyle(layer);
+        const hasActiveClass = layer.classList && layer.classList.contains('active');
+        const displayVisible = (layer.style.display && layer.style.display !== 'none') || (computed.display && computed.display !== 'none');
+        const visibilityVisible = (layer.style.visibility && layer.style.visibility !== 'hidden') || (computed.visibility && computed.visibility !== 'hidden');
+        const offscreen = layer.style.left && (layer.style.left === '-9999px' || layer.style.left.indexOf('-') === 0);
+        const isOpen = hasActiveClass || (displayVisible && visibilityVisible && !offscreen);
+        if (isOpen) {
+          const first = layer.querySelector('a');
+          first?.focus();
+          e.preventDefault();
+        }
+      }
+
+    //드롭다운이 열려있고, 자식 요소들에 포커스가 있을 때
+    }
+    else if (active.closest('.filter_layer, .filter2_layer')) {
+
+      //옆 방향키는 동작하지 않게 하기
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+        e.preventDefault();
+      } else if (e.key === 'ArrowDown') {
+          const next = active.nextElementSibling;
+          if (next) next.focus();
+          e.preventDefault();
+      } else if (e.key === 'ArrowUp') {
+          const prev = active.previousElementSibling;
+          if (prev) prev.focus();
+          e.preventDefault();
+      }
+    }
+  });
+
+})();
+
 
 
 
