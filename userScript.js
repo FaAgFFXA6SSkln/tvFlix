@@ -18,7 +18,7 @@
 // 9. 시청목록 시스템 추가
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512120718";
+const scriptVersion = "2512120728";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -1121,6 +1121,7 @@ function sendWatchListAddSignToNative(){
     container.style.padding = '0';
     container.style.color = '#ffffff';
     container.setAttribute('tabindex', '-1');
+    container.style.pointerEvents = 'none';
     parent.appendChild(container);
 
 
@@ -1200,6 +1201,7 @@ function sendWatchListAddSignToNative(){
             row.style.padding = '8px 10px';
             row.style.cursor = 'pointer';
             row.style.borderBottom = '1px solid #eee';
+            row.setAttribute('tabindex', '0');
 
             // 클래스 추가
             row.classList.add('autocomplete-item');
@@ -1306,6 +1308,7 @@ function sendWatchListAddSignToNative(){
   container.style.padding = '0';
   container.style.margin = '0';
   container.setAttribute('tabindex', '-1');
+  container.style.pointerEvents = 'none';
 
   parent.appendChild(container);
 
@@ -1364,6 +1367,7 @@ function sendWatchListAddSignToNative(){
           row.style.padding = '8px 10px';
           row.style.cursor = 'pointer';
           row.style.background = '#111111';
+          row.setAttribute('tabindex', '0');
 
           row.addEventListener('mouseenter', () => highlight(idx));
           row.addEventListener('mouseleave', () => unhighlight(idx));
