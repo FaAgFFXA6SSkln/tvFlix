@@ -18,7 +18,7 @@
 // 9. 시청목록 시스템 추가
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512111731";
+const scriptVersion = "2512111739";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -978,7 +978,7 @@ function sendWatchListAddSignToNative(){
         input.focus();
         input.click();  // 모바일에서 키보드 강제 호출에 필요함
     }, 50);
-  });
+
         return true;
     } else {
         return false;
