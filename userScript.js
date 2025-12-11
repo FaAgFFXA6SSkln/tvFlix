@@ -18,7 +18,7 @@
 // 9. 시청목록 시스템 추가
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512111739";
+const scriptVersion = "2512120446";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -1014,23 +1014,6 @@ function sendWatchListAddSignToNative(){
   });
 
 
-
-  //검색 버튼 누르면 입력창으로 포커스 강제 이동
-  const searchButtonQuery = document.querySelector('.btn_search')
-  if (searchButtonQuery !== null) {
-      document.querySelector('.btn_search').addEventListener('click', function (e) {
-    e.preventDefault();
-    const input = document.getElementById('sch_stx');
-
-    // 입력창 표시 (숨겨져 있다면)
-    input.style.display = 'block';
-
-    // 짧은 딜레이 후 포커스
-    setTimeout(() => {
-        input.focus();
-        input.click();  // 모바일에서 키보드 강제 호출에 필요함
-    }, 50);
-  });
   document.forms["fsearchbox"].addEventListener("submit", function (e) {
     const input = document.getElementById("sch_stx");
 
@@ -1040,7 +1023,7 @@ function sendWatchListAddSignToNative(){
     }
   });
 
-  }
+
 
 
 
@@ -1395,6 +1378,7 @@ function sendWatchListAddSignToNative(){
 
       suggestions.forEach((item, idx) => {
           const row = document.createElement('div');
+          row.className = "autocomplete_child";
           row.textContent = item.title || item.name;
           row.style.padding = '8px 10px';
           row.style.cursor = 'pointer';
@@ -1469,16 +1453,35 @@ function sendWatchListAddSignToNative(){
 
   document.addEventListener('keydown', (e) => {
 
+  //아래 방향키 처리
+  if (e.key == 'ArrowDown') {
     //검색창 활성화 상태에서 키 입력 처리
     const wrap = document.querySelector('.search_wrap');
-
     if (wrap.classList.contains('active')) {
-        console.log("검색창 활성화 상태");
+      console.log("검색창 활성화 상태");
+      var el = document.activeElement;
+      //console.log(el.tagName);
+      //console.log(el.id)
+      //console.log(el.className);
 
-
-
-
+      const autocomplete_parent = document.getElementById('autocomplete_parent');
+      if (autocomplete_parent) {
+        const displayValue = window.getComputedStyle(autocomplete_parent).display;
+        if (displayValue == 'block') {
+          //console.log("추천 검색어 존재");  // block, none, flex 등 출력
+          if (el.id == 'sch_stx') {
+            //console.log("검색창에 포커스가 가있음");
+            const autocomplete_child = document.querySelector('.autocomplete_child');
+            autocomplete_child.focus();
+            console.log("추천검색어 첫번째로 포커스 이동");
+            e.preventDefault();
+          }
+        }
+      }
     }
+  }
+
+
 
 
 
