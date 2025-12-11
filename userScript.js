@@ -18,12 +18,17 @@
 // 9. 시청목록 시스템 추가
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512110642";
+const scriptVersion = "2512111003";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
 var isOnlyVideo = false;
 var videoThumbUrl = "";
+function removeById(id) {
+  const el = document.getElementById(id);
+  if (el) el.remove();
+
+}
 
 
 // =======================================================
@@ -86,6 +91,10 @@ var videoThumbUrl = "";
           element.remove();
       });
   });
+
+ 
+
+
   // 메인 페이지('/')가 아닌 하위 페이지일 경우 #header_wrap (로고, 검색버튼)을 삭제
   const pathname = window.location.pathname;
   // '/'로 분리 후 빈 문자열 제거
@@ -106,6 +115,8 @@ var videoThumbUrl = "";
     const btn_search = document.querySelector('.btn_search');
     btn_search.style.setProperty('display', 'none', 'important');
     btn_search.setAttribute('tabindex', '-1');
+
+    removeById('sch_submit');//검색창의 검색실행 버튼 제거
 
   }
 
@@ -1148,6 +1159,7 @@ function sendWatchListAddSignToNative(){
     // 이 코드가 웹뷰에서 실행되도록 isWebBrowser가 true일 때만 return하도록 수정
     // if (typeof isWebBrowser !== 'undefined' && isWebBrowser) return; // 주석 처리 또는 제거
 
+    if (isWebBrowser) return;
     'use strict';
 
     const input = document.querySelector('#sch_stx');
