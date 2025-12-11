@@ -875,6 +875,7 @@ function sendWatchListAddSignToNative(){
     if (isSearchLayerOpen){
       document.querySelector('.search_layer')?.classList.remove('active');
       document.querySelector('.search_wrap')?.classList.remove('active');
+      document.getElementById('autocomplete_parent').style.display = 'none';
 
       // 현재 입력창 포커스 제거
       if (document.activeElement) {
@@ -1115,6 +1116,7 @@ function sendWatchListAddSignToNative(){
     // --- UI 생성 부분 (기존과 동일) ---
     const parent = searchWrap.parentElement || document.body;
     const container = document.createElement('div');
+    container.id = "autocomplete_parent"
     container.style.position = 'fixed';
     container.style.background = '#000000';
     container.style.border = '1px solid #ccc';
@@ -1317,8 +1319,8 @@ function sendWatchListAddSignToNative(){
   // 검색창의 부모 요소에 컨테이너 추가
   //const parent = input.parentElement || document.body;
   const parent = searchWrap.parentElement || document.body;
-
   const container = document.createElement('div');
+  container.id = "autocomplete_parent"
   container.style.position = 'fixed';  // fixed로 변경
   container.style.background = '#000000';
   container.style.border = '1px solid #ccc';
@@ -1433,7 +1435,7 @@ function sendWatchListAddSignToNative(){
           return;
       }
 
-      fetchTMDB(input.value);n
+      fetchTMDB(input.value);
   });
 
   // 외부 클릭 시 닫기
@@ -1457,15 +1459,21 @@ function sendWatchListAddSignToNative(){
 (function(){
 
   document.addEventListener('keydown', (e) => {
-    const active = document.activeElement;
 
-    if (active.classList.contains('.search_wrap')) {
-      if (NativeApp) {
-        customLog("검색창 열린 상태")
-      }
+    //검색창 활성화 상태에서 키 입력 처리
+    const wrap = document.querySelector('.search_wrap');
+
+    if (wrap.classList.contains('active')) {
+        console.log("검색창 활성화 상태");
+
+
+
+
     }
 
 
+
+    const active = document.activeElement;
 
     if (active.classList.contains('btn_filter')) {
       const layer = active.nextElementSibling; // .filter_layer
