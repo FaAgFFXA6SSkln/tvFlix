@@ -18,7 +18,7 @@
 // 9. 시청목록 시스템 추가
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512121847";
+const scriptVersion = "2512121857";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -1431,7 +1431,7 @@ function sendWatchListAddSignToNative(){
       if (autocomplete_parent) {
         const displayValue = window.getComputedStyle(autocomplete_parent).display;
         if (displayValue == 'block') {
-          console.log("추천 검색어 존재");  // block, none, flex 등 출력
+          //console.log("추천 검색어 존재");  // block, none, flex 등 출력
 
           //현재 포커스가 검색창에 있다면, 추천 검색어로 포커스를 내린다
           if (el.id == 'sch_stx') {
@@ -1441,8 +1441,9 @@ function sendWatchListAddSignToNative(){
 
             e.preventDefault();
             //const autocomplete_child = autocomplete_parent.querySelectorAll('.autocomplete_child');
-            const autocomplete_child = autocomplete_parent.querySelectorAll('[class*="autocomplete_child"]');
-            console.log(`다음 추천 검색어 [${autocomplete_child[0].textContent}]로 포커스 이동`);
+            //const autocomplete_child = autocomplete_parent.querySelectorAll('[class*="autocomplete_child"]');
+            const autocomplete_child = document.querySelectorAll('.autocomplete_child');
+            //console.log(`다음 추천 검색어 [${autocomplete_child[0].textContent}]로 포커스 이동`);
             autocomplete_child[0].focus();
           }
 
@@ -1492,7 +1493,8 @@ function sendWatchListAddSignToNative(){
       //포커스가 추천 검색어에 있다면, 이전 검색어가 있다면 이전 검색어로, 아니라면 검색입력창으로 포커스 이동
       else if (el.className == 'autocomplete_child'){
         e.preventDefault();
-        const autocomplete_child = autocomplete_parent.querySelectorAll('.autocomplete_child')
+        //const autocomplete_child = autocomplete_parent.querySelectorAll('.autocomplete_child')
+        const autocomplete_child = document.querySelectorAll('.autocomplete_child');
         const resultLength = autocomplete_child.length;
         var currentIndex = 0;
 
