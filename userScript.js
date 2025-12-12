@@ -18,7 +18,7 @@
 // 9. 시청목록 시스템 추가
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512122030";
+const scriptVersion = "2512122045";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -966,8 +966,12 @@ function sendWatchListAddSignToNative(){
     window.location.href = nextEpisodeLink;
   }
 
+
+
   //검색 버튼 누르기 함수
   window.clickSearchButton = function() {
+
+    /*
     var element = document.querySelector('.btn_search');
     if (element) {
         element.click();
@@ -984,7 +988,20 @@ function sendWatchListAddSignToNative(){
     } else {
         return false;
     }
+    */
+
+    var search_layer = document.querySelector('.search_layer');
+    var search_wrap = document.querySelector('.search_wrap');
+    search_layer.classList.add('active');
+    searchWrap.classList.add('active');
+    const input = document.getElementById('sch_stx');
+    input.style.display = 'block';
+    input.focus();
+    input.click();  // 모바일에서 키보드 강제 호출에 필요함                                                
   }
+
+
+
 
 })();
 // =======================================================
@@ -1093,6 +1110,8 @@ function sendWatchListAddSignToNative(){
 // =======================================================
 // 8. 검색어 자동완성 기능: TMDB(The Move Database) Api 적용
 // =======================================================
+
+
 (function() {
     'use strict';
 
@@ -1196,7 +1215,7 @@ function sendWatchListAddSignToNative(){
             const row = document.createElement('div');
             row.textContent = item.title || item.name;
             row.tabIndex = 0;
-            row.classList.add('autocomplete_child');
+            row.classList.add('autocomplete-item');
 
             row.addEventListener('mouseenter', () => highlight(idx));
             row.addEventListener('mouseleave', () => unhighlight(idx));
@@ -1214,14 +1233,14 @@ function sendWatchListAddSignToNative(){
 
     function highlight(idx) {
         [...container.children].forEach((row, i) => {
-            row.classList.toggle('autocomplete_child', i === idx);
+            row.classList.toggle('autocomplete-item-focused', i === idx);
         });
         currentIndex = idx;
     }
 
     function unhighlight(idx) {
         if (container.children[idx]) {
-            container.children[idx].classList.remove('autocomplete_child');
+            container.children[idx].classList.remove('autocomplete-item-focused');
         }
     }
 
