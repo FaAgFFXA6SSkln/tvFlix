@@ -18,7 +18,7 @@
 // 9. 시청목록 시스템 추가
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512121425";
+const scriptVersion = "2512121550";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -1210,258 +1210,6 @@ function sendWatchListAddSignToNative(){
      * 특정 인덱스 항목을 하이라이트/포커스 처리합니다.
      * @param {number} idx - 포커스를 줄 항목의 인덱스
      */
-    function highlight(idx) {
-        [...container.children].forEach((row, i) => {
-            if (i === idx) {
-                // 포커스 스타일 적용
-                row.classList.add('autocomplete-item-focused');
-            } else {
-                // 다른 모든 항목에서 포커스 스타일 제거
-                row.classList.remove('autocomplete-item-focused');
-            }
-        });
-        currentIndex = idx;
-    }
-
-    /**
-     * 특정 인덱스 항목에서 포커스 스타일을 제거합니다. (마우스가 벗어났을 때 사용)
-     * @param {number} idx - 포커스를 제거할 항목의 인덱스
-     */
-    function unhighlight(idx) {
-        // 마우스가 벗어날 때만 클래스를 제거합니다.
-        // 참고: 키보드 이동 시에는 highlight 함수 내에서 이전 포커스를 제거합니다.
-        if (container.children[idx]) {
-             container.children[idx].classList.remove('autocomplete-item-focused');
-        }
-        // 마우스가 벗어나도 currentIndex는 키보드 처리를 위해 유지합니다.
-    }
-
-
-// ... (기존 코드: fetchTMDB 함수 정의 부분까지 유지) ...
-
-    // --- input 요소에서 키보드 이벤트를 수동으로 처리 ---
-    let debounceTimer;
-
-    // ⭐️ 기존 keyup 리스너는 그대로 유지하거나 (검색 API 호출), 아래와 같이 수정합니다. ⭐️
-    input.addEventListener('keyup', (e) => {
-        // 엔터키(Enter)는 검색을 유발할 수 있으므로, 이미 추천 항목이 있다면 방지합니다.
-        if (e.key === 'Enter' && container.style.display === 'block' && currentIndex !== -1) {
-            return; // keydown에서 이미 처리되었으므로 무시
-        }
-
-        // --- 디바운싱 적용 ---
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(() => {
-            fetchTMDB(input.value);
-        }, 300);
-    });
-
-    // ⭐️ 포커스 탐색 제어를 위한 keydown 리스너 (주요 수정 부분) ⭐️
-    document.addEventListener('keydown', (e) => {
-        const key = e.key;
-        const items = container.children;
-        const itemsCount = items.length;
-
-        // 1. ESC 키로 컨테이너 닫기 (포커스 락 해제)
-        if (key === 'Escape') {
-            if (container.style.display === 'block') {
-                e.preventDefault();
-                container.style.display = 'none';
-                input.focus(); // 검색창으로 포커스 복귀
-            }
-            return;
-        }
-
-        // 추천 검색어 목록이 열려 있을 때만 처리
-        if (container.style.display === 'block' && itemsCount > 0) {
-
-            // 항목 간 이동, 경계 처리 및 검색창 복귀
-            if (key === 'ArrowDown') {
-                e.preventDefault();
-
-                // 현재 input에 포커스가 있거나 (초기 진입), currentIndex가 마지막 항목이 아닐 때
-                if (document.activeElement === input) {
-                    highlight(0);
-                    items[0].focus();
-                    return;
-                } else if (currentIndex < itemsCount - 1) {
-                    highlight(currentIndex + 1);
-                    items[currentIndex + 1].focus();
-                }
-                // else: 마지막 항목에서는 아무것도 하지 않고 포커스를 유지합니다. (스크롤 방지)
-
-            } else if (key === 'ArrowUp') {
-                e.preventDefault();
-
-                if (currentIndex > 0) {
-                    // 이전 항목으로 이동
-                    highlight(currentIndex - 1);
-                    items[currentIndex - 1].focus();
-                } else if (currentIndex === 0) {
-                    // ⭐️ 첫 항목에서 위로 이동 시 검색창으로 포커스 복귀 및 입력 방지 (수정) ⭐️
-                    unhighlight(0); // 현재 항목 하이라이트 제거
-                    input.focus();
-                }
-                // else: 검색창에 포커스가 있다면 아무것도 하지 않습니다. (경계 밖으로 나가는 것 방지)
-
-            } else if (key === 'Enter') {
-                // 엔터키 입력 시 현재 포커스 항목 클릭
-                if (currentIndex !== -1) {
-                    e.preventDefault();
-                    items[currentIndex].click();
-                }
-            }
-        }
-    });
-
-    document.addEventListener('mousedown', (e) => {
-        if (!container.contains(e.target) && e.target !== input) {
-            container.style.display = 'none';
-        }
-    });
-
-
-})();
-//monkey 지원 브라우저
-(function() {
-  if (!isWebBrowser) return;
-
-  'use strict';
-
-  const TMDB_API_KEY = '8c0ffa89de81017aeee4dba11012b5d6';
-  const input = document.querySelector('#sch_stx');
-  const searchWrap = document.querySelector('.search_wrap')
-
-  if (!input) {
-      console.log("[Autocomplete] 검색창(#sch_stx) 없음");
-      return;
-  }
-
-  if (!searchWrap) {
-      console.log("[Autocomplete] 검색창(#sch_stx) 없음");
-      return;
-  }
-
-  // 검색창의 부모 요소에 컨테이너 추가
-  //const parent = input.parentElement || document.body;
-  const parent = searchWrap.parentElement || document.body;
-  const container = document.createElement('div');
-  container.id = "autocomplete_parent"
-  container.style.position = 'fixed';  // fixed로 변경
-  container.style.background = '#000000';
-  container.style.border = '1px solid #ccc';
-  container.style.maxHeight = '250px';
-  container.style.overflowY = 'auto';
-  container.style.zIndex = '999999';   // 최상단
-  container.style.display = 'none';
-  container.style.fontSize = '14px';
-  container.style.boxSizing = 'border-box';
-  container.style.padding = '0';
-  container.style.margin = '0';
-  container.setAttribute('tabindex', '-1');
-  container.style.pointerEvents = 'none';
-
-  parent.appendChild(container);
-
-  let suggestions = [];
-  let currentIndex = -1;
-
-  // 위치 업데이트 (fixed 기준 → 화면상의 절대 좌표)
-  function updatePosition() {
-      const rect = input.getBoundingClientRect();
-      container.style.left = rect.left + 'px';
-      container.style.top = (rect.bottom) + 'px';
-      container.style.width = rect.width + 'px';
-  }
-
-  // DOM 렌더 완료 후 위치 정확히 계산
-  setTimeout(updatePosition, 300);
-  window.addEventListener('resize', updatePosition);
-  window.addEventListener('scroll', updatePosition);
-
-
-  // TMDB 검색 함수
-  function fetchTMDB(query) {
-      if (!query) {
-          container.style.display = 'none';
-          return;
-      }
-
-      GM_xmlhttpRequest({
-          method: 'GET',
-          url: `https://api.themoviedb.org/3/search/multi?api_key=${TMDB_API_KEY}&language=ko-KR&query=${encodeURIComponent(query)}`,
-          onload: function(res) {
-              const data = JSON.parse(res.responseText);
-              suggestions = (data.results || [])
-                  .filter(item => item.media_type === 'movie' || item.media_type === 'tv')
-                  .slice(0, 10);
-
-              renderSuggestions();
-          }
-      });
-  }
-
-  // 자동완성 리스트 렌더링
-  function renderSuggestions() {
-      container.innerHTML = '';
-      currentIndex = -1;
-
-      if (suggestions.length === 0) {
-          container.style.display = 'none';
-          return;
-      }
-
-      suggestions.forEach((item, idx) => {
-          const row = document.createElement('div');
-          row.className = "autocomplete_child";
-          row.textContent = item.title || item.name;
-          row.style.padding = '8px 10px';
-          row.style.cursor = 'pointer';
-          row.style.background = '#111111';
-          row.setAttribute('tabindex', '0');
-
-          row.addEventListener('mouseenter', () => highlight(idx));
-          row.addEventListener('mouseleave', () => unhighlight(idx));
-          row.addEventListener('click', () => {
-              input.value = item.title || item.name;
-              container.style.display = 'none';
-          });
-
-          container.appendChild(row);
-      });
-
-      updatePosition(); // 위치 재확인
-      container.style.display = 'block'; // 강제 표시
-  }
-
-  function highlight(idx) {
-      [...container.children].forEach((row, i) => {
-          row.style.background = i === idx ? '#552E00' : '#000000';
-      });
-      currentIndex = idx;
-  }
-
-  function unhighlight(idx) {
-      container.children[idx].style.background = '#000000';
-  }
-
-
-
-  input.addEventListener('keyup', (e) => {
-      const key = e.key;
-      fetchTMDB(input.value);
-  });
-
-
-
-  // 외부 클릭 시 닫기
-  document.addEventListener('mousedown', (e) => {
-      if (!container.contains(e.target) && e.target !== input) {
-          container.style.display = 'none';
-      }
-  });
-
-
 
 
 
@@ -1476,6 +1224,7 @@ function sendWatchListAddSignToNative(){
 
   document.addEventListener('keydown', (e) => {
 
+  /*
   //아래 방향키 처리
   if (e.key == 'ArrowDown') {
     //검색창 활성화 상태에서 키 입력 처리
@@ -1505,60 +1254,62 @@ function sendWatchListAddSignToNative(){
     }
   }
 
-    const active = document.activeElement;
+  */
 
-    if (active.classList.contains('btn_filter')) {
-      const layer = active.nextElementSibling; // .filter_layer
-      if (!layer) return;
+    
+  const active = document.activeElement;
+  if (active.classList.contains('btn_filter')) {
+    const layer = active.nextElementSibling; // .filter_layer
+    if (!layer) return;
 
-      //드롭다운이 열려있을때, 카테고리 필터 버튼 포커스 상태에서는 아래 방향키만 동작하게 만들기
-      if (e.key === 'ArrowLeft' || e.key == 'ArrowRight' || e.key === 'ArrowUp') {
+    //드롭다운이 열려있을때, 카테고리 필터 버튼 포커스 상태에서는 아래 방향키만 동작하게 만들기
+    if (e.key === 'ArrowLeft' || e.key == 'ArrowRight' || e.key === 'ArrowUp') {
 
-        const computed = window.getComputedStyle(layer);
-        const hasActiveClass = layer.classList && layer.classList.contains('active');
-        const displayVisible = (layer.style.display && layer.style.display !== 'none') || (computed.display && computed.display !== 'none');
-        const visibilityVisible = (layer.style.visibility && layer.style.visibility !== 'hidden') || (computed.visibility && computed.visibility !== 'hidden');
-        const offscreen = layer.style.left && (layer.style.left === '-9999px' || layer.style.left.indexOf('-') === 0);
-        const isOpen = hasActiveClass || (displayVisible && visibilityVisible && !offscreen);
-        if (isOpen) {
-          e.preventDefault();
-        }
-      }
-
-      //드롭다운이 열려있을때, 카테고리 필터 버튼 포커스 상태에서 아래 방향키를 누르면 자식 요소로 이동하게 하기
-      if (e.key === 'ArrowDown') {
-
-        //드롭다운이 열려있을때
-        const computed = window.getComputedStyle(layer);
-        const hasActiveClass = layer.classList && layer.classList.contains('active');
-        const displayVisible = (layer.style.display && layer.style.display !== 'none') || (computed.display && computed.display !== 'none');
-        const visibilityVisible = (layer.style.visibility && layer.style.visibility !== 'hidden') || (computed.visibility && computed.visibility !== 'hidden');
-        const offscreen = layer.style.left && (layer.style.left === '-9999px' || layer.style.left.indexOf('-') === 0);
-        const isOpen = hasActiveClass || (displayVisible && visibilityVisible && !offscreen);
-        if (isOpen) {
-          const first = layer.querySelector('a');
-          first?.focus();
-          e.preventDefault();
-        }
-      }
-
-    //드롭다운이 열려있고, 자식 요소들에 포커스가 있을 때
-    }
-    else if (active.closest('.filter_layer, .filter2_layer')) {
-
-      //옆 방향키는 동작하지 않게 하기
-      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+      const computed = window.getComputedStyle(layer);
+      const hasActiveClass = layer.classList && layer.classList.contains('active');
+      const displayVisible = (layer.style.display && layer.style.display !== 'none') || (computed.display && computed.display !== 'none');
+      const visibilityVisible = (layer.style.visibility && layer.style.visibility !== 'hidden') || (computed.visibility && computed.visibility !== 'hidden');
+      const offscreen = layer.style.left && (layer.style.left === '-9999px' || layer.style.left.indexOf('-') === 0);
+      const isOpen = hasActiveClass || (displayVisible && visibilityVisible && !offscreen);
+      if (isOpen) {
         e.preventDefault();
-      } else if (e.key === 'ArrowDown') {
-          const next = active.nextElementSibling;
-          if (next) next.focus();
-          e.preventDefault();
-      } else if (e.key === 'ArrowUp') {
-          const prev = active.previousElementSibling;
-          if (prev) prev.focus();
-          e.preventDefault();
       }
     }
+
+    //드롭다운이 열려있을때, 카테고리 필터 버튼 포커스 상태에서 아래 방향키를 누르면 자식 요소로 이동하게 하기
+    if (e.key === 'ArrowDown') {
+
+      //드롭다운이 열려있을때
+      const computed = window.getComputedStyle(layer);
+      const hasActiveClass = layer.classList && layer.classList.contains('active');
+      const displayVisible = (layer.style.display && layer.style.display !== 'none') || (computed.display && computed.display !== 'none');
+      const visibilityVisible = (layer.style.visibility && layer.style.visibility !== 'hidden') || (computed.visibility && computed.visibility !== 'hidden');
+      const offscreen = layer.style.left && (layer.style.left === '-9999px' || layer.style.left.indexOf('-') === 0);
+      const isOpen = hasActiveClass || (displayVisible && visibilityVisible && !offscreen);
+      if (isOpen) {
+        const first = layer.querySelector('a');
+        first?.focus();
+        e.preventDefault();
+      }
+    }
+
+  //드롭다운이 열려있고, 자식 요소들에 포커스가 있을 때
+  }
+  else if (active.closest('.filter_layer, .filter2_layer')) {
+
+    //옆 방향키는 동작하지 않게 하기
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+      e.preventDefault();
+    } else if (e.key === 'ArrowDown') {
+        const next = active.nextElementSibling;
+        if (next) next.focus();
+        e.preventDefault();
+    } else if (e.key === 'ArrowUp') {
+        const prev = active.previousElementSibling;
+        if (prev) prev.focus();
+        e.preventDefault();
+    }
+  }
   });
 
 })();
