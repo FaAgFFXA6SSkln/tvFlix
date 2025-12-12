@@ -18,7 +18,7 @@
 // 9. 시청목록 시스템 추가
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512121335";
+const scriptVersion = "2512121417";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -1492,34 +1492,7 @@ function sendWatchListAddSignToNative(){
 
   document.addEventListener('keydown', (e) => {
 
-  //아래 방향키 처리
-  if (e.key == 'ArrowDown') {
-    //검색창 활성화 상태에서 키 입력 처리
-    const wrap = document.querySelector('.search_wrap');
-    if (wrap.classList.contains('active')) {
-      console.log("검색창 활성화 상태");
-      var el = document.activeElement;
-      //console.log(el.tagName);
-      //console.log(el.id)
-      //console.log(el.className);
 
-      const autocomplete_parent = document.getElementById('autocomplete_parent');
-      if (autocomplete_parent) {
-        const displayValue = window.getComputedStyle(autocomplete_parent).display;
-        if (displayValue == 'block') {
-          //console.log("추천 검색어 존재");  // block, none, flex 등 출력
-          if (el.id == 'sch_stx') {
-            //console.log("검색창에 포커스가 가있음");
-            const autocomplete_child = autocomplete_parent.querySelectorAll('.autocomplete_child');
-            autocomplete_child[0].focus();
-            console.log(autocomplete_child[0]);
-            console.log("추천검색어 첫번째로 포커스 이동");
-            e.preventDefault();
-          }
-        }
-      }
-    }
-  }
 
     const active = document.activeElement;
 
