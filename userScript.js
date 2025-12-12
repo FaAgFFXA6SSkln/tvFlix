@@ -18,7 +18,7 @@
 // 9. 키 입력 오버라이드
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512122129";
+const scriptVersion = "2512120551";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -977,7 +977,7 @@ function sendWatchListAddSignToNative(){
     if (!input) return false;
 
     input.style.display = 'block';
-
+    document.getElementById('autocomplete_parent').style.display = 'block';
     // 짧은 딜레이 후 포커스 및 내용 비우기
     setTimeout(() => {
         input.focus();
@@ -1009,7 +1009,7 @@ function sendWatchListAddSignToNative(){
   //로깅 함수
   window.customLog = function(message) {
     console.log(message);
-    if (typeof NativeApp !== "undefined" && typeof NativeApp[fn] === "function") {
+    if (typeof NativeApp !== "undefined") {
       NativeApp.jsLog(message);
     }
   }
@@ -1416,6 +1416,8 @@ function sendWatchListAddSignToNative(){
       const autocomplete_parent = document.getElementById('autocomplete_parent');
       if (autocomplete_parent) {
         const displayValue = window.getComputedStyle(autocomplete_parent).display;
+
+        //추천검색어가 존재한다면
         if (displayValue == 'block') {
           //console.log("추천 검색어 존재");  // block, none, flex 등 출력
 
@@ -1450,12 +1452,16 @@ function sendWatchListAddSignToNative(){
             }
           }
         }
+
+        //추천창이 뜨지 않았다면
+        else {
+            //포커스가 검색창에 있다면
+          if (el.id == 'sch_stx') {
+            e.preventDefault();
+          }
+        }
       }
     }
-
-
-
-
   }
 
   else if (e.key == 'ArrowUp') {
