@@ -18,7 +18,7 @@
 // 9. 시청목록 시스템 추가
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512121825";
+const scriptVersion = "2512121917";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -1094,52 +1094,63 @@ function sendWatchListAddSignToNative(){
 // 8. 검색어 자동완성 기능: TMDB(The Move Database) Api 적용
 // =======================================================
 //네이티브 앱
+// ==UserScript==
+// @name         TVWiki Search Autocomplete (TMDB, WebView 안정화)
+// @namespace    http://tampermonkey.net/
+// @version      1.0
+// @description  TMDB 기반 검색 자동완성 (Chromecast/WebView 호환)
+// @match        https://tvwiki4.net/*
+// @grant        none
+// ==/UserScript==
+
 (function() {
     'use strict';
-    if (isWebBrowser) return;
+
+    // 웹뷰 여부에 따라 스킵
+    if (typeof isWebBrowser !== 'undefined' && isWebBrowser) return;
 
     const input = document.querySelector('#sch_stx');
     const searchWrap = document.querySelector('.search_wrap');
 
-    if (!input || !searchWrap) {
-        // console.log("[Autocomplete] 검색창 요소를 찾을 수 없습니다.");
-        return;
-    }
+    if (!input || !searchWrap) return;
 
-    // --- UI 생성 부분 (기존과 동일) ---
-    const parent = searchWrap.parentElement || document.body;
+    // --- container 생성 ---
     const container = document.createElement('div');
-    container.id = "autocomplete_parent"
+    container.id = 'autocomplete_parent';
     container.style.position = 'fixed';
-    container.style.background = '#000000';
+    container.style.background = '#000';
     container.style.border = '1px solid #ccc';
     container.style.maxHeight = '250px';
     container.style.overflowY = 'auto';
     container.style.zIndex = '999999';
-    container.style.display = 'none';
+    container.style.display = 'block';       // 반드시 block
+    container.style.visibility = 'hidden';   // 초기 숨김
     container.style.fontSize = '14px';
     container.style.boxSizing = 'border-box';
     container.style.padding = '0';
-    container.style.color = '#ffffff';
-    //container.setAttribute('tabindex', '-1');
-    //container.style.pointerEvents = 'none';
-    parent.appendChild(container);
+    container.style.color = '#fff';
+    container.style.pointerEvents = 'auto';  // 자식 포커스 가능
+    document.body.appendChild(container);
 
-
-    // 내부에서 사용할 CSS 클래스를 추가합니다.
+    // --- CSS 클래스 ---
     const style = document.createElement('style');
     style.textContent = `
-        .autocomplete-item-focused {
-            /* 키보드 포커스 시 노란색 윤곽선 추가 */
-            outline: 2px solid yellow !important;
-            outline-offset: -2px; /* 윤곽선이 경계선 안으로 들어가도록 */
-            background: #552E00 !important; /* 포커스 시 배경색 변경 (선택됨 표시) */
-            color : #ffffff;
-        }
         .autocomplete-item {
-            /* 기본 상태의 텍스트 색상과 배경 */
-            color: #ffffff;
-            background: #000000;
+            color: #fff;
+            background: #000;
+            padding: 8px 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #333;
+        }
+        .autocomplete-item-focused {
+            outline: 4px solid #FFD700 !important;
+            outline-offset: 0px !important;
+            background-color: #552E00 !important;
+            box-shadow:
+                0 0 0 400px #552E00 inset,
+                0 0 400px rgba(255, 215, 0, 1) !important;
+            transition: outline-color 0.2s, box-shadow 0.2s;
+            color: #fff;
         }
     `;
     document.head.appendChild(style);
@@ -1150,7 +1161,7 @@ function sendWatchListAddSignToNative(){
     function updatePosition() {
         const rect = input.getBoundingClientRect();
         container.style.left = rect.left + 'px';
-        container.style.top = (rect.bottom) + 'px';
+        container.style.top = rect.bottom + 'px';
         container.style.width = rect.width + 'px';
     }
 
@@ -1158,18 +1169,14 @@ function sendWatchListAddSignToNative(){
     window.addEventListener('resize', updatePosition);
     window.addEventListener('scroll', updatePosition);
 
-    // --- 안드로이드와 통신하는 부분 (기존과 동일) ---
-
+    // --- TMDB 데이터 수신 (네이티브 앱) ---
     function fetchTMDB(query) {
         if (!query) {
-            container.style.display = 'none';
+            container.style.visibility = 'hidden';
             return;
         }
-
         if (window.NativeApp && typeof window.NativeApp.searchTmdb === 'function') {
             window.NativeApp.searchTmdb(query);
-        } else {
-            console.log("NativeApp 인터페이스를 찾을 수 없습니다.");
         }
     }
 
@@ -1185,90 +1192,65 @@ function sendWatchListAddSignToNative(){
         }
     };
 
-    // --- 렌더링 및 이벤트 처리 수정 ---
+    // --- 렌더링 ---
     function renderSuggestions() {
         container.innerHTML = '';
         currentIndex = -1;
 
-        if (suggestions.length === 0) {
-            container.style.display = 'none';
+        if (!suggestions.length) {
+            container.style.visibility = 'hidden';
             return;
         }
 
-        container.style.display = 'block';
         suggestions.forEach((item, idx) => {
             const row = document.createElement('div');
             row.textContent = item.title || item.name;
-            row.style.padding = '8px 10px';
-            row.style.cursor = 'pointer';
-            row.style.borderBottom = '1px solid #eee';
-            row.setAttribute('tabindex', '0');
-
-            // 클래스 추가
+            row.tabIndex = 0;
             row.classList.add('autocomplete-item');
 
             row.addEventListener('mouseenter', () => highlight(idx));
             row.addEventListener('mouseleave', () => unhighlight(idx));
             row.addEventListener('click', () => {
                 input.value = item.title || item.name;
-                container.style.display = 'none';
+                container.style.visibility = 'hidden';
             });
 
             container.appendChild(row);
         });
 
         updatePosition();
-        container.style.display = 'block';
+        container.style.visibility = 'visible';
     }
 
-    /**
-     * 특정 인덱스 항목을 하이라이트/포커스 처리합니다.
-     * @param {number} idx - 포커스를 줄 항목의 인덱스
-     */
     function highlight(idx) {
         [...container.children].forEach((row, i) => {
-            if (i === idx) {
-                // 포커스 스타일 적용
-                row.classList.add('autocomplete-item-focused');
-            } else {
-                // 다른 모든 항목에서 포커스 스타일 제거
-                row.classList.remove('autocomplete-item-focused');
-            }
+            row.classList.toggle('autocomplete-item-focused', i === idx);
         });
         currentIndex = idx;
     }
 
-    /**
-     * 특정 인덱스 항목에서 포커스 스타일을 제거합니다. (마우스가 벗어났을 때 사용)
-     * @param {number} idx - 포커스를 제거할 항목의 인덱스
-     */
     function unhighlight(idx) {
-        // 마우스가 벗어날 때만 클래스를 제거합니다.
-        // 참고: 키보드 이동 시에는 highlight 함수 내에서 이전 포커스를 제거합니다.
         if (container.children[idx]) {
-             container.children[idx].classList.remove('autocomplete-item-focused');
+            container.children[idx].classList.remove('autocomplete-item-focused');
         }
-        // 마우스가 벗어나도 currentIndex는 키보드 처리를 위해 유지합니다.
     }
 
-
-// ... (기존 코드: fetchTMDB 함수 정의 부분까지 유지) ...
-
-    // --- input 요소에서 키보드 이벤트를 수동으로 처리 ---
+    // --- 키보드 이벤트 ---
     let debounceTimer;
-
-    // ⭐️ 기존 keyup 리스너는 그대로 유지하거나 (검색 API 호출), 아래와 같이 수정합니다. ⭐️
-    input.addEventListener('keyup', (e) => {
-
+    input.addEventListener('keyup', e => {
         clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(() => {
-            fetchTMDB(input.value);
-        }, 300);
+        debounceTimer = setTimeout(() => fetchTMDB(input.value), 300);
     });
 
-
+    // --- 외부 클릭 시 닫기 ---
+    document.addEventListener('mousedown', e => {
+        if (!container.contains(e.target) && e.target !== input) {
+            container.style.visibility = 'hidden';
+        }
+    });
 
 })();
+
 //monkey 지원 브라우저
 (function() {
   if (!isWebBrowser) return;
