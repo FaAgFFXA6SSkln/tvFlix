@@ -18,7 +18,7 @@
 // 9. 시청목록 시스템 추가
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512122052";
+const scriptVersion = "2512122105";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -969,36 +969,23 @@ function sendWatchListAddSignToNative(){
 
 
   //검색 버튼 누르기 함수
-  window.clickSearchButton = function() {
+window.clickSearchButton = function() {
+    const element = document.querySelector('.btn_search');
+    if (!element) return false;
 
-    /*
-    var element = document.querySelector('.btn_search');
-    if (element) {
-        element.click();
-        //검색버튼 누르고 키보드 강제호출
-        const input = document.getElementById('sch_stx');
-        input.style.display = 'block';
-    // 짧은 딜레이 후 포커스
-    setTimeout(() => {
-        input.focus();
-        input.click();  // 모바일에서 키보드 강제 호출에 필요함
-    }, 50);
+    element.click();
 
-        return true;
-    } else {
-        return false;
-    }
-    */
-
-    var search_layer = document.querySelector('.search_layer');
-    var search_wrap = document.querySelector('.search_wrap');
-    search_layer.classList.add('active');
-    search_wrap.classList.add('active');
     const input = document.getElementById('sch_stx');
     input.style.display = 'block';
-    input.focus();
-    input.click();  // 모바일에서 키보드 강제 호출에 필요함
-  }
+
+    // 렌더링 완료 후 포커스
+    requestAnimationFrame(() => {
+        input.focus();
+        input.click(); // 모바일 강제 호출
+    });
+
+    return true;
+}
 
 
 
@@ -1427,22 +1414,17 @@ function sendWatchListAddSignToNative(){
 
           //현재 포커스가 검색창에 있다면, 추천 검색어로 포커스를 내린다
           if (el.id == 'sch_stx') {
-            //console.log("검색창에 포커스가 가있음");
-            //console.log(autocomplete_child[0]);
-            //console.log(autocomplete_child[0].textContent)
-
             e.preventDefault();
-            //const autocomplete_child = autocomplete_parent.querySelectorAll('.autocomplete_child');
-            //const autocomplete_child = autocomplete_parent.querySelectorAll('[class*="autocomplete_child"]');
-            const autocomplete_child = document.querySelectorAll('.autocomplete_child');
-            //console.log(`다음 추천 검색어 [${autocomplete_child[0].textContent}]로 포커스 이동`);
+            const childString = (isWebBrowser) ? '.autocomplete_child' : '[class*="autocomplete-item"]'
+            const autocomplete_child = document.querySelectorAll(childString);
             autocomplete_child[0].focus();
           }
 
           //포커스가 추천 검색어에 있다면, 다음 검색어가 있는지 판단하고 내린다.
           else if (el.className == 'autocomplete_child'){
             e.preventDefault();
-            const autocomplete_child = autocomplete_parent.querySelectorAll('.autocomplete_child')
+            const childString = (isWebBrowser) ? '.autocomplete_child' : '[class*="autocomplete-item"]'
+            const autocomplete_child = document.querySelectorAll(childString);
             const resultLength = autocomplete_child.length;
             var currentIndex = 0;
 
@@ -1485,8 +1467,8 @@ function sendWatchListAddSignToNative(){
       //포커스가 추천 검색어에 있다면, 이전 검색어가 있다면 이전 검색어로, 아니라면 검색입력창으로 포커스 이동
       else if (el.className == 'autocomplete_child'){
         e.preventDefault();
-        //const autocomplete_child = autocomplete_parent.querySelectorAll('.autocomplete_child')
-        const autocomplete_child = document.querySelectorAll('.autocomplete_child');
+        const childString = (isWebBrowser) ? '.autocomplete_child' : '[class*="autocomplete-item"]'
+        const autocomplete_child = document.querySelectorAll(childString);
         const resultLength = autocomplete_child.length;
         var currentIndex = 0;
 
