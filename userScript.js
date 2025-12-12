@@ -14,11 +14,11 @@
 // 5. 네이티브에서 호출할 함수
 // 6. 기타
 // 7. PIP 지원
-// 8. TMDB(The Move Database) Api 적용
-// 9. 시청목록 시스템 추가
+// 8. 검색어 자동완성 기능 TMDB(The Move Database) Api 적용
+// 9. 키 입력 오버라이드
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512122105";
+const scriptVersion = "2512122115";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -966,26 +966,28 @@ function sendWatchListAddSignToNative(){
     window.location.href = nextEpisodeLink;
   }
 
-
-
   //검색 버튼 누르기 함수
-window.clickSearchButton = function() {
+  window.clickSearchButton = function() {
     const element = document.querySelector('.btn_search');
     if (!element) return false;
 
     element.click();
 
     const input = document.getElementById('sch_stx');
+    if (!input) return false;
+
     input.style.display = 'block';
 
-    // 렌더링 완료 후 포커스
-    requestAnimationFrame(() => {
+    // 짧은 딜레이 후 포커스 및 내용 비우기
+    setTimeout(() => {
+        input.value = '';   // 기존 내용 삭제
         input.focus();
-        input.click(); // 모바일 강제 호출
-    });
+        input.click();      // 모바일에서 키보드 강제 호출
+    }, 100);
 
     return true;
-}
+  }
+
 
 
 
@@ -1097,8 +1099,7 @@ window.clickSearchButton = function() {
 // =======================================================
 // 8. 검색어 자동완성 기능: TMDB(The Move Database) Api 적용
 // =======================================================
-
-
+//네이티브
 (function() {
     'use strict';
 
@@ -1246,8 +1247,7 @@ window.clickSearchButton = function() {
     });
 
 })();
-
-//monkey 지원 브라우저
+//Monkey 지원 웹브라우저
 (function() {
   if (!isWebBrowser) return;
 
@@ -1396,7 +1396,13 @@ window.clickSearchButton = function() {
 // =======================================================
 
 
-//키 입력 종합
+
+
+
+
+// =======================================================
+// 9. 키 입력 오버라이드
+// =======================================================
 (function(){
 
   window.addEventListener('keydown', (e) => {
@@ -1550,6 +1556,9 @@ window.clickSearchButton = function() {
   });
 
 })();
+// =======================================================
+// =======================================================
+// =======================================================
 
 
 
