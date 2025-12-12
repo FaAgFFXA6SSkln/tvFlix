@@ -18,7 +18,7 @@
 // 9. 시청목록 시스템 추가
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512121420";
+const scriptVersion = "2512121425";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -1129,22 +1129,6 @@ function sendWatchListAddSignToNative(){
 
 
     // 내부에서 사용할 CSS 클래스를 추가합니다.
-    const style = document.createElement('style');
-    style.textContent = `
-        .autocomplete-item-focused {
-            /* 키보드 포커스 시 노란색 윤곽선 추가 */
-            outline: 2px solid yellow !important;
-            outline-offset: -2px; /* 윤곽선이 경계선 안으로 들어가도록 */
-            background: #552E00 !important; /* 포커스 시 배경색 변경 (선택됨 표시) */
-            color : #ffffff;
-        }
-        .autocomplete-item {
-            /* 기본 상태의 텍스트 색상과 배경 */
-            color: #ffffff;
-            background: #000000;
-        }
-    `;
-    document.head.appendChild(style);
 
     let suggestions = [];
     let currentIndex = -1;
@@ -1492,7 +1476,34 @@ function sendWatchListAddSignToNative(){
 
   document.addEventListener('keydown', (e) => {
 
+  //아래 방향키 처리
+  if (e.key == 'ArrowDown') {
+    //검색창 활성화 상태에서 키 입력 처리
+    const wrap = document.querySelector('.search_wrap');
+    if (wrap.classList.contains('active')) {
+      console.log("검색창 활성화 상태");
+      var el = document.activeElement;
+      //console.log(el.tagName);
+      //console.log(el.id)
+      //console.log(el.className);
 
+      const autocomplete_parent = document.getElementById('autocomplete_parent');
+      if (autocomplete_parent) {
+        const displayValue = window.getComputedStyle(autocomplete_parent).display;
+        if (displayValue == 'block') {
+          //console.log("추천 검색어 존재");  // block, none, flex 등 출력
+          if (el.id == 'sch_stx') {
+            //console.log("검색창에 포커스가 가있음");
+            const autocomplete_child = autocomplete_parent.querySelectorAll('.autocomplete_child');
+            autocomplete_child[0].focus();
+            console.log(autocomplete_child[0]);
+            console.log("추천검색어 첫번째로 포커스 이동");
+            e.preventDefault();
+          }
+        }
+      }
+    }
+  }
 
     const active = document.activeElement;
 
