@@ -18,7 +18,7 @@
 // 9. 시청목록 시스템 추가
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512121553";
+const scriptVersion = "2512121825";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -1126,8 +1126,6 @@ function sendWatchListAddSignToNative(){
     parent.appendChild(container);
 
 
-
-
     // 내부에서 사용할 CSS 클래스를 추가합니다.
     const style = document.createElement('style');
     style.textContent = `
@@ -1424,38 +1422,103 @@ function sendWatchListAddSignToNative(){
 
   document.addEventListener('keydown', (e) => {
 
-  //아래 방향키 처리
   if (e.key == 'ArrowDown') {
     //검색창 활성화 상태에서 키 입력 처리
-    const wrap = document.querySelector('.search_wrap');
-    if (wrap.classList.contains('active')) {
-      console.log("검색창 활성화 상태");
+    const search_wrap = document.querySelector('.search_wrap');
+    if (search_wrap.classList.contains('active')) {
       var el = document.activeElement;
-      //console.log(el.tagName);
-      //console.log(el.id)
-      //console.log(el.className);
-
       const autocomplete_parent = document.getElementById('autocomplete_parent');
       if (autocomplete_parent) {
         const displayValue = window.getComputedStyle(autocomplete_parent).display;
         if (displayValue == 'block') {
-          //console.log("추천 검색어 존재");  // block, none, flex 등 출력
+          console.log("추천 검색어 존재");  // block, none, flex 등 출력
+
+          //현재 포커스가 검색창에 있다면, 추천 검색어로 포커스를 내린다
           if (el.id == 'sch_stx') {
             //console.log("검색창에 포커스가 가있음");
-            const autocomplete_child = autocomplete_parent.querySelectorAll('.autocomplete_child');
-            autocomplete_child[0].focus();
-            console.log(autocomplete_child[0]);
-            console.log("추천검색어 첫번째로 포커스 이동");
+            //console.log(autocomplete_child[0]);
+            //console.log(autocomplete_child[0].textContent)
+
             e.preventDefault();
+            const autocomplete_child = autocomplete_parent.querySelectorAll('.autocomplete_child');
+            console.log(`다음 추천 검색어 [${autocomplete_child[0].textContent}]로 포커스 이동`);
+            autocomplete_child[0].focus();
           }
+
+          //포커스가 추천 검색어에 있다면, 다음 검색어가 있는지 판단하고 내린다.
+          else if (el.className == 'autocomplete_child'){
+            e.preventDefault();
+            const autocomplete_child = autocomplete_parent.querySelectorAll('.autocomplete_child')
+            const resultLength = autocomplete_child.length;
+            var currentIndex = 0;
+
+            //현재 포커스중인 인덱스를 특정
+            for (i = 0; i < resultLength; i++) {
+              if (el == autocomplete_child[i]) {
+                currentIndex = i;
+                break;
+              }
+            }
+
+            //다음 인덱스가 존재하므로 다음 인덱스로 포커스를 이동
+            if (resultLength > currentIndex + 1) {
+              autocomplete_child[currentIndex+1].focus();
+              console.log(`다음 추천 검색어 [${autocomplete_child[currentIndex+1].textContent}]로 포커스 이동`);
+            }
+          }
+        }
+      }
+    }
+
+
+
+
+  }
+
+  else if (e.key == 'ArrowUp') {
+    //검색창 활성화 상태에서 키 입력 처리
+    const search_wrap = document.querySelector('.search_wrap');
+    if (search_wrap.classList.contains('active')) {
+      var el = document.activeElement;
+      //검색창 자체에 포커스가 가 있다면 키 입력을 무시함
+
+      if (el.id == 'sch_stx') {
+        e.preventDefault();
+        console.log("포커스가 검색창에 있어 키 입력이 무시됨");
+
+      }
+
+      //포커스가 추천 검색어에 있다면, 이전 검색어가 있다면 이전 검색어로, 아니라면 검색입력창으로 포커스 이동
+      else if (el.className == 'autocomplete_child'){
+        e.preventDefault();
+        const autocomplete_child = autocomplete_parent.querySelectorAll('.autocomplete_child')
+        const resultLength = autocomplete_child.length;
+        var currentIndex = 0;
+
+        //현재 포커스중인 인덱스를 특정
+        for (i = 0; i < resultLength; i++) {
+          if (el == autocomplete_child[i]) {
+            currentIndex = i;
+            break;
+          }
+        }
+
+        //이전 인덱스가 존재하면 이전 인덱스로 이동
+        if (currentIndex > 0 ) {
+          autocomplete_child[currentIndex-1].focus();
+        }
+        //이전 인덱스가 존재하지 않아 검색창으로 이동
+        else {
+          var search_input = document.getElementById('sch_stx');
+          search_input.focus();
         }
       }
     }
   }
 
-    const active = document.activeElement;
 
-    if (active.classList.contains('btn_filter')) {
+  const active = document.activeElement;
+  if (active.classList.contains('btn_filter')) {
       const layer = active.nextElementSibling; // .filter_layer
       if (!layer) return;
 
@@ -1492,7 +1555,7 @@ function sendWatchListAddSignToNative(){
 
     //드롭다운이 열려있고, 자식 요소들에 포커스가 있을 때
     }
-    else if (active.closest('.filter_layer, .filter2_layer')) {
+  else if (active.closest('.filter_layer, .filter2_layer')) {
 
       //옆 방향키는 동작하지 않게 하기
       if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
@@ -1508,6 +1571,13 @@ function sendWatchListAddSignToNative(){
       }
     }
   });
+
+})();
+
+
+(function(){
+
+
 
 })();
 
