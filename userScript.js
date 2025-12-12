@@ -18,7 +18,7 @@
 // 9. 시청목록 시스템 추가
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512120759";
+const scriptVersion = "2512120945";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -1251,32 +1251,48 @@ function sendWatchListAddSignToNative(){
     }
 
 
-// --- input 요소에서 키보드 이벤트를 수동으로 처리 ---
-    input.addEventListener('keydown', (e) => {
+// ⭐️ 기존의 input keyup 리스너 대신, keydown 리스너에서 포커스 탐색 전체를 제어하는 것이 좋습니다. ⭐️
+    document.addEventListener('keydown', (e) => {
         const key = e.key;
+        const items = container.children;
 
-        if (container.style.display === 'block' && suggestions.length > 0) {
-            // 아래 화살표 키를 눌렀을 때
+        // 추천 검색어 목록이 열려 있을 때만 처리
+        if (container.style.display === 'block' && items.length > 0) {
+
             if (key === 'ArrowDown') {
-                e.preventDefault(); // ⭐️ 시스템의 기본 포커스 이동을 막습니다. ⭐️
-
-                // 첫 번째 추천 검색어 항목으로 포커스를 바로 이동시킵니다.
-                // highlight 함수를 호출하여 포커스 스타일을 적용하고
-                highlight(0);
-
-                // 실제 DOM 포커스를 컨테이너 내부의 항목으로 이동시킵니다.
-                const firstItem = container.children[0];
-                if (firstItem) {
-                    firstItem.focus();
+                // 현재 input에 포커스가 있다면 첫 번째 항목으로 이동 (처음 진입)
+                if (document.activeElement === input) {
+                    e.preventDefault();
+                    highlight(0);
+                    items[0].focus();
+                    return;
                 }
-                return;
+
+                // 현재 추천 항목에 포커스가 있다면 다음 항목으로 이동
+                if (currentIndex < items.length - 1) {
+                    e.preventDefault();
+                    highlight(currentIndex + 1);
+                    items[currentIndex + 1].focus();
+                }
+            } else if (key === 'ArrowUp') {
+                e.preventDefault();
+                if (currentIndex > 0) {
+                    // 이전 항목으로 이동
+                    highlight(currentIndex - 1);
+                    items[currentIndex - 1].focus();
+                } else {
+                    // 첫 항목에서 위로 이동 시 검색창으로 포커스 복귀
+                    unhighlight(0); // 현재 항목 하이라이트 제거
+                    input.focus();
+                }
+            } else if (key === 'Enter') {
+                // 엔터키 입력 시 현재 포커스 항목 클릭
+                if (currentIndex !== -1) {
+                    e.preventDefault();
+                    items[currentIndex].click();
+                }
             }
         }
-
-        // 추천 검색어 목록이 열려 있고, 항목 간의 이동을 수동으로 처리하고 싶다면,
-        // 이 곳에서 'ArrowUp', 'ArrowDown', 'Enter' 키를 처리해야 합니다.
-        // 현재는 첫 이동만 처리하고 나머지 항목 간 이동은 시스템에 맡기겠습니다.
-        // 하지만 TV 환경에서는 포커스 이동 전체를 수동으로 제어하는 것이 좋습니다.
     });
 
 
@@ -1451,6 +1467,12 @@ function sendWatchListAddSignToNative(){
 
 //키 입력 종합
 (function(){
+
+
+
+
+
+
 
   document.addEventListener('keydown', (e) => {
 
