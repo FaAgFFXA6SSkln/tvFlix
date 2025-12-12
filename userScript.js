@@ -18,7 +18,7 @@
 // 9. 시청목록 시스템 추가
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512121917";
+const scriptVersion = "2512122030";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -1093,16 +1093,6 @@ function sendWatchListAddSignToNative(){
 // =======================================================
 // 8. 검색어 자동완성 기능: TMDB(The Move Database) Api 적용
 // =======================================================
-//네이티브 앱
-// ==UserScript==
-// @name         TVWiki Search Autocomplete (TMDB, WebView 안정화)
-// @namespace    http://tampermonkey.net/
-// @version      1.0
-// @description  TMDB 기반 검색 자동완성 (Chromecast/WebView 호환)
-// @match        https://tvwiki4.net/*
-// @grant        none
-// ==/UserScript==
-
 (function() {
     'use strict';
 
@@ -1206,7 +1196,7 @@ function sendWatchListAddSignToNative(){
             const row = document.createElement('div');
             row.textContent = item.title || item.name;
             row.tabIndex = 0;
-            row.classList.add('autocomplete-item');
+            row.classList.add('autocomplete_child');
 
             row.addEventListener('mouseenter', () => highlight(idx));
             row.addEventListener('mouseleave', () => unhighlight(idx));
@@ -1224,14 +1214,14 @@ function sendWatchListAddSignToNative(){
 
     function highlight(idx) {
         [...container.children].forEach((row, i) => {
-            row.classList.toggle('autocomplete-item-focused', i === idx);
+            row.classList.toggle('autocomplete_child', i === idx);
         });
         currentIndex = idx;
     }
 
     function unhighlight(idx) {
         if (container.children[idx]) {
-            container.children[idx].classList.remove('autocomplete-item-focused');
+            container.children[idx].classList.remove('autocomplete_child');
         }
     }
 
