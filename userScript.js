@@ -980,10 +980,9 @@ function sendWatchListAddSignToNative(){
 
     // 짧은 딜레이 후 포커스 및 내용 비우기
     setTimeout(() => {
-        input.value = '';   // 기존 내용 삭제
         input.focus();
         input.click();      // 모바일에서 키보드 강제 호출
-    }, 100);
+    }, 50);
 
     return true;
   }
