@@ -18,7 +18,7 @@
 // 9. 시청목록 시스템 추가
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512121028";
+const scriptVersion = "2512121038";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -1560,19 +1560,78 @@ function sendWatchListAddSignToNative(){
 
 //영화 페이지 필터 크기 조정
 (function() {
+    'use strict';
 
-  const filter2 = document.querySelector('.filter2');
-  //filter1.remove();
-  //filter1.style.right = '0px';
-  //filter2.style.left = '0px';
-  if (filter2) {
-    const filter1 = document.querySelector('.filter');
-    filter1.style.right = '0px';
-  }
+    window.addEventListener('load', () => {
 
+        // 기존 float 기반 스타일 제거하고 flex 강제 적용
+        const style = document.createElement('style');
+        style.textContent = `
+            /* bo_btn_top 컨테이너 전체를 flex로 강제 */
+            #bo_btn_top {
+                display: flex !important;
+                flex-direction: row !important;
+                justify-content: space-between !important;
+                align-items: center !important;  /* 수평 높이 맞춤 */
+                flex-wrap: wrap !important;
+            }
 
+            /* span은 전체 너비 차지 */
+            #bo_btn_top > span {
+                width: 100% !important;
+                display: block !important;
+                margin-bottom: 10px !important;
+            }
 
+            /* filter / filter2 사이즈 균등 배분 */
+            #bo_btn_top .filter,
+            #bo_btn_top .filter2 {
+                width: 48% !important;
+                display: flex !important;
+                flex-direction: column !important;
+                position: relative !important;
+                box-sizing: border-box !important;
+
+                /* float 완전 무효화 */
+                float: none !important;
+            }
+
+            /* 내부 버튼 정렬 */
+            #bo_btn_top .filter a,
+            #bo_btn_top .filter2 a {
+                width: 100% !important;
+                display: flex !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                box-sizing: border-box !important;
+            }
+
+            /* layer 또한 flex 환경에서 잘 나오도록 */
+            #bo_btn_top .filter_layer,
+            #bo_btn_top .filter2_layer {
+                position: absolute !important;
+                width: 100% !important;
+                left: 0 !important;
+                right: 0 !important;
+            }
+        `;
+        document.head.appendChild(style);
+
+        // 요소 순서 보정 (span → filter → filter2)
+        const container = document.querySelector('#bo_btn_top');
+        const txt = container.querySelector('span');
+        const f1 = container.querySelector('.filter');
+        const f2 = container.querySelector('.filter2');
+
+        if (txt && f1 && f2) {
+            container.appendChild(txt);
+            container.appendChild(f1);
+            container.appendChild(f2);
+        }
+    });
 })();
+
+
 
 
 
