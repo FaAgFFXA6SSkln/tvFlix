@@ -18,7 +18,7 @@
 // 9. 시청목록 시스템 추가
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512121259";
+const scriptVersion = "2512121335";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -333,6 +333,7 @@ function sendWatchListAddSignToNative(){
     if (typeof NativeApp !== 'undefined') NativeApp.receiveVideoTitleLinkImage(videoTitleText, videoLink, videoThumbUrl);
   }
 }
+//추가
 (function() {
   'use strict'
   // 메인 페이지, 카테고리 페이지, 검색 결과 페이지 상단에 검색 버튼 텍스트 추가 로직 및 인라인 스타일 강제 오버라이드
@@ -1134,7 +1135,8 @@ function sendWatchListAddSignToNative(){
             /* 키보드 포커스 시 노란색 윤곽선 추가 */
             outline: 2px solid yellow !important;
             outline-offset: -2px; /* 윤곽선이 경계선 안으로 들어가도록 */
-            background: #f0f0f0 !important; /* 포커스 시 배경색 변경 (선택됨 표시) */
+            background: #552E00 !important; /* 포커스 시 배경색 변경 (선택됨 표시) */
+            color : #ffffff;
         }
         .autocomplete-item {
             /* 기본 상태의 텍스트 색상과 배경 */
