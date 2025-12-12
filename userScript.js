@@ -18,7 +18,7 @@
 // 9. 시청목록 시스템 추가
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512121038";
+const scriptVersion = "2512121259";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -1251,40 +1251,73 @@ function sendWatchListAddSignToNative(){
     }
 
 
-// ⭐️ 기존의 input keyup 리스너 대신, keydown 리스너에서 포커스 탐색 전체를 제어하는 것이 좋습니다. ⭐️
+// ... (기존 코드: fetchTMDB 함수 정의 부분까지 유지) ...
+
+    // --- input 요소에서 키보드 이벤트를 수동으로 처리 ---
+    let debounceTimer;
+
+    // ⭐️ 기존 keyup 리스너는 그대로 유지하거나 (검색 API 호출), 아래와 같이 수정합니다. ⭐️
+    input.addEventListener('keyup', (e) => {
+        // 엔터키(Enter)는 검색을 유발할 수 있으므로, 이미 추천 항목이 있다면 방지합니다.
+        if (e.key === 'Enter' && container.style.display === 'block' && currentIndex !== -1) {
+            return; // keydown에서 이미 처리되었으므로 무시
+        }
+
+        // --- 디바운싱 적용 ---
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+            fetchTMDB(input.value);
+        }, 300);
+    });
+
+    // ⭐️ 포커스 탐색 제어를 위한 keydown 리스너 (주요 수정 부분) ⭐️
     document.addEventListener('keydown', (e) => {
         const key = e.key;
         const items = container.children;
+        const itemsCount = items.length;
+
+        // 1. ESC 키로 컨테이너 닫기 (포커스 락 해제)
+        if (key === 'Escape') {
+            if (container.style.display === 'block') {
+                e.preventDefault();
+                container.style.display = 'none';
+                input.focus(); // 검색창으로 포커스 복귀
+            }
+            return;
+        }
 
         // 추천 검색어 목록이 열려 있을 때만 처리
-        if (container.style.display === 'block' && items.length > 0) {
+        if (container.style.display === 'block' && itemsCount > 0) {
 
+            // 항목 간 이동, 경계 처리 및 검색창 복귀
             if (key === 'ArrowDown') {
-                // 현재 input에 포커스가 있다면 첫 번째 항목으로 이동 (처음 진입)
+                e.preventDefault();
+
+                // 현재 input에 포커스가 있거나 (초기 진입), currentIndex가 마지막 항목이 아닐 때
                 if (document.activeElement === input) {
-                    e.preventDefault();
                     highlight(0);
                     items[0].focus();
                     return;
-                }
-
-                // 현재 추천 항목에 포커스가 있다면 다음 항목으로 이동
-                if (currentIndex < items.length - 1) {
-                    e.preventDefault();
+                } else if (currentIndex < itemsCount - 1) {
                     highlight(currentIndex + 1);
                     items[currentIndex + 1].focus();
                 }
+                // else: 마지막 항목에서는 아무것도 하지 않고 포커스를 유지합니다. (스크롤 방지)
+
             } else if (key === 'ArrowUp') {
                 e.preventDefault();
+
                 if (currentIndex > 0) {
                     // 이전 항목으로 이동
                     highlight(currentIndex - 1);
                     items[currentIndex - 1].focus();
-                } else {
-                    // 첫 항목에서 위로 이동 시 검색창으로 포커스 복귀
+                } else if (currentIndex === 0) {
+                    // ⭐️ 첫 항목에서 위로 이동 시 검색창으로 포커스 복귀 및 입력 방지 (수정) ⭐️
                     unhighlight(0); // 현재 항목 하이라이트 제거
                     input.focus();
                 }
+                // else: 검색창에 포커스가 있다면 아무것도 하지 않습니다. (경계 밖으로 나가는 것 방지)
+
             } else if (key === 'Enter') {
                 // 엔터키 입력 시 현재 포커스 항목 클릭
                 if (currentIndex !== -1) {
@@ -1295,25 +1328,12 @@ function sendWatchListAddSignToNative(){
         }
     });
 
-
-    // 디바운싱 타이머 (이전에 제안했던 디바운싱 코드를 적용하는 것이 좋지만, 현재 사용자 코드를 유지하기 위해 이 코드를 사용)
-    let debounceTimer;
-
-    input.addEventListener('keyup', (e) => {
-        const key = e.key;
-
-        // --- 디바운싱 적용 (느린 초기 로딩 문제 해결을 위해 이전에 제안했던 방식) ---
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(() => {
-            fetchTMDB(input.value);
-        }, 300);
-    });
-
     document.addEventListener('mousedown', (e) => {
         if (!container.contains(e.target) && e.target !== input) {
             container.style.display = 'none';
         }
     });
+
 
 })();
 //monkey 지원 브라우저
@@ -1556,84 +1576,6 @@ function sendWatchListAddSignToNative(){
   });
 
 })();
-
-
-//영화 페이지 필터 크기 조정
-(function() {
-    'use strict';
-
-    window.addEventListener('load', () => {
-
-        // 기존 float 기반 스타일 제거하고 flex 강제 적용
-        const style = document.createElement('style');
-        style.textContent = `
-            /* bo_btn_top 컨테이너 전체를 flex로 강제 */
-            #bo_btn_top {
-                display: flex !important;
-                flex-direction: row !important;
-                justify-content: space-between !important;
-                align-items: center !important;  /* 수평 높이 맞춤 */
-                flex-wrap: wrap !important;
-            }
-
-            /* span은 전체 너비 차지 */
-            #bo_btn_top > span {
-                width: 100% !important;
-                display: block !important;
-                margin-bottom: 10px !important;
-            }
-
-            /* filter / filter2 사이즈 균등 배분 */
-            #bo_btn_top .filter,
-            #bo_btn_top .filter2 {
-                width: 48% !important;
-                display: flex !important;
-                flex-direction: column !important;
-                position: relative !important;
-                box-sizing: border-box !important;
-
-                /* float 완전 무효화 */
-                float: none !important;
-            }
-
-            /* 내부 버튼 정렬 */
-            #bo_btn_top .filter a,
-            #bo_btn_top .filter2 a {
-                width: 100% !important;
-                display: flex !important;
-                justify-content: space-between !important;
-                align-items: center !important;
-                box-sizing: border-box !important;
-            }
-
-            /* layer 또한 flex 환경에서 잘 나오도록 */
-            #bo_btn_top .filter_layer,
-            #bo_btn_top .filter2_layer {
-                position: absolute !important;
-                width: 100% !important;
-                left: 0 !important;
-                right: 0 !important;
-            }
-        `;
-        document.head.appendChild(style);
-
-        // 요소 순서 보정 (span → filter → filter2)
-        const container = document.querySelector('#bo_btn_top');
-        const txt = container.querySelector('span');
-        const f1 = container.querySelector('.filter');
-        const f2 = container.querySelector('.filter2');
-
-        if (txt && f1 && f2) {
-            container.appendChild(txt);
-            container.appendChild(f1);
-            container.appendChild(f2);
-        }
-    });
-})();
-
-
-
-
 
 
 
