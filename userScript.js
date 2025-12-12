@@ -18,7 +18,7 @@
 // 9. 시청목록 시스템 추가
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512121903";
+const scriptVersion = "2512121905";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -1121,7 +1121,7 @@ function sendWatchListAddSignToNative(){
     container.style.boxSizing = 'border-box';
     container.style.padding = '0';
     container.style.color = '#ffffff';
-    container.setAttribute('tabindex', '-1');
+    //container.setAttribute('tabindex', '-1');
     container.style.pointerEvents = 'none';
     parent.appendChild(container);
 
