@@ -18,7 +18,7 @@
 // 9. 시청목록 시스템 추가
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512120945";
+const scriptVersion = "2512121028";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -1468,12 +1468,6 @@ function sendWatchListAddSignToNative(){
 //키 입력 종합
 (function(){
 
-
-
-
-
-
-
   document.addEventListener('keydown', (e) => {
 
   //아래 방향키 처리
@@ -1504,10 +1498,6 @@ function sendWatchListAddSignToNative(){
       }
     }
   }
-
-
-
-
 
     const active = document.activeElement;
 
@@ -1564,6 +1554,23 @@ function sendWatchListAddSignToNative(){
       }
     }
   });
+
+})();
+
+
+//영화 페이지 필터 크기 조정
+(function() {
+
+  const filter2 = document.querySelector('.filter2');
+  //filter1.remove();
+  //filter1.style.right = '0px';
+  //filter2.style.left = '0px';
+  if (filter2) {
+    const filter1 = document.querySelector('.filter');
+    filter1.style.right = '0px';
+  }
+
+
 
 })();
 
