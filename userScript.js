@@ -18,7 +18,7 @@
 // 9. 키 입력 오버라이드
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512132245";
+const scriptVersion = "2512132255";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -1619,108 +1619,4 @@ function sendWatchListAddSignToNative(){
 
 if (!isWebBrowser) ApplyVideoNormalStyle();
 customLog("[kotlin]유저스크립트 version: " + scriptVersion);
-
-
-
-//메인 페이지 재구성
-(function () {
-  'use strict';
-  //메인 페이지에서만 실행
-
-  if (pathSegments == 0) {
-
-    const links = [
-        '/movie',
-        '/drama',
-        '/world',
-        '/ent',
-        '/ani_movie'
-    ];
-
-    const names = [
-        '영화',
-        '한국 드라마',
-        '외국 드라마',
-        '예능/시사',
-        '만화'
-    ];
-
-    function injectFocusStyle() {
-      const style = document.createElement('style');
-      style.innerHTML = `
-          :focus:not(body):not([tabindex="-1"]) {
-              z-index: 9999 !important;
-              background-color: #552E00 !important;
-              outline: 4px solid #FFD700 !important;
-              outline-offset: 0px !important;
-
-              box-shadow:
-                  0 0 0 400px #552E00 inset,
-                  0 0 400px rgba(255, 215, 0, 1) !important;
-
-              transition: outline-color 0.2s, box-shadow 0.2s;
-          }
-      `;
-      document.head.appendChild(style);
-  }
-
-    function createLayout() {
-
-
-        const isLandscape = window.innerWidth >= window.innerHeight;
-
-        const container = document.createElement('div');
-        container.style.position = 'fixed';
-        container.style.top = '0';
-        container.style.left = '0';
-        container.style.width = '100vw';
-        container.style.height = '100vh';
-        container.style.display = 'flex';
-        container.style.flexDirection = isLandscape ? 'row' : 'column';
-
-        for (let i = 0; i < 5; i++) {
-            const area = document.createElement('div');
-
-            area.tabIndex = 0; // ★ 포커스 가능하게 만드는 핵심
-            area.style.flex = '1';
-            area.style.cursor = 'pointer';
-            area.style.border = '2px solid #555555';
-            area.style.display = 'flex';
-            area.style.alignItems = 'center';
-            area.style.justifyContent = 'center';
-            area.style.fontSize = '30px';
-            area.style.fontWeight = 'bold';
-            area.style.userSelect = 'none';
-            area.style.background = '#222222';
-            area.style.color = '#FFFFFF';
-
-            area.textContent = names[i];
-
-            area.addEventListener('click', () => {
-                window.location.href = links[i];
-            });
-
-            area.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    window.location.href = links[i];
-                }
-            });
-
-            container.appendChild(area);
-        }
-
-        document.body.appendChild(container);
-
-        // 첫 영역에 초기 포커스
-        container.firstChild.focus();
-    }
-
-    createLayout();
-
-    window.addEventListener('resize', () => {
-        createLayout();
-    });
-  }
-})();
-
 
