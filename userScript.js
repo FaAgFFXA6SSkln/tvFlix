@@ -18,7 +18,7 @@
 // 9. 키 입력 오버라이드
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512131820";
+const scriptVersion = "2512132051";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -1708,6 +1708,8 @@ customLog("[kotlin]유저스크립트 version: " + scriptVersion);
             area.style.justifyContent = 'center';
             area.style.fontSize = '20px';
             area.style.userSelect = 'none';
+            area.style.background = '#222222';
+            area.style.color = '#FFFFFF';
 
             area.textContent = names[i];
 
