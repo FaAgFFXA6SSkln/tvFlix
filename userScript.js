@@ -18,17 +18,21 @@
 // 9. 키 입력 오버라이드
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512131931";
+const scriptVersion = "2512131820";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
 var isOnlyVideo = false;
 var videoThumbUrl = "";
+var isVideoLoaded = false;
 function removeById(id) {
   const el = document.getElementById(id);
   if (el) el.remove();
 }
-var isVideoLoaded = false;
+const pathname = window.location.pathname;
+const pathSegments = pathname.split('/').filter(seg => seg !== '');
+
+
 
 
 // =======================================================
@@ -929,7 +933,7 @@ function sendWatchListAddSignToNative(){
     return true;
   }
 
-  // 재생 페이지'.bo_v_mov'에 '동영상 재생하기' 버튼 추가 및 스타일 적용(일반 웹브라우저에서는 적용하지 않기)
+  // 재생 페이지'.bo_v_mov'에 '동영상 재생하기' 버튼 추가 및 스타일 적용(일반 웹브라우저에서는 적용하지 않음)
   window.LoadVideoPlayButton = function() {
 
     if (!isVideoLoaded) {
@@ -990,8 +994,6 @@ function sendWatchListAddSignToNative(){
           }
         };
       });
-
-      NativeApp.jsLog("재생 버튼 로드 완료");
     }
   }
 
@@ -1619,8 +1621,121 @@ function sendWatchListAddSignToNative(){
 
 })();
 
-
-
-
 if (!isWebBrowser) ApplyVideoNormalStyle();
 customLog("[kotlin]유저스크립트 version: " + scriptVersion);
+
+
+
+//메인 페이지 재구성
+(function () {
+  'use strict';
+  //메인 페이지에서만 실행
+
+  if (pathSegments == 0) {
+
+    const links = [
+        '/movie',
+        '/drama',
+        '/world',
+        '/ent',
+        '/ani_movie'
+    ];
+
+    const names = [
+        '영화',
+        '한국 드라마',
+        '외국 드라마',
+        '예능/시사',
+        '만화'
+    ];
+
+    function injectFocusStyle() {
+        const style = document.createElement('style');
+        style.innerHTML = `
+            :focus:not(body):not([tabindex="-1"]) {
+                z-index: 9999 !important;
+                background-color: #552E00 !important;
+                outline: 4px solid #FFD700 !important;
+                outline-offset: 0px !important;
+
+                box-shadow:
+                    0 0 0 400px #552E00 inset,
+                    0 0 400px rgba(255, 215, 0, 1) !important;
+
+                transition: outline-color 0.2s, box-shadow 0.2s;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    function clearPage() {
+        document.documentElement.innerHTML = '';
+        document.documentElement.style.margin = '0';
+        document.documentElement.style.padding = '0';
+
+        const head = document.createElement('head');
+        const body = document.createElement('body');
+
+        document.documentElement.appendChild(head);
+        document.documentElement.appendChild(body);
+
+        injectFocusStyle();
+    }
+
+    function createLayout() {
+        clearPage();
+
+        const isLandscape = window.innerWidth >= window.innerHeight;
+
+        const container = document.createElement('div');
+        container.style.position = 'fixed';
+        container.style.top = '0';
+        container.style.left = '0';
+        container.style.width = '100vw';
+        container.style.height = '100vh';
+        container.style.display = 'flex';
+        container.style.flexDirection = isLandscape ? 'row' : 'column';
+
+        for (let i = 0; i < 5; i++) {
+            const area = document.createElement('div');
+
+            area.tabIndex = 0; // ★ 포커스 가능하게 만드는 핵심
+            area.style.flex = '1';
+            area.style.cursor = 'pointer';
+            area.style.border = '1px solid #000';
+            area.style.display = 'flex';
+            area.style.alignItems = 'center';
+            area.style.justifyContent = 'center';
+            area.style.fontSize = '20px';
+            area.style.userSelect = 'none';
+
+            area.textContent = names[i];
+
+            area.addEventListener('click', () => {
+                window.location.href = links[i];
+            });
+
+            area.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    window.location.href = links[i];
+                }
+            });
+
+            container.appendChild(area);
+        }
+
+        document.body.appendChild(container);
+
+        // 첫 영역에 초기 포커스
+        container.firstChild.focus();
+    }
+
+    createLayout();
+
+    window.addEventListener('resize', () => {
+        createLayout();
+    });
+  }
+})();
+
+
