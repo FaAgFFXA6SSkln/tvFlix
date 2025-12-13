@@ -18,7 +18,7 @@
 // 9. 키 입력 오버라이드
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512132313";
+const scriptVersion = "2512132245";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -1617,7 +1617,7 @@ function sendWatchListAddSignToNative(){
 
 })();
 
-if (!isWebBrowser) ApplyVideoNormalStyle();
+//if (!isWebBrowser) ApplyVideoNormalStyle();
 customLog("[kotlin]유저스크립트 version: " + scriptVersion);
 
 
@@ -1626,9 +1626,7 @@ customLog("[kotlin]유저스크립트 version: " + scriptVersion);
 (function () {
   'use strict';
   //메인 페이지에서만 실행
-
   if (pathSegments == 0 && isRunningOnTv) {
-
     const links = [
         '/movie',
         '/drama',
@@ -1636,7 +1634,6 @@ customLog("[kotlin]유저스크립트 version: " + scriptVersion);
         '/ent',
         '/ani_movie'
     ];
-
     const names = [
         '영화',
         '한국 드라마',
@@ -1644,14 +1641,8 @@ customLog("[kotlin]유저스크립트 version: " + scriptVersion);
         '예능/시사',
         '만화'
     ];
-
-
     const bodyWrap = document.getElementById('body_wrap');
-    if (bodyWrap) {
-        bodyWrap.remove();
-    }
-
-
+    if (bodyWrap) { bodyWrap.remove(); }
     function createLayout() {
 
 
@@ -1692,9 +1683,7 @@ customLog("[kotlin]유저스크립트 version: " + scriptVersion);
         }
         document.body.appendChild(container);
     }
-
     createLayout();
-
   }
 })();
 
