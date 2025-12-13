@@ -18,7 +18,7 @@
 // 9. 키 입력 오버라이드
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512130925";
+const scriptVersion = "2512130936";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -1407,7 +1407,7 @@ function sendWatchListAddSignToNative(){
 // =======================================================
 (function(){
 
-  window.addEventListener('keydown', (e) => {
+  document.addEventListener('keydown', (e) => {
 
   if (e.key == 'ArrowDown') {
     //검색창 활성화 상태에서 키 입력 처리
@@ -1477,15 +1477,13 @@ function sendWatchListAddSignToNative(){
 
       if (el.id == 'sch_stx') {
         e.preventDefault();
-		e.stopPropagation();
-        console.log("포커스가 검색창에 있어 키 입력이 무시됨");
-
+		    e.stopPropagation();
       }
 
       //포커스가 추천 검색어에 있다면, 이전 검색어가 있다면 이전 검색어로, 아니라면 검색입력창으로 포커스 이동
       else if (el.className == 'autocomplete_child'){
         e.preventDefault();
-		e.stopPropagation();
+		    e.stopPropagation();
         const childString = (isWebBrowser) ? '.autocomplete_child' : '[class*="autocomplete-item"]'
         const autocomplete_child = document.querySelectorAll(childString);
         const resultLength = autocomplete_child.length;
@@ -1529,7 +1527,7 @@ function sendWatchListAddSignToNative(){
         const isOpen = hasActiveClass || (displayVisible && visibilityVisible && !offscreen);
         if (isOpen) {
           e.preventDefault();
-		  e.stopPropagation();
+		      e.stopPropagation();
         }
       }
 
@@ -1547,7 +1545,7 @@ function sendWatchListAddSignToNative(){
           const first = layer.querySelector('a');
           first?.focus();
           e.preventDefault();
-		  e.stopPropagation();
+		      e.stopPropagation();
         }
       }
 
@@ -1558,17 +1556,17 @@ function sendWatchListAddSignToNative(){
       //옆 방향키는 동작하지 않게 하기
       if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
         e.preventDefault();
-		e.stopPropagation();
+		    e.stopPropagation();
       } else if (e.key === 'ArrowDown') {
           const next = active.nextElementSibling;
           if (next) next.focus();
           e.preventDefault();
-		  e.stopPropagation();
+		      e.stopPropagation();
       } else if (e.key === 'ArrowUp') {
           const prev = active.previousElementSibling;
           if (prev) prev.focus();
           e.preventDefault();
-		  e.stopPropagation();
+		      e.stopPropagation();
 
 	  }
     }
