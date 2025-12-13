@@ -18,7 +18,7 @@
 // 9. 키 입력 오버라이드
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512131820";
+const scriptVersion = "2512132242;
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -1664,31 +1664,8 @@ customLog("[kotlin]유저스크립트 version: " + scriptVersion);
       document.head.appendChild(style);
   }
 
-function clearPage() {
-    const preserveSelectors = [
-        '.search_wrap',
-        '.search_layer',
-        '.header_wrap'
-    ];
-
-    const preserved = new Set();
-
-    preserveSelectors.forEach(sel => {
-        document.querySelectorAll(sel).forEach(el => preserved.add(el));
-    });
-
-    // body 하위 요소만 정리
-    Array.from(document.body.children).forEach(child => {
-        if (!preserved.has(child)) {
-            child.remove();
-        }
-    });
-
-    injectFocusStyle();
-}
-
     function createLayout() {
-        clearPage();
+
 
         const isLandscape = window.innerWidth >= window.innerHeight;
 
