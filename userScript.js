@@ -1664,38 +1664,31 @@ customLog("[kotlin]유저스크립트 version: " + scriptVersion);
       document.head.appendChild(style);
   }
 
-    function clearPage() {
-      // 유지해야 할 요소 백업
-      const searchWrap = document.querySelector('.search_wrap');
-      const searchLayer = document.querySelector('.search_layer');
-      const headerWrap = document.querySelector('#header_wrap');
+function clearPage() {
+    const preserveSelectors = [
+        '.search_wrap',
+        '.search_layer',
+        '.header_wrap'
+    ];
 
-      const preservedNodes = [];
-      if (searchWrap) preservedNodes.push(searchWrap);
-      if (searchLayer) preservedNodes.push(searchLayer);
-      if (headerWrap) preservedNodes.push(headerWrap);
+    const preserved = new Set();
 
-      // 전체 DOM 초기화
-      document.documentElement.innerHTML = '';
-      document.documentElement.style.margin = '0';
-      document.documentElement.style.padding = '0';
+    preserveSelectors.forEach(sel => {
+        document.querySelectorAll(sel).forEach(el => preserved.add(el));
+    });
 
-      const head = document.createElement('head');
-      const body = document.createElement('body');
+    // body 하위 요소만 정리
+    Array.from(document.body.children).forEach(child => {
+        if (!preserved.has(child)) {
+            child.remove();
+        }
+    });
 
-      document.documentElement.appendChild(head);
-      document.documentElement.appendChild(body);
-
-      // 유지 요소 복원
-      preservedNodes.forEach(node => {
-          body.appendChild(node);
-      });
-
-      injectFocusStyle();
-    }
+    injectFocusStyle();
+}
 
     function createLayout() {
-        //clearPage();
+        clearPage();
 
         const isLandscape = window.innerWidth >= window.innerHeight;
 
