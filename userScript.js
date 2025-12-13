@@ -18,7 +18,7 @@
 // 9. 키 입력 오버라이드
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512131811";
+const scriptVersion = "2512131816";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -1110,6 +1110,13 @@ function sendWatchListAddSignToNative(){
 //네이티브
 (function() {
     'use strict';
+
+    //G보드 기본 자동완성 기능 막기
+    const input = document.getElementById('sch_stx');
+    input.setAttribute('autocomplete', 'off');
+    input.setAttribute('autocorrect', 'off');
+    input.setAttribute('autocapitalize', 'off');
+    input.setAttribute('spellcheck', 'false');
 
     // 웹뷰 여부에 따라 스킵
     if (typeof isWebBrowser !== 'undefined' && isWebBrowser) return;
