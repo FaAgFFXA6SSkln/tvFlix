@@ -18,7 +18,7 @@
 // 9. 키 입력 오버라이드
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512132100";
+const scriptVersion = "2512132113";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -1668,19 +1668,36 @@ customLog("[kotlin]유저스크립트 version: " + scriptVersion);
         document.head.appendChild(style);
     }
 
-    function clearPage() {
-        document.documentElement.innerHTML = '';
-        document.documentElement.style.margin = '0';
-        document.documentElement.style.padding = '0';
+function clearPage() {
+    // 유지해야 할 요소 백업
+    const searchWrap = document.querySelector('.search_wrap');
+    const searchLayer = document.querySelector('.search_layer');
+    const headerWrap = document.querySelector('#header_wrap');
 
-        const head = document.createElement('head');
-        const body = document.createElement('body');
+    const preservedNodes = [];
+    if (searchWrap) preservedNodes.push(searchWrap);
+    if (searchLayer) preservedNodes.push(searchLayer);
+    if (headerWrap) preservedNodes.push(headerWrap);
 
-        document.documentElement.appendChild(head);
-        document.documentElement.appendChild(body);
+    // 전체 DOM 초기화
+    document.documentElement.innerHTML = '';
+    document.documentElement.style.margin = '0';
+    document.documentElement.style.padding = '0';
 
-        injectFocusStyle();
-    }
+    const head = document.createElement('head');
+    const body = document.createElement('body');
+
+    document.documentElement.appendChild(head);
+    document.documentElement.appendChild(body);
+
+    // 유지 요소 복원
+    preservedNodes.forEach(node => {
+        body.appendChild(node);
+    });
+
+    injectFocusStyle();
+}
+
 
     function createLayout() {
         clearPage();
