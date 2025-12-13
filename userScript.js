@@ -18,7 +18,7 @@
 // 9. 키 입력 오버라이드
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512130936";
+const scriptVersion = "2512130955";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -1461,7 +1461,7 @@ function sendWatchListAddSignToNative(){
             //포커스가 검색창에 있다면
           if (el.id == 'sch_stx') {
             e.preventDefault();
-			e.stopPropagation();
+			      e.stopPropagation();
           }
         }
       }
@@ -1509,7 +1509,6 @@ function sendWatchListAddSignToNative(){
       }
     }
   }
-
 
   const active = document.activeElement;
   if (active.classList.contains('btn_filter')) {
@@ -1569,6 +1568,21 @@ function sendWatchListAddSignToNative(){
 		      e.stopPropagation();
 
 	  }
+    }
+  });
+
+  document.addEventListener('keyup', (e) => {
+    if (e.key == 'ArrowUp') {
+      //검색창 활성화 상태에서 키 입력 처리
+      const search_wrap = document.querySelector('.search_wrap');
+      if (search_wrap.classList.contains('active')) {
+        var el = document.activeElement;
+        //검색창 자체에 포커스가 가 있다면 키 입력을 무시함
+        if (el.id == 'sch_stx') {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      }
     }
   });
 
