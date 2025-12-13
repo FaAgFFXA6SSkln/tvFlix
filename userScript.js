@@ -18,7 +18,7 @@
 // 9. 키 입력 오버라이드
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512132310";
+const scriptVersion = "2512132313";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -1627,7 +1627,7 @@ customLog("[kotlin]유저스크립트 version: " + scriptVersion);
   'use strict';
   //메인 페이지에서만 실행
 
-  if (pathSegments == 0 && isRunningOvTv) {
+  if (pathSegments == 0 && isRunningOnTv) {
 
     const links = [
         '/movie',
