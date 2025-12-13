@@ -18,7 +18,7 @@
 // 9. 키 입력 오버라이드
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512130955";
+const scriptVersion = "2512131502";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -1590,6 +1590,15 @@ function sendWatchListAddSignToNative(){
 // =======================================================
 // =======================================================
 // =======================================================
+
+
+//변수 전송
+(function() {
+  if (typeof NativeApp !== 'undefined') {
+    NativeApp.setWebVar("view_iframe", "view_iframe");
+  }
+
+})();
 
 
 
