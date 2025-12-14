@@ -18,7 +18,7 @@
 // 9. 키 입력 오버라이드
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512130135";
+const scriptVersion = "2512141935";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -933,12 +933,12 @@ function sendWatchListAddSignToNative(){
     return true;
   }
 
-  // 재생 페이지'.bo_v_mov'에 '동영상 재생하기' 버튼 추가 및 스타일 적용(일반 웹브라우저에서는 적용하지 않음)
-  window.LoadVideoPlayButton = function() {
 
-    if (!isVideoLoaded) {
-      isVideoLoaded = true;
-      document.querySelectorAll('div.bo_v_mov').forEach(container => {
+  // 재생 페이지'.bo_v_mov'에 '동영상 재생하기' 버튼 추가 및 스타일 적용(일반 웹브라우저에서는 적용하지 않음)
+
+  if (!isWebBrowser) {
+
+    document.querySelectorAll('div.bo_v_mov').forEach(container => {
 
         // 새로운 컨테이너 생성
         const overlay = document.createElement('div');
@@ -958,6 +958,7 @@ function sendWatchListAddSignToNative(){
 
         // 버튼 생성
         const playButton = document.createElement('button');
+        playButton.id = 'playButton';
         const playButtonWidth = (isRunningOnTv) ? "180px" : "120px";
         const playButtonHeight = (isRunningOnTv) ? "80px" : "60px";
         const playButtonFontSize = (isRunningOnTv) ? "24px" : "20px";
@@ -972,7 +973,7 @@ function sendWatchListAddSignToNative(){
             cursor: pointer;
             width: ${playButtonWidth};
             height: ${playButtonHeight};
-            display: flex;
+            display: none;
             align-items: center;
             justify-content: center;
         `;
@@ -994,6 +995,14 @@ function sendWatchListAddSignToNative(){
           }
         };
       });
+
+  }
+
+  window.LoadVideoPlayButton = function() {
+    if (!isVideoLoaded) {
+      isVideoLoaded = true;
+      const playButton = document.getElementById('playButton');
+      playButton.style.display = 'flex';
     }
   }
 
