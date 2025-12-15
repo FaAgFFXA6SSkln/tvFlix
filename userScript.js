@@ -18,7 +18,7 @@
 // 9. 키 입력 오버라이드
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512141935";
+const scriptVersion = "2512152056";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -450,6 +450,116 @@ function sendWatchListAddSignToNative(){
 
 
 })();
+
+
+// 재생 페이지'.bo_v_mov'에 '동영상 재생' 버튼 추가 및 스타일 적용(일반 웹브라우저에서는 적용하지 않음)
+(function() {
+  if (isWebBrowser) return;
+
+  //재생 버튼
+  const container = document.querySelector('div.bo_v_mov');
+  if (container) {
+    // 새로운 컨테이너 생성
+    const overlay = document.createElement('div');
+    overlay.className = 'bo_v_mov_overlay';
+
+    // overlay 스타일 수정
+    //overlay.style.position = 'relative';
+    overlay.style.width = '100%';
+    const overlayHeight = (isRunningOnTv) ? '310px' : '240px';
+    overlay.style.setProperty('height', overlayHeight, 'important');
+
+
+    // **가운데 정렬**
+    overlay.style.display = 'flex';
+    overlay.style.alignItems = 'center';     // 세로 중앙
+    overlay.style.justifyContent = 'center'; // 가로 중앙
+
+    // 버튼 생성
+    const playButton = document.createElement('button');
+    playButton.id = 'playButton';
+    const playButtonWidth = (isRunningOnTv) ? "180px" : "120px";
+    const playButtonHeight = (isRunningOnTv) ? "80px" : "60px";
+    const playButtonFontSize = (isRunningOnTv) ? "24px" : "20px";
+    playButton.textContent = '▶ 재생';
+    playButton.style.cssText = `
+        background-color: #ff0000;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: ${playButtonFontSize};
+        font-weight: bold;
+        cursor: pointer;
+        width: ${playButtonWidth};
+        height: ${playButtonHeight};
+        display: none;
+        align-items: center;
+        justify-content: center;
+    `;
+
+    overlay.appendChild(playButton);
+    container.insertAdjacentElement('afterend', overlay);
+
+    // 클릭 이벤트
+    playButton.onclick = () => {
+      if (typeof NativeApp !== 'undefined' && NativeApp.handlePlayButtonClick) {
+          NativeApp.handlePlayButtonClick();
+          sendWatchListAddSignToNative();
+      }
+      else {
+        document.querySelector('.bo_v_mov_overlay').remove();
+        const bovmov = document.querySelector('.bo_v_mov');
+        bovmov.style.setProperty('height', '480px', 'important');
+        bovmov.style.setProperty('display', 'block', 'important');
+      }
+    };
+  }
+
+  //로딩서클 오버레이
+  if (container) {
+    //로딩중 오버레이
+    const loadingOverlaystyle = document.createElement('style');
+    loadingOverlaystyle.textContent = `
+    #userscript-loading-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.9);
+        z-index: 999999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #userscript-loading-spinner {
+        width: 96px;
+        height: 96px;
+        border: 12px solid #ccc;
+        border-top-color: #1e90ff;
+        border-radius: 50%;
+        animation: userscript-spin 1s linear infinite;
+    }
+
+    @keyframes userscript-spin {
+        to { transform: rotate(360deg); }
+    }
+    `;
+    document.head.appendChild(loadingOverlaystyle);
+
+    if (document.getElementById('userscript-loading-overlay')) return;
+
+    const overlay = document.createElement('div');
+    overlay.id = 'userscript-loading-overlay';
+
+    const spinner = document.createElement('div');
+    spinner.id = 'userscript-loading-spinner';
+
+    overlay.appendChild(spinner);
+    document.body.appendChild(overlay);
+
+    }
+
+})();
+
 // =======================================================
 // =======================================================
 // =======================================================
@@ -933,76 +1043,14 @@ function sendWatchListAddSignToNative(){
     return true;
   }
 
-
-  // 재생 페이지'.bo_v_mov'에 '동영상 재생하기' 버튼 추가 및 스타일 적용(일반 웹브라우저에서는 적용하지 않음)
-
-  if (!isWebBrowser) {
-
-    document.querySelectorAll('div.bo_v_mov').forEach(container => {
-
-        // 새로운 컨테이너 생성
-        const overlay = document.createElement('div');
-        overlay.className = 'bo_v_mov_overlay';
-
-        // overlay 스타일 수정
-        //overlay.style.position = 'relative';
-        overlay.style.width = '100%';
-        const overlayHeight = (isRunningOnTv) ? '310px' : '240px';
-        overlay.style.setProperty('height', overlayHeight, 'important');
-
-
-        // **가운데 정렬**
-        overlay.style.display = 'flex';
-        overlay.style.alignItems = 'center';     // 세로 중앙
-        overlay.style.justifyContent = 'center'; // 가로 중앙
-
-        // 버튼 생성
-        const playButton = document.createElement('button');
-        playButton.id = 'playButton';
-        const playButtonWidth = (isRunningOnTv) ? "180px" : "120px";
-        const playButtonHeight = (isRunningOnTv) ? "80px" : "60px";
-        const playButtonFontSize = (isRunningOnTv) ? "24px" : "20px";
-        playButton.textContent = '▶ 재생';
-        playButton.style.cssText = `
-            background-color: #ff0000;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-size: ${playButtonFontSize};
-            font-weight: bold;
-            cursor: pointer;
-            width: ${playButtonWidth};
-            height: ${playButtonHeight};
-            display: none;
-            align-items: center;
-            justify-content: center;
-        `;
-
-        overlay.appendChild(playButton);
-        container.insertAdjacentElement('afterend', overlay);
-
-        // 클릭 이벤트
-        playButton.onclick = () => {
-          if (typeof NativeApp !== 'undefined' && NativeApp.handlePlayButtonClick) {
-              NativeApp.handlePlayButtonClick();
-              sendWatchListAddSignToNative();
-          }
-          else {
-            document.querySelector('.bo_v_mov_overlay').remove();
-            const bovmov = document.querySelector('.bo_v_mov');
-            bovmov.style.setProperty('height', '480px', 'important');
-            bovmov.style.setProperty('display', 'block', 'important');
-          }
-        };
-      });
-
-  }
-
+  //재생 버튼 보이고 로딩중 오버레이 감추기
   window.LoadVideoPlayButton = function() {
     if (!isVideoLoaded) {
       isVideoLoaded = true;
       const playButton = document.getElementById('playButton');
       playButton.style.display = 'flex';
+      const overlay = document.getElementById('userscript-loading-overlay');
+      if (overlay) overlay.remove();
     }
   }
 
@@ -1618,7 +1666,7 @@ function sendWatchListAddSignToNative(){
 // =======================================================
 
 
-//변수 전송
+//네이티브로 변수 전송
 (function() {
   if (typeof NativeApp !== 'undefined') {
     NativeApp.setWebVar("view_iframe", "view_iframe");
@@ -1626,16 +1674,20 @@ function sendWatchListAddSignToNative(){
 
 })();
 
-if (!isWebBrowser) ApplyVideoNormalStyle();
-customLog("[kotlin]유저스크립트 version: " + scriptVersion);
+//비디오 영역 숨기기: TV와 휴대폰에서 실행, 재생 페이지에서만 실행
+(function() {
+  if (!isWebBrowser && pathSegments > 1) {
+    ApplyVideoNormalStyle();
+  }
 
 
+})();
 
-//메인 페이지 재구성
+//메인 페이지 재구성: TV에서만 실행
 (function () {
   'use strict';
   //메인 페이지에서만 실행
-  if (pathSegments == 0 && isRunningOnTv) {
+  if (pathSegments == 0) {
     const links = [
         '/movie',
         '/drama',
@@ -1695,5 +1747,3 @@ customLog("[kotlin]유저스크립트 version: " + scriptVersion);
     createLayout();
   }
 })();
-
-
