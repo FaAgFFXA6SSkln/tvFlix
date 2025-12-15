@@ -18,7 +18,7 @@
 // 9. 키 입력 오버라이드
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512160504";
+const scriptVersion = "2512152056";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -553,8 +553,8 @@ function sendWatchListAddSignToNative(){
     const spinner = document.createElement('div');
     spinner.id = 'userscript-loading-spinner';
 
-    overlay.appendChild(spinner);
-    document.body.appendChild(overlay);
+    //overlay.appendChild(spinner);
+    //document.body.appendChild(overlay);
 
     }
 
@@ -1747,7 +1747,6 @@ function sendWatchListAddSignToNative(){
     createLayout();
   }
 })();
-
 
 //영화 페이지 버튼 겹침 해결
 (function () {
