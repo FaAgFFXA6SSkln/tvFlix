@@ -452,107 +452,111 @@ function sendWatchListAddSignToNative(){
 })();
 
 
-// 재생 페이지'.bo_v_mov'에 '동영상 재생하기' 버튼 추가 및 스타일 적용(일반 웹브라우저에서는 적용하지 않음)
+// 재생 페이지'.bo_v_mov'에 '동영상 재생' 버튼 추가 및 스타일 적용(일반 웹브라우저에서는 적용하지 않음)
 (function() {
   if (isWebBrowser) return;
 
   //재생 버튼
-  document.querySelectorAll('div.bo_v_mov').forEach(container => {
+  const container = document.querySelector('div.bo_v_mov');
+  if (container) {
+    // 새로운 컨테이너 생성
+    const overlay = document.createElement('div');
+    overlay.className = 'bo_v_mov_overlay';
 
-          // 새로운 컨테이너 생성
-          const overlay = document.createElement('div');
-          overlay.className = 'bo_v_mov_overlay';
-
-          // overlay 스타일 수정
-          //overlay.style.position = 'relative';
-          overlay.style.width = '100%';
-          const overlayHeight = (isRunningOnTv) ? '310px' : '240px';
-          overlay.style.setProperty('height', overlayHeight, 'important');
+    // overlay 스타일 수정
+    //overlay.style.position = 'relative';
+    overlay.style.width = '100%';
+    const overlayHeight = (isRunningOnTv) ? '310px' : '240px';
+    overlay.style.setProperty('height', overlayHeight, 'important');
 
 
-          // **가운데 정렬**
-          overlay.style.display = 'flex';
-          overlay.style.alignItems = 'center';     // 세로 중앙
-          overlay.style.justifyContent = 'center'; // 가로 중앙
+    // **가운데 정렬**
+    overlay.style.display = 'flex';
+    overlay.style.alignItems = 'center';     // 세로 중앙
+    overlay.style.justifyContent = 'center'; // 가로 중앙
 
-          // 버튼 생성
-          const playButton = document.createElement('button');
-          playButton.id = 'playButton';
-          const playButtonWidth = (isRunningOnTv) ? "180px" : "120px";
-          const playButtonHeight = (isRunningOnTv) ? "80px" : "60px";
-          const playButtonFontSize = (isRunningOnTv) ? "24px" : "20px";
-          playButton.textContent = '▶ 재생';
-          playButton.style.cssText = `
-              background-color: #ff0000;
-              color: white;
-              border: none;
-              border-radius: 4px;
-              font-size: ${playButtonFontSize};
-              font-weight: bold;
-              cursor: pointer;
-              width: ${playButtonWidth};
-              height: ${playButtonHeight};
-              display: none;
-              align-items: center;
-              justify-content: center;
-          `;
+    // 버튼 생성
+    const playButton = document.createElement('button');
+    playButton.id = 'playButton';
+    const playButtonWidth = (isRunningOnTv) ? "180px" : "120px";
+    const playButtonHeight = (isRunningOnTv) ? "80px" : "60px";
+    const playButtonFontSize = (isRunningOnTv) ? "24px" : "20px";
+    playButton.textContent = '▶ 재생';
+    playButton.style.cssText = `
+        background-color: #ff0000;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: ${playButtonFontSize};
+        font-weight: bold;
+        cursor: pointer;
+        width: ${playButtonWidth};
+        height: ${playButtonHeight};
+        display: none;
+        align-items: center;
+        justify-content: center;
+    `;
 
-          overlay.appendChild(playButton);
-          container.insertAdjacentElement('afterend', overlay);
+    overlay.appendChild(playButton);
+    container.insertAdjacentElement('afterend', overlay);
 
-          // 클릭 이벤트
-          playButton.onclick = () => {
-            if (typeof NativeApp !== 'undefined' && NativeApp.handlePlayButtonClick) {
-                NativeApp.handlePlayButtonClick();
-                sendWatchListAddSignToNative();
-            }
-            else {
-              document.querySelector('.bo_v_mov_overlay').remove();
-              const bovmov = document.querySelector('.bo_v_mov');
-              bovmov.style.setProperty('height', '480px', 'important');
-              bovmov.style.setProperty('display', 'block', 'important');
-            }
-          };
-        });
-
-  //로딩중 오버레이
-  const loadingOverlaystyle = document.createElement('style');
-  loadingOverlaystyle.textContent = `
-  #userscript-loading-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.4);
-      z-index: 999999;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    // 클릭 이벤트
+    playButton.onclick = () => {
+      if (typeof NativeApp !== 'undefined' && NativeApp.handlePlayButtonClick) {
+          NativeApp.handlePlayButtonClick();
+          sendWatchListAddSignToNative();
+      }
+      else {
+        document.querySelector('.bo_v_mov_overlay').remove();
+        const bovmov = document.querySelector('.bo_v_mov');
+        bovmov.style.setProperty('height', '480px', 'important');
+        bovmov.style.setProperty('display', 'block', 'important');
+      }
+    };
   }
 
-  #userscript-loading-spinner {
-      width: 96px;
-      height: 96px;
-      border: 12px solid #ccc;
-      border-top-color: #1e90ff;
-      border-radius: 50%;
-      animation: userscript-spin 1s linear infinite;
-  }
+  //로딩서클 오버레이
+  if (container) {
+    //로딩중 오버레이
+    const loadingOverlaystyle = document.createElement('style');
+    loadingOverlaystyle.textContent = `
+    #userscript-loading-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.9);
+        z-index: 999999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 
-  @keyframes userscript-spin {
-      to { transform: rotate(360deg); }
-  }
-  `;
-  document.head.appendChild(loadingOverlaystyle);
+    #userscript-loading-spinner {
+        width: 96px;
+        height: 96px;
+        border: 12px solid #ccc;
+        border-top-color: #1e90ff;
+        border-radius: 50%;
+        animation: userscript-spin 1s linear infinite;
+    }
 
-  if (document.getElementById('userscript-loading-overlay')) return;
+    @keyframes userscript-spin {
+        to { transform: rotate(360deg); }
+    }
+    `;
+    document.head.appendChild(loadingOverlaystyle);
 
-  const overlay = document.createElement('div');
-  overlay.id = 'userscript-loading-overlay';
+    if (document.getElementById('userscript-loading-overlay')) return;
 
-  const spinner = document.createElement('div');
-  spinner.id = 'userscript-loading-spinner';
+    const overlay = document.createElement('div');
+    overlay.id = 'userscript-loading-overlay';
 
-  overlay.appendChild(spinner);
-  document.body.appendChild(overlay);
+    const spinner = document.createElement('div');
+    spinner.id = 'userscript-loading-spinner';
+
+    overlay.appendChild(spinner);
+    document.body.appendChild(overlay);
+
+    }
 
 })();
 
