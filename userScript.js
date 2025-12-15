@@ -553,8 +553,8 @@ function sendWatchListAddSignToNative(){
     const spinner = document.createElement('div');
     spinner.id = 'userscript-loading-spinner';
 
-    overlay.appendChild(spinner);
-    document.body.appendChild(overlay);
+    //overlay.appendChild(spinner);
+    //document.body.appendChild(overlay);
 
     }
 
@@ -1706,9 +1706,7 @@ function sendWatchListAddSignToNative(){
     if (bodyWrap) { bodyWrap.remove(); }
     function createLayout() {
 
-
         const isLandscape = window.innerWidth >= window.innerHeight;
-
         const container = document.createElement('div');
         container.style.position = 'fixed';
         container.style.top = '0';
@@ -1728,11 +1726,13 @@ function sendWatchListAddSignToNative(){
             area.style.display = 'flex';
             area.style.alignItems = 'center';
             area.style.justifyContent = 'center';
-            area.style.fontSize = '30px';
+            area.style.fontSize = '28px';
             area.style.fontWeight = 'bold';
             area.style.userSelect = 'none';
             area.style.background = '#222222';
             area.style.color = '#FFFFFF';
+            area.style.whiteSpace = 'pre-line';
+            area.style.lineHeight = '1.4';
 
             area.textContent = names[i];
 
@@ -1746,4 +1746,46 @@ function sendWatchListAddSignToNative(){
     }
     createLayout();
   }
+})();
+
+//영화 페이지 버튼 겹침 해결
+(function () {
+  'use strict';
+
+  if (isWebBrowser) return;
+  if (!(pathname.split('/').filter(Boolean)[0] === 'movie')) return;
+
+    const css = `
+    /* 부모를 flex로 강제 */
+    #bo_btn_top {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+    }
+
+    /* 두 버튼 공통 처리 */
+    #bo_btn_top .filter,
+    #bo_btn_top .filter2 {
+        float: none !important;
+        width: 50% !important;
+        margin: 0 !important;
+        box-sizing: border-box !important;
+    }
+
+    /* 모바일 구간 강제 보정 */
+    @media (max-width: 960px) {
+        #bo_btn_top {
+            display: flex !important;
+        }
+
+        #bo_btn_top .filter,
+        #bo_btn_top .filter2 {
+            width: 50% !important;
+        }
+    }
+    `;
+
+    const style = document.createElement('style');
+    style.type = 'text/css';
+    style.appendChild(document.createTextNode(css));
+    document.head.appendChild(style);
 })();
