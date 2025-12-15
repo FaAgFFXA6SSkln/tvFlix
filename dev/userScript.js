@@ -18,7 +18,7 @@
 // 9. 키 입력 오버라이드
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512132245";
+const scriptVersion = "2512152056";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -1666,7 +1666,7 @@ function sendWatchListAddSignToNative(){
 // =======================================================
 
 
-//변수 전송
+//네이티브로 변수 전송
 (function() {
   if (typeof NativeApp !== 'undefined') {
     NativeApp.setWebVar("view_iframe", "view_iframe");
@@ -1674,16 +1674,20 @@ function sendWatchListAddSignToNative(){
 
 })();
 
-if (!isWebBrowser) ApplyVideoNormalStyle();
-customLog("[kotlin]유저스크립트 version: " + scriptVersion);
+//비디오 영역 숨기기: TV와 휴대폰에서 실행, 재생 페이지에서만 실행
+(function() {
+  if (!isWebBrowser) {
+    ApplyVideoNormalStyle();
+  }
 
 
+})();
 
-//메인 페이지 재구성
+//메인 페이지 재구성: TV에서만 실행
 (function () {
   'use strict';
   //메인 페이지에서만 실행
-  if (pathSegments == 0 && isRunningOnTv) {
+  if (pathSegments == 0 && !isRunningOnTv) {
     const links = [
         '/movie',
         '/drama',
@@ -1702,9 +1706,7 @@ customLog("[kotlin]유저스크립트 version: " + scriptVersion);
     if (bodyWrap) { bodyWrap.remove(); }
     function createLayout() {
 
-
         const isLandscape = window.innerWidth >= window.innerHeight;
-
         const container = document.createElement('div');
         container.style.position = 'fixed';
         container.style.top = '0';
@@ -1724,11 +1726,13 @@ customLog("[kotlin]유저스크립트 version: " + scriptVersion);
             area.style.display = 'flex';
             area.style.alignItems = 'center';
             area.style.justifyContent = 'center';
-            area.style.fontSize = '30px';
+            area.style.fontSize = '28px';
             area.style.fontWeight = 'bold';
             area.style.userSelect = 'none';
             area.style.background = '#222222';
             area.style.color = '#FFFFFF';
+            area.style.whiteSpace = 'pre-line';
+            area.style.lineHeight = '1.4';
 
             area.textContent = names[i];
 
@@ -1745,10 +1749,43 @@ customLog("[kotlin]유저스크립트 version: " + scriptVersion);
 })();
 
 
+//영화 페이지 버튼 겹침 해결
+(function () {
+  'use strict';
 
+  is(isWebBrowser) return;
 
+    const css = `
+    /* 부모를 flex로 강제 */
+    #bo_btn_top {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+    }
 
+    /* 두 버튼 공통 처리 */
+    #bo_btn_top .filter,
+    #bo_btn_top .filter2 {
+        float: none !important;
+        width: 50% !important;
+        margin: 0 !important;
+        box-sizing: border-box !important;
+    }
 
+    /* 모바일 구간 강제 보정 */
+    @media (max-width: 960px) {
+        #bo_btn_top {
+            display: flex !important;
+        }
 
+        #bo_btn_top .filter,
+        #bo_btn_top .filter2 {
+            width: 50% !important;
+        }
+    }
+    `;
 
-
+    const style = document.createElement('style');
+    style.type = 'text/css';
+    style.appendChild(document.createTextNode(css));
+    document.head.appendChild(style);
+})();
