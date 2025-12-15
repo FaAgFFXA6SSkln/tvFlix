@@ -1753,7 +1753,7 @@ function sendWatchListAddSignToNative(){
 (function () {
   'use strict';
 
-  is(isWebBrowser) return;
+  if (isWebBrowser) return;
 
     const css = `
     /* 부모를 flex로 강제 */
