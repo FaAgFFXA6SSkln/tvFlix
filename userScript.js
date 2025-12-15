@@ -1676,7 +1676,7 @@ function sendWatchListAddSignToNative(){
 
 //비디오 영역 숨기기: TV와 휴대폰에서 실행, 재생 페이지에서만 실행
 (function() {
-  if (!isWebBrowser && pathSegments > 1) {
+  if (!isWebBrowser) {
     ApplyVideoNormalStyle();
   }
 
@@ -1747,12 +1747,3 @@ function sendWatchListAddSignToNative(){
     createLayout();
   }
 })();
-
-
-
-
-
-
-
-
-
