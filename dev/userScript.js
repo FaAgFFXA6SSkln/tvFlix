@@ -1753,7 +1753,8 @@ function sendWatchListAddSignToNative(){
 (function () {
   'use strict';
 
-  if (isWebBrowser) return;
+  if (!isWebBrowser) return;
+  if (!pathname.split('/').filter(Boolean)[0] === 'movie') return;
 
     const css = `
     /* 부모를 flex로 강제 */
