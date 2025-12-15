@@ -1687,7 +1687,7 @@ function sendWatchListAddSignToNative(){
 (function () {
   'use strict';
   //메인 페이지에서만 실행
-  if (pathSegments == 0) {
+  if (pathSegments == 0 && isRunningOnTv) {
     const links = [
         '/movie',
         '/drama',
@@ -1747,3 +1747,12 @@ function sendWatchListAddSignToNative(){
     createLayout();
   }
 })();
+
+
+
+
+
+
+
+
+
