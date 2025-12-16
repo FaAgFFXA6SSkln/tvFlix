@@ -17,7 +17,7 @@
 // 8. 검색어 자동완성 기능 TMDB(The Move Database) Api 적용
 // 9. 키 입력 오버라이드
 
-const mainPageUrl = "tvwiki4.net";
+const mainPageUrl = "tvmon.site";
 const scriptVersion = "2512152056";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
