@@ -4,18 +4,18 @@
   "mainScriptUrl": "https://raw.githubusercontent.com/FaAgFFXA6SSkln/tvFlix/refs/heads/main/dev/userScript.js",
   "otherScripts": [
     {
-      "name": "p2p-media-loader-core",
-      "version": "202512171045",
-      "url": "https://raw.githubusercontent.com/FaAgFFXA6SSkln/tvFlix/refs/heads/main/dev/p2p-media-loader-core.js"
+      "name": "hlsjs.js",
+      "version": "202512171330",
+      "url": "https://raw.githubusercontent.com/FaAgFFXA6SSkln/tvFlix/refs/heads/main/dev/hlsjs.js"
     },
     {
       "name": "hls.min.js",
-      "version": "202512171045",
+      "version": "202512171330",
       "url": "https://raw.githubusercontent.com/FaAgFFXA6SSkln/tvFlix/refs/heads/main/dev/hls.min.js"
     },
     {
       "name": "video.min.js",
-      "version": "202512171045",
+      "version": "202512171330",
       "url": "https://raw.githubusercontent.com/FaAgFFXA6SSkln/tvFlix/refs/heads/main/dev/video.min.js"
     }
     
