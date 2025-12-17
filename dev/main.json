@@ -9,9 +9,9 @@
       "url": "https://raw.githubusercontent.com/FaAgFFXA6SSkln/tvFlix/refs/heads/main/dev/p2p-media-loader-core.js"
     },
     {
-      "name": "hls.js",
+      "name": "hls.min.js",
       "version": "202512171045",
-      "url": "https://raw.githubusercontent.com/FaAgFFXA6SSkln/tvFlix/refs/heads/main/dev/hls.js"
+      "url": "https://raw.githubusercontent.com/FaAgFFXA6SSkln/tvFlix/refs/heads/main/dev/hls.min.js"
     },
     {
       "name": "video.min.js",
