@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        tvFlixUserScirpt
-// @include     /^https?:\/\/[^/]*tvwiki[^/]*\/.*$/
+// @include     /^https?:\/\/[^/]*(tvwiki|tvmon)[^/]*\/.*$/
 // @grant        GM_xmlhttpRequest
 // ==/UserScript==
 //
@@ -18,7 +18,7 @@
 // 9. 키 입력 오버라이드
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512152056";
+const scriptVersion = "20251217";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -1679,8 +1679,6 @@ function sendWatchListAddSignToNative(){
   if (!isWebBrowser) {
     ApplyVideoNormalStyle();
   }
-
-
 })();
 
 //메인 페이지 재구성: TV에서만 실행
@@ -1748,12 +1746,12 @@ function sendWatchListAddSignToNative(){
   }
 })();
 
-//영화 페이지 버튼 겹침 해결
+//영화, 외국 드라마 페이지 버튼 겹침 해결
 (function () {
   'use strict';
 
   if (isWebBrowser) return;
-  if (!(pathname.split('/').filter(Boolean)[0] === 'movie')) return;
+  if (!(pathname.split('/').filter(Boolean)[0] === 'movie') && !(pathname.split('/').filter(Boolean)[0] === 'world')) return;
 
     const css = `
     /* 부모를 flex로 강제 */
