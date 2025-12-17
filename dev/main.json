@@ -14,7 +14,7 @@
       "url": "https://raw.githubusercontent.com/FaAgFFXA6SSkln/tvFlix/refs/heads/main/dev/hls.js"
     },
     {
-      "name": "hls.js",
+      "name": "video.min.js",
       "version": "202512171045",
       "url": "https://raw.githubusercontent.com/FaAgFFXA6SSkln/tvFlix/refs/heads/main/dev/video.min.js"
     }
