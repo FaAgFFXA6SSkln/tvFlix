@@ -507,28 +507,33 @@ function sendWatchListAddSignToNative(){
     };
     */
 
-    // 기존 클릭 이벤트 부분 수정
-    playButton.onclick = () => {
-        // [핵심] 클릭 직후 현재 포커스된 요소(버튼 자신)의 포커스를 즉시 해제합니다.
-        // 이렇게 해야 네이티브에서 보낸 focusOnElementById 명령이 간섭 없이 작동합니다.
-        if (document.activeElement && typeof document.activeElement.blur === 'function') {
-            document.activeElement.blur();
+
+
+
+    // 재생 버튼 이벤트 바인딩 부분 수정
+    const handlePlayAction = (e) => {
+        // 1. 기본 동작 및 이벤트 전파 즉시 차단 (리모컨 Enter 키 중복 방지)
+        if (e) {
+            if (typeof e.preventDefault === 'function') e.preventDefault();
+            if (typeof e.stopPropagation === 'function') e.stopPropagation();
         }
+
+        // 2. 포커스 강제 해제
+        playButton.blur();
+        window.focus(); // 윈도우로 포커스를 한 번 뺐다가 네이티브가 가져가게 함
 
         if (typeof NativeApp !== 'undefined' && NativeApp.handlePlayButtonClick) {
-            // 네이티브 함수 호출
-            NativeApp.handlePlayButtonClick();
-
-            // 워치리스트 추가 신호 (기존 로직)
-            if (typeof sendWatchListAddSignToNative === 'function') {
-                sendWatchListAddSignToNative();
-            }
-        }
-        else {
-            // 브라우저 테스트 환경용 fallback
+            // 3. 약간의 지연 후 네이티브 호출 (JS 스택이 비워진 후 네이티브가 동작하도록)
+            setTimeout(() => {
+                NativeApp.handlePlayButtonClick();
+                if (typeof sendWatchListAddSignToNative === 'function') {
+                    sendWatchListAddSignToNative();
+                }
+            }, 50);
+        } else {
+            // Fallback 로직
             const overlay = document.querySelector('.bo_v_mov_overlay');
             if (overlay) overlay.remove();
-
             const bovmov = document.querySelector('.bo_v_mov');
             if (bovmov) {
                 bovmov.style.setProperty('height', '480px', 'important');
@@ -536,6 +541,19 @@ function sendWatchListAddSignToNative(){
             }
         }
     };
+
+    // 마우스 클릭 대응
+    playButton.onclick = handlePlayAction;
+
+    // 리모컨/키보드 대응 (Enter 또는 Space가 기본 클릭을 유발하지만, 명시적으로 제어)
+    playButton.onkeydown = (e) => {
+        if (e.keyCode === 13 || e.keyCode === 32) { // Enter or Space
+            handlePlayAction(e);
+        }
+    };
+
+
+
 
 
   }
