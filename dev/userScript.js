@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        tvFlixUserScirpt
-// @include     /^https?:\/\/[^/]*tvwiki[^/]*\/.*$/
+// @include     /^https?:\/\/[^/]*(tvwiki|tvmon)[^/]*\/.*$/
 // @grant        GM_xmlhttpRequest
 // ==/UserScript==
 //
@@ -17,8 +17,8 @@
 // 8. 검색어 자동완성 기능 TMDB(The Move Database) Api 적용
 // 9. 키 입력 오버라이드
 
-const mainPageUrl = "tvmon.site";
-const scriptVersion = "2512152056";
+const mainPageUrl = "tvwiki4.net";
+const scriptVersion = "2512181307";
 const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -338,7 +338,7 @@ function sendWatchListAddSignToNative(){
     if (typeof NativeApp !== 'undefined') NativeApp.receiveVideoTitleLinkImage(videoTitleText, videoLink, videoThumbUrl);
   }
 }
-//추가
+//검색 버튼 추가, 특수 포커스 효과
 (function() {
   'use strict'
   // 메인 페이지, 카테고리 페이지, 검색 결과 페이지 상단에 검색 버튼 텍스트 추가 로직 및 인라인 스타일 강제 오버라이드
@@ -442,16 +442,7 @@ function sendWatchListAddSignToNative(){
 
   }
 
-
-
-
-
-
-
-
 })();
-
-
 // 재생 페이지'.bo_v_mov'에 '동영상 재생' 버튼 추가 및 스타일 적용(일반 웹브라우저에서는 적용하지 않음)
 (function() {
   if (isWebBrowser) return;
@@ -553,8 +544,8 @@ function sendWatchListAddSignToNative(){
     const spinner = document.createElement('div');
     spinner.id = 'userscript-loading-spinner';
 
-    //overlay.appendChild(spinner);
-    //document.body.appendChild(overlay);
+    overlay.appendChild(spinner);
+    document.body.appendChild(overlay);
 
     }
 
@@ -1679,8 +1670,6 @@ function sendWatchListAddSignToNative(){
   if (!isWebBrowser) {
     ApplyVideoNormalStyle();
   }
-
-
 })();
 
 //메인 페이지 재구성: TV에서만 실행
@@ -1748,12 +1737,12 @@ function sendWatchListAddSignToNative(){
   }
 })();
 
-//영화 페이지 버튼 겹침 해결
+//영화, 외국 드라마 페이지 버튼 겹침 해결
 (function () {
   'use strict';
 
   if (isWebBrowser) return;
-  if (!(pathname.split('/').filter(Boolean)[0] === 'movie')) return;
+  if (!(pathname.split('/').filter(Boolean)[0] === 'movie') && !(pathname.split('/').filter(Boolean)[0] === 'world')) return;
 
     const css = `
     /* 부모를 flex로 강제 */
