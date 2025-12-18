@@ -491,10 +491,10 @@ function sendWatchListAddSignToNative(){
     overlay.appendChild(playButton);
     container.insertAdjacentElement('afterend', overlay);
 
+    /*
     // 클릭 이벤트
     playButton.onclick = () => {
       if (typeof NativeApp !== 'undefined' && NativeApp.handlePlayButtonClick) {
-          NativeApp.jsLog("재생 버튼 클릭 감지");
           NativeApp.handlePlayButtonClick();
           sendWatchListAddSignToNative();
       }
@@ -505,6 +505,39 @@ function sendWatchListAddSignToNative(){
         bovmov.style.setProperty('display', 'block', 'important');
       }
     };
+    */
+
+    // 기존 클릭 이벤트 부분 수정
+    playButton.onclick = () => {
+        // [핵심] 클릭 직후 현재 포커스된 요소(버튼 자신)의 포커스를 즉시 해제합니다.
+        // 이렇게 해야 네이티브에서 보낸 focusOnElementById 명령이 간섭 없이 작동합니다.
+        if (document.activeElement && typeof document.activeElement.blur === 'function') {
+            document.activeElement.blur();
+        }
+
+        if (typeof NativeApp !== 'undefined' && NativeApp.handlePlayButtonClick) {
+            // 네이티브 함수 호출
+            NativeApp.handlePlayButtonClick();
+
+            // 워치리스트 추가 신호 (기존 로직)
+            if (typeof sendWatchListAddSignToNative === 'function') {
+                sendWatchListAddSignToNative();
+            }
+        }
+        else {
+            // 브라우저 테스트 환경용 fallback
+            const overlay = document.querySelector('.bo_v_mov_overlay');
+            if (overlay) overlay.remove();
+
+            const bovmov = document.querySelector('.bo_v_mov');
+            if (bovmov) {
+                bovmov.style.setProperty('height', '480px', 'important');
+                bovmov.style.setProperty('display', 'block', 'important');
+            }
+        }
+    };
+
+
   }
 
   //로딩서클 오버레이
