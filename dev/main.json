@@ -10,8 +10,13 @@
     },
     {
       "name": "video.min.js",
-      "version": "202512171503",
+      "version": "202512181249",
       "url": "https://raw.githubusercontent.com/FaAgFFXA6SSkln/tvFlix/refs/heads/main/dev/video.min.js"
+    },
+    {
+      "name": "p2p-media-loader-core.es.min.js",
+      "version": "202512181249",
+      "url": "https://raw.githubusercontent.com/FaAgFFXA6SSkln/tvFlix/refs/heads/main/dev/p2p-media-loader-core.es.min.js"
     }
     
   ]
