@@ -18,8 +18,8 @@
 // 9. 키 입력 오버라이드
 
 const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "20251217";
-const isRunningOnTv = (navigator.userAgent.includes("DeviceType/TV"));
+const scriptVersion = "2512152056";
+const isRunningOnTv = (navigator.userAgent.toLowerCase().includes("tv"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
 var isOnlyVideo = false;
@@ -338,7 +338,7 @@ function sendWatchListAddSignToNative(){
     if (typeof NativeApp !== 'undefined') NativeApp.receiveVideoTitleLinkImage(videoTitleText, videoLink, videoThumbUrl);
   }
 }
-//추가
+//검색 버튼 추가, 특수 포커스 효과
 (function() {
   'use strict'
   // 메인 페이지, 카테고리 페이지, 검색 결과 페이지 상단에 검색 버튼 텍스트 추가 로직 및 인라인 스타일 강제 오버라이드
@@ -442,16 +442,7 @@ function sendWatchListAddSignToNative(){
 
   }
 
-
-
-
-
-
-
-
 })();
-
-
 // 재생 페이지'.bo_v_mov'에 '동영상 재생' 버튼 추가 및 스타일 적용(일반 웹브라우저에서는 적용하지 않음)
 (function() {
   if (isWebBrowser) return;
@@ -500,6 +491,7 @@ function sendWatchListAddSignToNative(){
     overlay.appendChild(playButton);
     container.insertAdjacentElement('afterend', overlay);
 
+    /*
     // 클릭 이벤트
     playButton.onclick = () => {
       if (typeof NativeApp !== 'undefined' && NativeApp.handlePlayButtonClick) {
@@ -513,6 +505,57 @@ function sendWatchListAddSignToNative(){
         bovmov.style.setProperty('display', 'block', 'important');
       }
     };
+    */
+
+
+
+
+    // 재생 버튼 이벤트 바인딩 부분 수정
+    const handlePlayAction = (e) => {
+        // 1. 기본 동작 및 이벤트 전파 즉시 차단 (리모컨 Enter 키 중복 방지)
+        if (e) {
+            if (typeof e.preventDefault === 'function') e.preventDefault();
+            if (typeof e.stopPropagation === 'function') e.stopPropagation();
+        }
+
+        // 2. 포커스 강제 해제
+        playButton.blur();
+        window.focus(); // 윈도우로 포커스를 한 번 뺐다가 네이티브가 가져가게 함
+
+        if (typeof NativeApp !== 'undefined' && NativeApp.handlePlayButtonClick) {
+            // 3. 약간의 지연 후 네이티브 호출 (JS 스택이 비워진 후 네이티브가 동작하도록)
+            setTimeout(() => {
+                NativeApp.handlePlayButtonClick();
+                if (typeof sendWatchListAddSignToNative === 'function') {
+                    sendWatchListAddSignToNative();
+                }
+            }, 50);
+        } else {
+            // Fallback 로직
+            const overlay = document.querySelector('.bo_v_mov_overlay');
+            if (overlay) overlay.remove();
+            const bovmov = document.querySelector('.bo_v_mov');
+            if (bovmov) {
+                bovmov.style.setProperty('height', '480px', 'important');
+                bovmov.style.setProperty('display', 'block', 'important');
+            }
+        }
+    };
+
+    // 마우스 클릭 대응
+    playButton.onclick = handlePlayAction;
+
+    // 리모컨/키보드 대응 (Enter 또는 Space가 기본 클릭을 유발하지만, 명시적으로 제어)
+    playButton.onkeydown = (e) => {
+        if (e.keyCode === 13 || e.keyCode === 32) { // Enter or Space
+            handlePlayAction(e);
+        }
+    };
+
+
+
+
+
   }
 
   //로딩서클 오버레이
@@ -553,8 +596,8 @@ function sendWatchListAddSignToNative(){
     const spinner = document.createElement('div');
     spinner.id = 'userscript-loading-spinner';
 
-    //overlay.appendChild(spinner);
-    //document.body.appendChild(overlay);
+    overlay.appendChild(spinner);
+    document.body.appendChild(overlay);
 
     }
 
