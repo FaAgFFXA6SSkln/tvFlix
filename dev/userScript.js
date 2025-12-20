@@ -543,23 +543,8 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
         }
     };
 
-
-
     // 마우스 클릭 대응
-    //playButton.onclick = handlePlayAction;
-
-    playerButton.onclick = () => {
-
-      var frame = document.getElementById('view_iframe');
-      if (frame && frame.contentWindow) {
-        // 자식(iframe)에게 메시지 전송
-        frame.contentWindow.postMessage({
-            type: 'FROM_KOTLIN', // 또는 'FROM_PARENT'
-            action: 'ENTER_FULLSCREEN'
-        }, '*');
-      }
-
-    }
+    playButton.onclick = handlePlayAction;
 
     // 리모컨/키보드 대응 (Enter 또는 Space가 기본 클릭을 유발하지만, 명시적으로 제어)
     playButton.onkeydown = (e) => {
