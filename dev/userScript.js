@@ -543,6 +543,8 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
         }
     };
 
+
+    /*
     // 마우스 클릭 대응
     playButton.onclick = handlePlayAction;
 
@@ -552,6 +554,20 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
             handlePlayAction(e);
         }
     };
+
+    */
+
+    playButton.onclick = () => {
+    var frame = document.getElementById('view_iframe');
+      if (frame && frame.contentWindow) {
+          // 자식(iframe)에게 메시지 전송
+          frame.contentWindow.postMessage({
+              type: 'FROM_KOTLIN', // 또는 'FROM_PARENT'
+              action: 'ENTER_FULLSCREEN'
+          }, '*');
+      }
+    }
+
 
 
 
