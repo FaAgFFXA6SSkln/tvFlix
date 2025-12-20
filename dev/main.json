@@ -1,7 +1,7 @@
 {
   "streamingHomeUrl": "https://tvwiki4.net",
-  "mainScriptVersion": "202512200000",
-  "mainScriptUrl": "https://raw.githubusercontent.com/FaAgFFXA6SSkln/tvFlix/refs/heads/main/userScript.js",
+  "mainScriptVersion": "202512200001",
+  "mainScriptUrl": "https://raw.githubusercontent.com/FaAgFFXA6SSkln/tvFlix/refs/heads/main/dev/userScript.js",
   "otherScripts": [
     {
       "name": "hls.min.js",
