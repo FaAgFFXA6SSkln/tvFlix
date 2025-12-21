@@ -492,22 +492,10 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
     overlay.appendChild(playButton);
     container.insertAdjacentElement('afterend', overlay);
 
-    function postFullScreen() {
-      var frame = document.getElementById('view_iframe');
-      if (frame && frame.contentWindow) {
-          frame.contentWindow.postMessage({
-              type: 'FROM_KOTLIN',
-              action: 'ENTER_FULLSCREEN'
-          }, '*');
-      }
-    }
-
-
     // 클릭 이벤트
     playButton.onclick = () => {
       if (typeof NativeApp !== 'undefined' && NativeApp.handlePlayButtonClick) {
-          //NativeApp.handlePlayButtonClick();
-          postFullScreen();
+          NativeApp.handlePlayButtonClick();
           sendWatchListAddSignToNative();
       }
       else {
@@ -533,8 +521,8 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
         }
 
         // 2. 포커스 강제 해제
-        playButton.blur();
-        window.focus(); // 윈도우로 포커스를 한 번 뺐다가 네이티브가 가져가게 함
+        //playButton.blur();
+        //window.focus(); // 윈도우로 포커스를 한 번 뺐다가 네이티브가 가져가게 함
 
         if (typeof NativeApp !== 'undefined' && NativeApp.handlePlayButtonClick) {
             // 3. 약간의 지연 후 네이티브 호출 (JS 스택이 비워진 후 네이티브가 동작하도록)
