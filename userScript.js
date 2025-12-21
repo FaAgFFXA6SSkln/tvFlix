@@ -311,49 +311,69 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
 })();
 //특수 포커스 효과: TV(O)::Phone(X)::Web(X)
 (function() {
-  if (!isRunningOnTv) return;
-  const userAgentString = navigator.userAgent;
+  if (isRunningOnTv) return;
+
   const style = document.createElement('style');
   style.innerHTML = `
-      /* 포커스 가능한 요소 중, body 또는 tabindex="-1"인 요소는 제외 */
       :focus:not(body):not([tabindex="-1"]) {
           z-index: 9999 !important;
           background-color: #552E00 !important;
           outline: 4px solid #FFD700 !important;
           outline-offset: 0px !important;
-
           box-shadow:
               0 0 0 400px #552E00 inset,
               0 0 400px rgba(255, 215, 0, 1) !important;
-
           transition: outline-color 0.2s, box-shadow 0.2s;
       }
   `;
   document.head.appendChild(style);
 
   let focusOverlay = null;
+
   document.addEventListener('focusin', (e) => {
-      const target = e.target.closest && e.target.closest('.title, .title2, .filter_layer a, .filter2_layer a');
+      const target = e.target.closest &&
+        e.target.closest('.title, .title2, .filter_layer a, .filter2_layer a');
       if (!target) return;
+
       const parentDiv = target.parentElement;
-      const isSearchPageItem = parentDiv && parentDiv.tagName === 'DIV' && parentDiv.classList.contains('con');// 검색 결과창 페이지에서의 title이라면(그렇다면 길이를 다른 title과는 다르게 취급해야함)
-      const isDropDownItem = e.target.closest('.filter_layer a, .filter2_layer a');
+      const isSearchPageItem =
+        parentDiv &&
+        parentDiv.tagName === 'DIV' &&
+        parentDiv.classList.contains('con');
+
+      const isDropDownItem =
+        e.target.closest('.filter_layer a, .filter2_layer a');
+
       const rect = target.getBoundingClientRect();
 
       // 원본 투명화
       target.style.opacity = '0';
 
+      // 시작 / 최종 크기 분리 ★
+      const startWidth  = `${rect.width}px`;
+      const startHeight = `${rect.height}px`;
+
+      const finalWidth =
+        isSearchPageItem ? '65%' : `${rect.width}px`;
+
+      const finalHeight =
+        isDropDownItem ? `${rect.height}px` : `${rect.height + 30}px`;
+
       // overlay 생성
       focusOverlay = document.createElement('div');
       focusOverlay.textContent = target.textContent;
 
-      // 공통 스타일
       Object.assign(focusOverlay.style, {
           position: 'absolute',
-          top: isSearchPageItem ? `${rect.top + window.scrollY -30}px`: `${rect.top + window.scrollY}px`,
+          top: isSearchPageItem
+              ? `${rect.top + window.scrollY - 30}px`
+              : `${rect.top + window.scrollY}px`,
           left: `${rect.left + window.scrollX}px`,
-          width: isSearchPageItem ? '65%' : `${rect.width}px`,
-          height: isDropDownItem ? `${rect.height}px` : `${rect.height + 30}px`,
+
+          // ★ 시작 크기 (원본과 동일)
+          width: startWidth,
+          height: startHeight,
+
           color: '#FFF',
           fontWeight: 'bold',
           background: '#552E00',
@@ -363,37 +383,55 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
           zIndex: '999999',
           pointerEvents: 'none',
           padding: '4px 10px',
+
           outline: '4px solid #FFD700',
           outlineOffset: '0',
           boxShadow: `
               0 0 0 400px #552E00 inset,
               0 0 400px rgba(255, 215, 0, 1)
           `,
-          transition: 'outline-color 0.2s, box-shadow 0.2s',
+
+          // ★ width / height 애니메이션
+          transition: `
+              width 0.22s cubic-bezier(0.2, 0, 0.38, 0.9),
+              height 0.22s cubic-bezier(0.2, 0, 0.38, 0.9),
+              box-shadow 0.2s
+          `,
       });
 
-      // 글꼴 스타일 원본 복사
+      // 글꼴 스타일 복사
       const cs = window.getComputedStyle(target);
       focusOverlay.style.fontSize = cs.fontSize;
       focusOverlay.style.fontFamily = cs.fontFamily;
 
       document.body.appendChild(focusOverlay);
+
+      // ★ 다음 프레임에서 최종 크기 적용
+      requestAnimationFrame(() => {
+          if (!focusOverlay) return;
+          focusOverlay.style.width  = finalWidth;
+          focusOverlay.style.height = finalHeight;
+      });
   });
+
   document.addEventListener('focusout', (e) => {
-  const el = e.target;
-  // 원본 복원
-  el.style.opacity = '';
+      const el = e.target;
 
-  // 오버레이 제거
-  if (focusOverlay) {
-      focusOverlay.remove();
-      focusOverlay = null;
-  }
-});
+      // 원본 복원
+      el.style.opacity = '';
+
+      // overlay 제거
+      if (focusOverlay) {
+          focusOverlay.remove();
+          focusOverlay = null;
+      }
+  });
+})();
 
 
 
- })();
+
+
 // 재생 페이지'.bo_v_mov'에 '동영상 재생' 버튼 추가: TV(O)::Phone(O)::Web(X)
 (function() {
   if (isWebBrowser) return;
@@ -1723,7 +1761,7 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
 (function () {
   'use strict';
 
-  if (pathSegments == 0 && !isRunningOnTv) {
+  if (pathSegments == 0 && isRunningOnTv) {
 
     const links = [
       '/movie',
