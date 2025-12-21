@@ -492,7 +492,7 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
     overlay.appendChild(playButton);
     container.insertAdjacentElement('afterend', overlay);
 
-    /*
+
     // 클릭 이벤트
     playButton.onclick = () => {
       if (typeof NativeApp !== 'undefined' && NativeApp.handlePlayButtonClick) {
@@ -506,7 +506,7 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
         bovmov.style.setProperty('display', 'block', 'important');
       }
     };
-    */
+
 
 
 
@@ -544,7 +544,7 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
     };
 
 
-    /*
+
     // 마우스 클릭 대응
     playButton.onclick = handlePlayAction;
 
@@ -554,25 +554,6 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
             handlePlayAction(e);
         }
     };
-
-    */
-
-    playButton.onclick = () => {
-    var frame = document.getElementById('view_iframe');
-      if (frame && frame.contentWindow) {
-          // 자식(iframe)에게 메시지 전송
-          frame.contentWindow.postMessage({
-              type: 'FROM_KOTLIN', // 또는 'FROM_PARENT'
-              action: 'ENTER_FULLSCREEN'
-          }, '*');
-      }
-    }
-
-
-
-
-
-
   }
 
   //로딩서클 오버레이
