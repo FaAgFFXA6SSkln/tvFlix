@@ -1756,7 +1756,7 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
 (function () {
   'use strict';
 
-  if (pathSegments == 0 && !isRunningOnTv) {
+  if (pathSegments == 0 && isRunningOnTv) {
 
     const links = [
       '/movie',
@@ -1805,7 +1805,7 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
         card.style.flex = '1';
         card.style.height = '300px';
         card.style.borderRadius = '16px';
-        //card.style.background ='linear-gradient(135deg, #2a2a2a 0%, #111111 100%)';
+        card.style.background ='linear-gradient(135deg, #2a2a2a 0%, #111111 100%)';
         card.style.display = 'flex';
         card.style.alignItems = 'center';
         card.style.justifyContent = 'center';
