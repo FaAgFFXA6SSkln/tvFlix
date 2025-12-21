@@ -1805,8 +1805,7 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
         card.style.flex = '1';
         card.style.height = '300px';
         card.style.borderRadius = '16px';
-        card.style.background =
-          'linear-gradient(135deg, #2a2a2a 0%, #111111 100%)';
+        //card.style.background ='linear-gradient(135deg, #2a2a2a 0%, #111111 100%)';
         card.style.display = 'flex';
         card.style.alignItems = 'center';
         card.style.justifyContent = 'center';
@@ -1815,28 +1814,24 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
         card.style.color = '#ffffff';
         card.style.cursor = 'pointer';
         card.style.userSelect = 'none';
-        card.style.transition =
-          'transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease';
-        card.style.boxShadow = '0 10px 30px rgba(0,0,0,0.6)';
+        card.style.transition ='transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease';
+        //card.style.boxShadow = '0 10px 30px rgba(0,0,0,0.6)';
         card.style.textAlign = 'center';
-        card.style.whiteSpace = 'pre-line'; // ← 이 줄 추가
+        //card.style.whiteSpace = 'pre-line'; // ← 이 줄 추가
 
         card.textContent = names[i];
 
         // 포커스 / 호버 (TV 리모컨 기준)
         card.addEventListener('focus', () => {
           card.style.transform = 'scale(1.08)';
-          card.style.boxShadow =
-            '0 0 0 3px #e50914, 0 20px 40px rgba(0,0,0,0.8)';
-          card.style.background =
-            'linear-gradient(135deg, #3a3a3a 0%, #181818 100%)';
+          //card.style.boxShadow ='0 0 0 3px #e50914, 0 20px 40px rgba(0,0,0,0.8)';
+          //card.style.background ='linear-gradient(135deg, #3a3a3a 0%, #181818 100%)';
         });
 
         card.addEventListener('blur', () => {
           card.style.transform = 'scale(1)';
-          card.style.boxShadow = '0 10px 30px rgba(0,0,0,0.6)';
-          card.style.background =
-            'linear-gradient(135deg, #2a2a2a 0%, #111111 100%)';
+          //card.style.boxShadow = '0 10px 30px rgba(0,0,0,0.6)';
+          //card.style.background ='linear-gradient(135deg, #2a2a2a 0%, #111111 100%)';
         });
 
         card.addEventListener('click', () => {
