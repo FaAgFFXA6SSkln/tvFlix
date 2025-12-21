@@ -427,11 +427,6 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
       }
   });
 })();
-
-
-
-
-
 // 재생 페이지'.bo_v_mov'에 '동영상 재생' 버튼 추가: TV(O)::Phone(O)::Web(X)
 (function() {
   if (isWebBrowser) return;
