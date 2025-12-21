@@ -526,12 +526,9 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
 
         if (typeof NativeApp !== 'undefined' && NativeApp.handlePlayButtonClick) {
             // 3. 약간의 지연 후 네이티브 호출 (JS 스택이 비워진 후 네이티브가 동작하도록)
-            setTimeout(() => {
-                NativeApp.handlePlayButtonClick();
-                if (typeof sendWatchListAddSignToNative === 'function') {
-                    sendWatchListAddSignToNative();
-                }
-            }, 50);
+          NativeApp.handlePlayButtonClick();
+          sendWatchListAddSignToNative();
+
         } else {
             // Fallback 로직
             const overlay = document.querySelector('.bo_v_mov_overlay');
@@ -547,9 +544,9 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
 
 
     // 마우스 클릭 대응
-    //playButton.onclick = handlePlayAction;
+    playButton.onclick = handlePlayAction;
 
-    /*
+
     // 리모컨/키보드 대응 (Enter 또는 Space가 기본 클릭을 유발하지만, 명시적으로 제어)
     playButton.onkeydown = (e) => {
         if (e.keyCode === 13 || e.keyCode === 32) { // Enter or Space
@@ -557,7 +554,7 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
         }
     };
 
-    */
+
   }
 
   //로딩서클 오버레이
