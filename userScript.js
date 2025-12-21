@@ -311,7 +311,7 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
 })();
 //특수 포커스 효과: TV(O)::Phone(X)::Web(X)
 (function() {
-  if (isRunningOnTv) return;
+  if (!isRunningOnTv) return;
 
   const style = document.createElement('style');
   style.innerHTML = `
