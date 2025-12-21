@@ -1723,7 +1723,7 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
 (function () {
   'use strict';
 
-  if (pathSegments == 0 && !isRunningOnTv) {
+  if (pathSegments == 0 && isRunningOnTv) {
 
     const links = [
       '/movie',
