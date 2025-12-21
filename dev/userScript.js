@@ -4,21 +4,20 @@
 // @grant        GM_xmlhttpRequest
 // ==/UserScript==
 //
-// =======================================================
+// ==============================================================================================================
 // 본 스크립트의 목적
-// =======================================================
+// ==============================================================================================================
 // 1. 웹사이트 내 불필요한 요소 포커스 비활성화
 // 2. 웹사이트 요소 제거
 // 3. 웹사이트 요소 추가
 // 4. 웹사이트 요소 변경
-// 5. 네이티브에서 호출할 함수
+// 5. 네이티브 인터랙션
 // 6. 기타
-// 7. PIP 지원
-// 8. 검색어 자동완성 기능 TMDB(The Move Database) Api 적용
-// 9. 키 입력 오버라이드
+// 7. 스마트폰 PIP 지원
+// 8. 검색어 자동완성 기능: TMDB(The Move Database) Api 적용
+// 9. 검색창, 카테고리 필터 관련 키 입력 오버라이드
+// ==============================================================================================================
 
-const mainPageUrl = "tvwiki4.net";
-const scriptVersion = "2512152056";
 const isRunningOnTv = (navigator.userAgent.toLowerCase().includes("tv"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -288,61 +287,12 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
 
 
 // ==============================================================================================================
-// 3. 웹사이트 요소 추가(검색버튼 텍스트, 동영상 재생버튼, 특수 포커스 효과, 시청목록 시스템)
+// 3. 웹사이트 요소 추가(검색버튼 텍스트, 동영상 재생버튼, 특수 포커스 효과)
 // ==============================================================================================================
-//네이티브로 시청목록 정보 보내기
-(function() {
-  function cleanTitle(str) {
-    let s = str;
-
-    // ---------------------------------------------------------
-    // 0) "숫자 + 화" 로 끝나는지 검사하고 사전 처리
-    // 예: "드라마 12화" → "드라마 12화"
-    //     하지만 "드라마 12화 OST" 는 로직 적용 X (마지막이 "화"일 때만)
-    // ---------------------------------------------------------
-    // 패턴: 마지막 단어가 숫자+화 인지
-    const lastWordMatch = s.match(/(\d+)화$/);
-    if (lastWordMatch) {
-        // 마지막 공백을 찾는다
-        const lastSpaceIdx = s.lastIndexOf(" ");
-        if (lastSpaceIdx !== -1) {
-            s = s.substring(0, lastSpaceIdx);
-        }
-    }
-
-    // ---------------------------------------------------------
-    // 1) " 시즌" 포함 시, 해당 위치부터 뒤 모두 제거
-    // ---------------------------------------------------------
-    const idx = s.indexOf(" 시즌");
-    if (idx !== -1) {
-        s = s.substring(0, idx);
-    }
-
-    // ---------------------------------------------------------
-    // 2) "(무자막)" 제거
-    // ---------------------------------------------------------
-    s = s.replace(/\(무자막\)/g, "");
-
-    // ---------------------------------------------------------
-    // 최종 정리
-    // ---------------------------------------------------------
-    return s.trim();
-}
-  window.sendWatchListAddSignToNative = function() {
-  const videoTitleElement = document.querySelector('.bo_v_tit');
-    if (videoTitleElement) {
-      //제목 추출
-      const videoTitleText = cleanTitle(videoTitleElement.textContent);
-      //링크 추출
-      const videoLink = window.location.href
-
-      if (typeof NativeApp !== 'undefined') NativeApp.receiveVideoTitleLinkImage(videoTitleText, videoLink, videoThumbUrl);
-    }
-  }
-})();
-//검색 버튼 추가
+//검색 버튼 옆에 텍스트 추가: TV(X)::Phone(O)::Web(O)
 (function() {
   'use strict'
+  if (isRunningOnTv) return;
   // 메인 페이지, 카테고리 페이지, 검색 결과 페이지 상단에 검색 버튼 텍스트 추가 로직 및 인라인 스타일 강제 오버라이드
   const searchButton = document.querySelector('a.btn_search');
   if (searchButton) {
@@ -359,10 +309,10 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
       searchButton.prepend(searchLabel);
   }
 })();
-//특수 포커스 효과(TV에서만 적용, 모바일은 적용하지 않음)
+//특수 포커스 효과: TV(O)::Phone(X)::Web(X)
 (function() {
+  if (!isRunningOnTv) return;
   const userAgentString = navigator.userAgent;
-  if (isRunningOnTv) {
   const style = document.createElement('style');
   style.innerHTML = `
       /* 포커스 가능한 요소 중, body 또는 tabindex="-1"인 요소는 제외 */
@@ -441,10 +391,10 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
   }
 });
 
-  }
+
 
  })();
-// 재생 페이지'.bo_v_mov'에 '동영상 재생' 버튼 추가 및 스타일 적용(일반 웹브라우저에서는 적용하지 않음)
+// 재생 페이지'.bo_v_mov'에 '동영상 재생' 버튼 추가: TV(O)::Phone(O)::Web(X)
 (function() {
   if (isWebBrowser) return;
 
@@ -630,16 +580,16 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
     const css = `
         /* 전체 버튼 글씨 키우기 */
         .bo_v_nb_mobile li a {
-            font-size: 1.4rem !important;
+            font-size: 1.3rem !important;
             font-weight: 600 !important;
             padding: 12px 18px !important;
         }
 
         /* circle 크기 */
         .bo_v_nb_mobile li a .circle {
-            width: 40px !important;
-            height: 40px !important;
-            font-size: 1.6rem !important;
+            width: 28px !important;
+            height: 28px !important;
+            font-size: 1.0rem !important;
             display: inline-flex !important;
             align-items: center !important;
             justify-content: center !important;
@@ -647,7 +597,7 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
 
         /* 아이콘 크기 (font-awesome) */
         .bo_v_nb_mobile li a .circle i {
-            font-size: 1.3rem !important;
+            font-size: 1.2rem !important;
         }
     `;
 
@@ -683,6 +633,7 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
 //기타 UI 요소 변경
 (function() {
   'use strict'
+
 
   // =======================================================
   // 4. UI 요소 변경
@@ -954,8 +905,9 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
 
 
 // ==============================================================================================================
-// 5. 네이티브에서 호출할 함수
+// 5. 네이티브 인터랙션
 // ==============================================================================================================
+//네이티브 호출 함수
 (function() {
   'use strict'
   //네이티브에서 ESC혹은 뒤로가기 실행시 호출할 함수
@@ -971,16 +923,6 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
       if (document.activeElement) {
           document.activeElement.blur();
       }
-
-      /*
-      // btn_search 버튼에 포커스 주기
-      const btn = document.querySelector('.btn_search');
-      if (btn) {
-          btn.focus();
-      }
-      e.preventDefault();
-      e.stopPropagation();
-      */
       return;
     }
 
@@ -1029,18 +971,7 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
     //3. 검색창이나 드롭다운 활성화 상태가 아닌 경우
     const host = location.hostname.replace(/^www\./, "");
     const path = window.location.pathname.replace(/\/$/, ""); // 끝의 / 제거
-    // 메인 페이지는 path가 빈 문자열 또는 '/'로 간주
-    const isMainPage = host === mainPageUrl && (path === "" || path === "/");
-
     NativeApp.showNativeMenu();
-
-    /*
-    if (isMainPage) {
-        NativeApp.finishApp();
-    } else {
-        history.back();
-    }
-    */
   }
 
   //다음 회차가 있는지 체크하는 함수
@@ -1087,6 +1018,73 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
     }
   }
 
+  //로깅 함수
+  window.customLog = function(message) {
+    console.log(message);
+    if (typeof NativeApp !== "undefined") {
+      NativeApp.jsLog(message);
+    }
+  }
+
+
+})();
+//네이티브로 변수 전송:TV(O)::Phone(O)::Web(X)
+(function() {
+  if (typeof NativeApp !== 'undefined') {
+    NativeApp.setWebVar("view_iframe", "view_iframe");
+  }
+
+})();
+//네이티브로 시청목록 정보 보내기: TV(O)::Phone(O)::Web(X)
+(function() {
+  if (isWebBrowser) return;
+  function cleanTitle(str) {
+    let s = str;
+
+    // ---------------------------------------------------------
+    // 0) "숫자 + 화" 로 끝나는지 검사하고 사전 처리
+    // 예: "드라마 12화" → "드라마 12화"
+    //     하지만 "드라마 12화 OST" 는 로직 적용 X (마지막이 "화"일 때만)
+    // ---------------------------------------------------------
+    // 패턴: 마지막 단어가 숫자+화 인지
+    const lastWordMatch = s.match(/(\d+)화$/);
+    if (lastWordMatch) {
+        // 마지막 공백을 찾는다
+        const lastSpaceIdx = s.lastIndexOf(" ");
+        if (lastSpaceIdx !== -1) {
+            s = s.substring(0, lastSpaceIdx);
+        }
+    }
+
+    // ---------------------------------------------------------
+    // 1) " 시즌" 포함 시, 해당 위치부터 뒤 모두 제거
+    // ---------------------------------------------------------
+    const idx = s.indexOf(" 시즌");
+    if (idx !== -1) {
+        s = s.substring(0, idx);
+    }
+
+    // ---------------------------------------------------------
+    // 2) "(무자막)" 제거
+    // ---------------------------------------------------------
+    s = s.replace(/\(무자막\)/g, "");
+
+    // ---------------------------------------------------------
+    // 최종 정리
+    // ---------------------------------------------------------
+    return s.trim();
+}
+  window.sendWatchListAddSignToNative = function() {
+  const videoTitleElement = document.querySelector('.bo_v_tit');
+    if (videoTitleElement) {
+      //제목 추출
+      const videoTitleText = cleanTitle(videoTitleElement.textContent);
+      //링크 추출
+      const videoLink = window.location.href
+
+      if (typeof NativeApp !== 'undefined') NativeApp.receiveVideoTitleLinkImage(videoTitleText, videoLink, videoThumbUrl);
+    }
+  }
 })();
 // ==============================================================================================================
 // ==============================================================================================================
@@ -1097,19 +1095,10 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
 // 6. 기타(디버그 및 버그 수정)
 // ==============================================================================================================
 (function() {
-  //로깅 함수
-  window.customLog = function(message) {
-    console.log(message);
-    if (typeof NativeApp !== "undefined") {
-      NativeApp.jsLog(message);
-    }
-  }
-
-  //크롬캐스트에서 드롭다운 동작 안하는 문제 수정
+  //크롬캐스트에서 카테고리 필터 드롭다운 동작을 위해 하위 항목에 tabindex 부여
   document.querySelectorAll('.filter_layer a').forEach(a => {
       a.setAttribute('tabindex', '0');
   });
-
 
   document.forms["fsearchbox"].addEventListener("submit", function (e) {
     const input = document.getElementById("sch_stx");
@@ -1121,10 +1110,47 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
     }
   });
 
+})();
+//영화, 외국 드라마 페이지 버튼 겹침 해결: TV(O)::Phone(O)::Web(O)
+(function () {
+  'use strict';
 
+  if (isWebBrowser) return;
+  if (!(pathname.split('/').filter(Boolean)[0] === 'movie') && !(pathname.split('/').filter(Boolean)[0] === 'world')) return;
 
+    const css = `
+    /* 부모를 flex로 강제 */
+    #bo_btn_top {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+    }
 
+    /* 두 버튼 공통 처리 */
+    #bo_btn_top .filter,
+    #bo_btn_top .filter2 {
+        float: none !important;
+        width: 50% !important;
+        margin: 0 !important;
+        box-sizing: border-box !important;
+    }
 
+    /* 모바일 구간 강제 보정 */
+    @media (max-width: 960px) {
+        #bo_btn_top {
+            display: flex !important;
+        }
+
+        #bo_btn_top .filter,
+        #bo_btn_top .filter2 {
+            width: 50% !important;
+        }
+    }
+    `;
+
+    const style = document.createElement('style');
+    style.type = 'text/css';
+    style.appendChild(document.createTextNode(css));
+    document.head.appendChild(style);
 })();
 // ==============================================================================================================
 // ==============================================================================================================
@@ -1132,7 +1158,7 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
 
 
 // ==============================================================================================================
-// 7. PIP 지원
+// 7. 스마트폰 PIP 지원
 // ==============================================================================================================
 (function() {
   if (isWebBrowser) return;//일반 웹브라우저에서는 사용하지 않음
@@ -1186,7 +1212,7 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
 (function() {
   'use strict';
   // 웹뷰 여부에 따라 스킵
-  if (typeof isWebBrowser !== 'undefined' && isWebBrowser) return;
+  if (isWebBrowser) return;
 
   //G보드 기본 자동완성 기능 막기
   const input = document.getElementById('sch_stx');
@@ -1493,13 +1519,13 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
 
 
 // ==============================================================================================================
-// 9. 키 입력 오버라이드
+// 9. 검색창, 카테고리 필터 관련 키 입력 오버라이드
 // ==============================================================================================================
 (function(){
-
+  //키 다운
   document.addEventListener('keydown', (e) => {
-
-  if (e.key == 'ArrowDown') {
+    //검색창 관련 키입력 로직
+    if (e.key == 'ArrowDown') {
     //검색창 활성화 상태에서 키 입력 처리
     const search_wrap = document.querySelector('.search_wrap');
     if (search_wrap.classList.contains('active')) {
@@ -1557,8 +1583,7 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
       }
     }
   }
-
-  else if (e.key == 'ArrowUp') {
+    else if (e.key == 'ArrowUp') {
     //검색창 활성화 상태에서 키 입력 처리
     const search_wrap = document.querySelector('.search_wrap');
     if (search_wrap.classList.contains('active')) {
@@ -1600,67 +1625,69 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
     }
   }
 
-  const active = document.activeElement;
-  if (active.classList.contains('btn_filter')) {
-      const layer = active.nextElementSibling; // .filter_layer
-      if (!layer) return;
+    //카테고리 필터 관련 키입력 로직
+    const active = document.activeElement;
+    if (active.classList.contains('btn_filter')) {
+        const layer = active.nextElementSibling; // .filter_layer
+        if (!layer) return;
 
-      //드롭다운이 열려있을때, 카테고리 필터 버튼 포커스 상태에서는 아래 방향키만 동작하게 만들기
-      if (e.key === 'ArrowLeft' || e.key == 'ArrowRight' || e.key === 'ArrowUp') {
+        //드롭다운이 열려있을때, 카테고리 필터 버튼 포커스 상태에서는 아래 방향키만 동작하게 만들기
+        if (e.key === 'ArrowLeft' || e.key == 'ArrowRight' || e.key === 'ArrowUp') {
 
-        const computed = window.getComputedStyle(layer);
-        const hasActiveClass = layer.classList && layer.classList.contains('active');
-        const displayVisible = (layer.style.display && layer.style.display !== 'none') || (computed.display && computed.display !== 'none');
-        const visibilityVisible = (layer.style.visibility && layer.style.visibility !== 'hidden') || (computed.visibility && computed.visibility !== 'hidden');
-        const offscreen = layer.style.left && (layer.style.left === '-9999px' || layer.style.left.indexOf('-') === 0);
-        const isOpen = hasActiveClass || (displayVisible && visibilityVisible && !offscreen);
-        if (isOpen) {
-          e.preventDefault();
-		      e.stopPropagation();
+          const computed = window.getComputedStyle(layer);
+          const hasActiveClass = layer.classList && layer.classList.contains('active');
+          const displayVisible = (layer.style.display && layer.style.display !== 'none') || (computed.display && computed.display !== 'none');
+          const visibilityVisible = (layer.style.visibility && layer.style.visibility !== 'hidden') || (computed.visibility && computed.visibility !== 'hidden');
+          const offscreen = layer.style.left && (layer.style.left === '-9999px' || layer.style.left.indexOf('-') === 0);
+          const isOpen = hasActiveClass || (displayVisible && visibilityVisible && !offscreen);
+          if (isOpen) {
+            e.preventDefault();
+            e.stopPropagation();
+          }
         }
-      }
 
-      //드롭다운이 열려있을때, 카테고리 필터 버튼 포커스 상태에서 아래 방향키를 누르면 자식 요소로 이동하게 하기
-      if (e.key === 'ArrowDown') {
+        //드롭다운이 열려있을때, 카테고리 필터 버튼 포커스 상태에서 아래 방향키를 누르면 자식 요소로 이동하게 하기
+        if (e.key === 'ArrowDown') {
 
-        //드롭다운이 열려있을때
-        const computed = window.getComputedStyle(layer);
-        const hasActiveClass = layer.classList && layer.classList.contains('active');
-        const displayVisible = (layer.style.display && layer.style.display !== 'none') || (computed.display && computed.display !== 'none');
-        const visibilityVisible = (layer.style.visibility && layer.style.visibility !== 'hidden') || (computed.visibility && computed.visibility !== 'hidden');
-        const offscreen = layer.style.left && (layer.style.left === '-9999px' || layer.style.left.indexOf('-') === 0);
-        const isOpen = hasActiveClass || (displayVisible && visibilityVisible && !offscreen);
-        if (isOpen) {
-          const first = layer.querySelector('a');
-          first?.focus();
-          e.preventDefault();
-		      e.stopPropagation();
+          //드롭다운이 열려있을때
+          const computed = window.getComputedStyle(layer);
+          const hasActiveClass = layer.classList && layer.classList.contains('active');
+          const displayVisible = (layer.style.display && layer.style.display !== 'none') || (computed.display && computed.display !== 'none');
+          const visibilityVisible = (layer.style.visibility && layer.style.visibility !== 'hidden') || (computed.visibility && computed.visibility !== 'hidden');
+          const offscreen = layer.style.left && (layer.style.left === '-9999px' || layer.style.left.indexOf('-') === 0);
+          const isOpen = hasActiveClass || (displayVisible && visibilityVisible && !offscreen);
+          if (isOpen) {
+            const first = layer.querySelector('a');
+            first?.focus();
+            e.preventDefault();
+            e.stopPropagation();
+          }
         }
+
+      //드롭다운이 열려있고, 자식 요소들에 포커스가 있을 때
       }
+    else if (active.closest('.filter_layer, .filter2_layer')) {
 
-    //드롭다운이 열려있고, 자식 요소들에 포커스가 있을 때
-    }
-  else if (active.closest('.filter_layer, .filter2_layer')) {
-
-      //옆 방향키는 동작하지 않게 하기
-      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
-        e.preventDefault();
-		    e.stopPropagation();
-      } else if (e.key === 'ArrowDown') {
-          const next = active.nextElementSibling;
-          if (next) next.focus();
+        //옆 방향키는 동작하지 않게 하기
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
           e.preventDefault();
-		      e.stopPropagation();
-      } else if (e.key === 'ArrowUp') {
-          const prev = active.previousElementSibling;
-          if (prev) prev.focus();
-          e.preventDefault();
-		      e.stopPropagation();
+          e.stopPropagation();
+        } else if (e.key === 'ArrowDown') {
+            const next = active.nextElementSibling;
+            if (next) next.focus();
+            e.preventDefault();
+            e.stopPropagation();
+        } else if (e.key === 'ArrowUp') {
+            const prev = active.previousElementSibling;
+            if (prev) prev.focus();
+            e.preventDefault();
+            e.stopPropagation();
 
-	  }
-    }
-  });
+      }
+      }
+    });
 
+  //키 업
   document.addEventListener('keyup', (e) => {
     if (e.key == 'ArrowUp') {
       //검색창 활성화 상태에서 키 입력 처리
@@ -1683,124 +1710,115 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
 
 
 
-//네이티브로 변수 전송
-(function() {
-  if (typeof NativeApp !== 'undefined') {
-    NativeApp.setWebVar("view_iframe", "view_iframe");
-  }
 
-})();
 
-//비디오 영역 숨기기: TV와 휴대폰에서 실행, 재생 페이지에서만 실행
+//시작시 비디오 영역 숨기기: TV(O)::Phone(O)::Web(X)
 (function() {
   if (!isWebBrowser) {
     ApplyVideoNormalStyle();
   }
 })();
 
-//메인 페이지 재구성: TV에서만 실행
+// 메인 페이지 재구성: TV(O)::Phone(X)::Web(X)
 (function () {
   'use strict';
-  //메인 페이지에서만 실행
+
   if (pathSegments == 0 && isRunningOnTv) {
+
     const links = [
-        '/movie',
-        '/drama',
-        '/world',
-        '/ent',
-        '/ani_movie'
+      '/movie',
+      '/drama',
+      '/world',
+      '/ent',
+      '/ani_movie'
     ];
+
     const names = [
-        '영화',
-        '한국 드라마',
-        '외국 드라마',
-        '예능/시사',
-        '만화'
+      '영화',
+      '한국 드라마',
+      '해외 드라마',
+      '예능 / 시사',
+      '애니메이션'
     ];
+
     const bodyWrap = document.getElementById('body_wrap');
-    if (bodyWrap) { bodyWrap.remove(); }
+    if (bodyWrap) bodyWrap.remove();
+
     function createLayout() {
 
-        const isLandscape = window.innerWidth >= window.innerHeight;
-        const container = document.createElement('div');
-        container.style.position = 'fixed';
-        container.style.top = '0';
-        container.style.left = '0';
-        container.style.width = '100vw';
-        container.style.height = '100vh';
-        container.style.display = 'flex';
-        container.style.flexDirection = isLandscape ? 'row' : 'column';
+      const container = document.createElement('div');
+      container.style.position = 'fixed';
+      container.style.top = '0';
+      container.style.left = '0';
+      container.style.width = '100vw';
+      container.style.height = '100vh';
+      container.style.background = 'linear-gradient(180deg, #141414 0%, #000000 100%)';
+      container.style.display = 'flex';
+      container.style.alignItems = 'center';
+      container.style.justifyContent = 'center';
 
-        for (let i = 0; i < 5; i++) {
-            const area = document.createElement('div');
+      const grid = document.createElement('div');
+      grid.style.display = 'flex';
+      grid.style.gap = '16px';
+      grid.style.padding = '16px';
+      grid.style.width = '90%';
+      grid.style.maxWidth = '1600px';
+      grid.style.justifyContent = 'space-between';
 
-            area.tabIndex = 0; // ★ 포커스 가능하게 만드는 핵심
-            area.style.flex = '1';
-            area.style.cursor = 'pointer';
-            area.style.border = '2px solid #555555';
-            area.style.display = 'flex';
-            area.style.alignItems = 'center';
-            area.style.justifyContent = 'center';
-            area.style.fontSize = '28px';
-            area.style.fontWeight = 'bold';
-            area.style.userSelect = 'none';
-            area.style.background = '#222222';
-            area.style.color = '#FFFFFF';
-            area.style.whiteSpace = 'pre-line';
-            area.style.lineHeight = '1.4';
+      for (let i = 0; i < names.length; i++) {
 
-            area.textContent = names[i];
+        const card = document.createElement('div');
+        card.tabIndex = 0;
+        card.style.flex = '1';
+        card.style.height = '300px';
+        card.style.borderRadius = '16px';
+        card.style.background =
+          'linear-gradient(135deg, #2a2a2a 0%, #111111 100%)';
+        card.style.display = 'flex';
+        card.style.alignItems = 'center';
+        card.style.justifyContent = 'center';
+        card.style.fontSize = '24px';
+        card.style.fontWeight = '700';
+        card.style.color = '#ffffff';
+        card.style.cursor = 'pointer';
+        card.style.userSelect = 'none';
+        card.style.transition =
+          'transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease';
+        card.style.boxShadow = '0 10px 30px rgba(0,0,0,0.6)';
+        card.style.textAlign = 'center';
+        card.style.whiteSpace = 'pre-line'; // ← 이 줄 추가
 
-            area.addEventListener('click', () => {
-                window.location.href = links[i];
-            });
+        card.textContent = names[i];
 
-            container.appendChild(area);
-        }
-        document.body.appendChild(container);
+        // 포커스 / 호버 (TV 리모컨 기준)
+        card.addEventListener('focus', () => {
+          card.style.transform = 'scale(1.08)';
+          card.style.boxShadow =
+            '0 0 0 3px #e50914, 0 20px 40px rgba(0,0,0,0.8)';
+          card.style.background =
+            'linear-gradient(135deg, #3a3a3a 0%, #181818 100%)';
+        });
+
+        card.addEventListener('blur', () => {
+          card.style.transform = 'scale(1)';
+          card.style.boxShadow = '0 10px 30px rgba(0,0,0,0.6)';
+          card.style.background =
+            'linear-gradient(135deg, #2a2a2a 0%, #111111 100%)';
+        });
+
+        card.addEventListener('click', () => {
+          window.location.href = links[i];
+        });
+
+        grid.appendChild(card);
+      }
+
+      container.appendChild(grid);
+      document.body.appendChild(container);
     }
+
     createLayout();
   }
 })();
 
-//영화, 외국 드라마 페이지 버튼 겹침 해결
-(function () {
-  'use strict';
 
-  if (isWebBrowser) return;
-  if (!(pathname.split('/').filter(Boolean)[0] === 'movie') && !(pathname.split('/').filter(Boolean)[0] === 'world')) return;
-
-    const css = `
-    /* 부모를 flex로 강제 */
-    #bo_btn_top {
-        display: flex !important;
-        flex-wrap: nowrap !important;
-    }
-
-    /* 두 버튼 공통 처리 */
-    #bo_btn_top .filter,
-    #bo_btn_top .filter2 {
-        float: none !important;
-        width: 50% !important;
-        margin: 0 !important;
-        box-sizing: border-box !important;
-    }
-
-    /* 모바일 구간 강제 보정 */
-    @media (max-width: 960px) {
-        #bo_btn_top {
-            display: flex !important;
-        }
-
-        #bo_btn_top .filter,
-        #bo_btn_top .filter2 {
-            width: 50% !important;
-        }
-    }
-    `;
-
-    const style = document.createElement('style');
-    style.type = 'text/css';
-    style.appendChild(document.createTextNode(css));
-    document.head.appendChild(style);
-})();
