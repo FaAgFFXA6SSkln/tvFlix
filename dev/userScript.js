@@ -496,7 +496,8 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
     // 클릭 이벤트
     playButton.onclick = () => {
       if (typeof NativeApp !== 'undefined' && NativeApp.handlePlayButtonClick) {
-          NativeApp.handlePlayButtonClick();
+          //NativeApp.handlePlayButtonClick();
+          postFullScreen();
           sendWatchListAddSignToNative();
       }
       else {
@@ -507,6 +508,16 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
       }
     };
 
+
+  function postFullScreen() {
+    var frame = document.getElementById('view_iframe');
+    if (frame && frame.contentWindow) {
+        frame.contentWindow.postMessage({
+            type: 'FROM_KOTLIN',
+            action: 'ENTER_FULLSCREEN'
+        }, '*');
+    }
+  }
 
 
 
