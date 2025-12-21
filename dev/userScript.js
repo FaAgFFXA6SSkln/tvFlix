@@ -492,6 +492,16 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
     overlay.appendChild(playButton);
     container.insertAdjacentElement('afterend', overlay);
 
+    function postFullScreen() {
+      var frame = document.getElementById('view_iframe');
+      if (frame && frame.contentWindow) {
+          frame.contentWindow.postMessage({
+              type: 'FROM_KOTLIN',
+              action: 'ENTER_FULLSCREEN'
+          }, '*');
+      }
+    }
+
 
     // 클릭 이벤트
     playButton.onclick = () => {
@@ -509,15 +519,7 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
     };
 
 
-  function postFullScreen() {
-    var frame = document.getElementById('view_iframe');
-    if (frame && frame.contentWindow) {
-        frame.contentWindow.postMessage({
-            type: 'FROM_KOTLIN',
-            action: 'ENTER_FULLSCREEN'
-        }, '*');
-    }
-  }
+
 
 
 
@@ -557,14 +559,17 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
 
 
     // 마우스 클릭 대응
-    playButton.onclick = handlePlayAction;
+    //playButton.onclick = handlePlayAction;
 
+    /*
     // 리모컨/키보드 대응 (Enter 또는 Space가 기본 클릭을 유발하지만, 명시적으로 제어)
     playButton.onkeydown = (e) => {
         if (e.keyCode === 13 || e.keyCode === 32) { // Enter or Space
             handlePlayAction(e);
         }
     };
+
+    */
   }
 
   //로딩서클 오버레이
