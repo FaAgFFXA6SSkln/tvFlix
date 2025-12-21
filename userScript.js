@@ -1723,7 +1723,7 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
 (function () {
   'use strict';
 
-  if (pathSegments == 0 && isRunningOnTv) {
+  if (pathSegments == 0 && !isRunningOnTv) {
 
     const links = [
       '/movie',
@@ -1736,9 +1736,9 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
     const names = [
       '영화',
       '한국 드라마',
-      '외국 드라마',
+      '해외 드라마',
       '예능 / 시사',
-      '만화'
+      '애니메이션'
     ];
 
     const bodyWrap = document.getElementById('body_wrap');
@@ -1759,8 +1759,8 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
 
       const grid = document.createElement('div');
       grid.style.display = 'flex';
-      grid.style.gap = '32px';
-      grid.style.padding = '40px';
+      grid.style.gap = '16px';
+      grid.style.padding = '16px';
       grid.style.width = '90%';
       grid.style.maxWidth = '1600px';
       grid.style.justifyContent = 'space-between';
@@ -1777,7 +1777,7 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
         card.style.display = 'flex';
         card.style.alignItems = 'center';
         card.style.justifyContent = 'center';
-        card.style.fontSize = '30px';
+        card.style.fontSize = '24px';
         card.style.fontWeight = '700';
         card.style.color = '#ffffff';
         card.style.cursor = 'pointer';
@@ -1786,6 +1786,7 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
           'transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease';
         card.style.boxShadow = '0 10px 30px rgba(0,0,0,0.6)';
         card.style.textAlign = 'center';
+        card.style.whiteSpace = 'pre-line'; // ← 이 줄 추가
 
         card.textContent = names[i];
 
