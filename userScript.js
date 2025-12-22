@@ -1842,10 +1842,6 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
 
     requestAnimationFrame(() => {
       document.body.appendChild(fragment);
-
-      // 첫 카드 자동 포커스
-      const firstCard = document.querySelector('.tv-card');
-      if (firstCard) firstCard.focus();
     });
   }
 
