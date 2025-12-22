@@ -538,7 +538,7 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
     #userscript-loading-overlay {
         position: fixed;
         inset: 0;
-        //background: rgba(0, 0, 0, 0.9);
+        background: rgba(0, 0, 0, 0.9);
         z-index: 999999;
         display: flex;
         align-items: center;
