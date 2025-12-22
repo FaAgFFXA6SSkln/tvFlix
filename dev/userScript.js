@@ -92,16 +92,6 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
   });
 
 
-
-
-  // 메인 페이지('/')가 아닌 하위 페이지일 경우 #header_wrap (로고, 검색버튼)을 삭제
-  const pathname = window.location.pathname;
-  // '/'로 분리 후 빈 문자열 제거
-  const pathSegments = pathname.split('/').filter(seg => seg !== '');
-  // pathSegments 길이로 깊이 판단
-  // pathSegments.length > 1이면 서브서브 페이지
-
-
   //TV 환경에서는 검색 버튼이 포함된 상단 WRAP을 안보이고 포커스 안되게 처리
   if (isRunningOnTv) {
     const headerWrap = document.getElementById('header_wrap');
@@ -1755,96 +1745,110 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
 // 메인 페이지 재구성: TV(O)::Phone(X)::Web(X)
 (function () {
   'use strict';
+  if (pathSegments.length !== 0) return;
+  if (!isRunningOnTv) return;
 
-  if (pathSegments == 0 && isRunningOnTv) {
+  const links = [
+    '/movie',
+    '/drama',
+    '/world',
+    '/ent',
+    '/ani_movie'
+  ];
 
-    const links = [
-      '/movie',
-      '/drama',
-      '/world',
-      '/ent',
-      '/ani_movie'
-    ];
+  const names = [
+    '영화',
+    '한국 드라마',
+    '해외 드라마',
+    '예능 / 시사',
+    '애니메이션'
+  ];
 
-    const names = [
-      '영화',
-      '한국 드라마',
-      '해외 드라마',
-      '예능 / 시사',
-      '애니메이션'
-    ];
+  // 기존 레이아웃 제거
+  const bodyWrap = document.getElementById('body_wrap');
+  if (bodyWrap) bodyWrap.remove();
 
-    const bodyWrap = document.getElementById('body_wrap');
-    if (bodyWrap) bodyWrap.remove();
-
-    function createLayout() {
-
-      const container = document.createElement('div');
-      container.style.position = 'fixed';
-      container.style.top = '0';
-      container.style.left = '0';
-      container.style.width = '100vw';
-      container.style.height = '100vh';
-      container.style.background = '#141414'//'linear-gradient(180deg, #141414 0%, #000000 100%)';
-      container.style.display = 'flex';
-      container.style.alignItems = 'center';
-      container.style.justifyContent = 'center';
-
-      const grid = document.createElement('div');
-      grid.style.display = 'flex';
-      grid.style.gap = '16px';
-      grid.style.padding = '16px';
-      grid.style.width = '90%';
-      grid.style.maxWidth = '1600px';
-      grid.style.justifyContent = 'space-between';
-
-      for (let i = 0; i < names.length; i++) {
-
-        const card = document.createElement('div');
-        card.tabIndex = 0;
-        card.style.flex = '1';
-        card.style.height = '300px';
-        card.style.borderRadius = '16px';
-        card.style.background ='#2a2a2a';//linear-gradient(135deg, #2a2a2a 0%, #111111 100%)';
-        card.style.display = 'flex';
-        card.style.alignItems = 'center';
-        card.style.justifyContent = 'center';
-        card.style.fontSize = '24px';
-        card.style.fontWeight = '700';
-        card.style.color = '#ffffff';
-        card.style.cursor = 'pointer';
-        card.style.userSelect = 'none';
-        card.style.transition ='transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease';
-        //card.style.boxShadow = '0 10px 30px rgba(0,0,0,0.6)';
-        card.style.textAlign = 'center';
-        //card.style.whiteSpace = 'pre-line'; // ← 이 줄 추가
-
-        card.textContent = names[i];
-
-        // 포커스 / 호버 (TV 리모컨 기준)
-        card.addEventListener('focus', () => {
-          card.style.transform = 'scale(1.08)';
-          //card.style.boxShadow ='0 0 0 3px #e50914, 0 20px 40px rgba(0,0,0,0.8)';
-          //card.style.background ='linear-gradient(135deg, #3a3a3a 0%, #181818 100%)';
-        });
-
-        card.addEventListener('blur', () => {
-          card.style.transform = 'scale(1)';
-          //card.style.boxShadow = '0 10px 30px rgba(0,0,0,0.6)';
-          //card.style.background ='linear-gradient(135deg, #2a2a2a 0%, #111111 100%)';
-        });
-
-        card.addEventListener('click', () => {
-          window.location.href = links[i];
-        });
-
-        grid.appendChild(card);
-      }
-
-      container.appendChild(grid);
-      document.body.appendChild(container);
+  // 스타일 주입
+  const style = document.createElement('style');
+  style.textContent = `
+    .tv-container {
+      position: absolute;
+      inset: 0;
+      background: #141414;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    createLayout();
+    .tv-grid {
+      display: flex;
+      gap: 16px;
+      padding: 16px;
+      width: 90%;
+      max-width: 1600px;
+      justify-content: space-between;
+    }
+
+    .tv-card {
+      flex: 1;
+      height: 300px;
+      border-radius: 16px;
+      background: #2a2a2a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: 700;
+      color: #ffffff;
+      cursor: pointer;
+      user-select: none;
+      text-align: center;
+      outline: none;
+      will-change: transform;
+      transform: translateZ(0);
+      transition: transform 0.2s ease;
+    }
+
+    .tv-card:focus {
+      transform: translateZ(0) scale(1.08);
+    }
+  `;
+  document.head.appendChild(style);
+
+  function createLayout() {
+    const fragment = document.createDocumentFragment();
+
+    const container = document.createElement('div');
+    container.className = 'tv-container';
+
+    const grid = document.createElement('div');
+    grid.className = 'tv-grid';
+
+    for (let i = 0; i < names.length; i++) {
+      const card = document.createElement('div');
+      card.className = 'tv-card';
+      card.tabIndex = 0;
+      card.textContent = names[i];
+
+      card.addEventListener('click', () => {
+        window.location.href = links[i];
+      });
+
+      grid.appendChild(card);
+    }
+
+    container.appendChild(grid);
+    fragment.appendChild(container);
+
+    requestAnimationFrame(() => {
+      document.body.appendChild(fragment);
+
+      // 첫 카드 자동 포커스
+      const firstCard = document.querySelector('.tv-card');
+      if (firstCard) firstCard.focus();
+    });
   }
+
+  createLayout();
+
 })();
