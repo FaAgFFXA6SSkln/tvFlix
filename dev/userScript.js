@@ -1785,7 +1785,7 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
       container.style.left = '0';
       container.style.width = '100vw';
       container.style.height = '100vh';
-      container.style.background = 'linear-gradient(180deg, #141414 0%, #000000 100%)';
+      container.style.background = '#141414'//'linear-gradient(180deg, #141414 0%, #000000 100%)';
       container.style.display = 'flex';
       container.style.alignItems = 'center';
       container.style.justifyContent = 'center';
@@ -1805,7 +1805,7 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
         card.style.flex = '1';
         card.style.height = '300px';
         card.style.borderRadius = '16px';
-        //card.style.background ='linear-gradient(135deg, #2a2a2a 0%, #111111 100%)';
+        card.style.background ='#2a2a2a';//linear-gradient(135deg, #2a2a2a 0%, #111111 100%)';
         card.style.display = 'flex';
         card.style.alignItems = 'center';
         card.style.justifyContent = 'center';
@@ -1848,5 +1848,3 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
     createLayout();
   }
 })();
-
-
