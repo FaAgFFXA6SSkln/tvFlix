@@ -1785,7 +1785,7 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
       container.style.left = '0';
       container.style.width = '100vw';
       container.style.height = '100vh';
-      container.style.background = 'linear-gradient(180deg, #141414 0%, #000000 100%)';
+      container.style.background = '#141414'//'linear-gradient(180deg, #141414 0%, #000000 100%)';
       container.style.display = 'flex';
       container.style.alignItems = 'center';
       container.style.justifyContent = 'center';
@@ -1805,7 +1805,7 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
         card.style.flex = '1';
         card.style.height = '300px';
         card.style.borderRadius = '16px';
-        card.style.background ='linear-gradient(135deg, #2a2a2a 0%, #111111 100%)';
+        card.style.background ='#2a2a2a';//linear-gradient(135deg, #2a2a2a 0%, #111111 100%)';
         card.style.display = 'flex';
         card.style.alignItems = 'center';
         card.style.justifyContent = 'center';
@@ -1814,7 +1814,7 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
         card.style.color = '#ffffff';
         card.style.cursor = 'pointer';
         card.style.userSelect = 'none';
-        card.style.transition ='transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease';
+        //card.style.transition ='transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease';
         //card.style.boxShadow = '0 10px 30px rgba(0,0,0,0.6)';
         card.style.textAlign = 'center';
         //card.style.whiteSpace = 'pre-line'; // ← 이 줄 추가
@@ -1848,5 +1848,3 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
     createLayout();
   }
 })();
-
-
