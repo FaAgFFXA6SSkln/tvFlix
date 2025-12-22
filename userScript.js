@@ -548,17 +548,10 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
 	#userscript-loading-spinner {
 		width: 80px;
 		height: 80px;
-		border-radius: 50%;
-		/* border 제거하거나 유지 가능 */
-		/* border: 8px solid #ccc; */
-		/* border-top-color: #1e90ff; */
-
-		/* conic-gradient로 arc 표시 */
-		background: conic-gradient(
-			#FF0000 0deg 90deg,
-			transparent 90deg 360deg
-		);
-
+		border: 8px solid transparent;
+		border-top-color: #1e90ff;
+		border-right-color: #1e90ff;   /* 알맹이 길이 늘림 */
+		border-radius: 75%;
 		animation: userscript-spin 1s linear infinite;
 	}
 
