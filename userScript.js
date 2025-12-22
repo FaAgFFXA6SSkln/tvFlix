@@ -548,7 +548,7 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
 	#userscript-loading-spinner {
 		width: 80px;
 		height: 80px;
-		border: 8px solid transparent;  /* 전체 두께, 투명 */
+		border: 7px solid transparent;  /* 전체 두께, 투명 */
 		border-top-color: #FF0000;       /* 12시 방향 */
 		border-right-color: #FF0000;     /* 3시 방향 */
 		border-bottom-color: #FF0000;    /* 6시 방향 */
