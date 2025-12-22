@@ -538,7 +538,7 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
     #userscript-loading-overlay {
         position: fixed;
         inset: 0;
-        background: rgba(0, 0, 0, 0.9);
+        //background: rgba(0, 0, 0, 0.9);
         z-index: 999999;
         display: flex;
         align-items: center;
@@ -546,9 +546,9 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
     }
 
     #userscript-loading-spinner {
-        width: 96px;
-        height: 96px;
-        border: 12px solid #ccc;
+        width: 80px;
+        height: 80px;
+        border: 8px solid #ccc;
         border-top-color: #1e90ff;
         border-radius: 50%;
         animation: userscript-spin 1s linear infinite;
