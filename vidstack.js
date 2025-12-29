@@ -2,76 +2,100 @@ import"./chunks/vidstack-duezrkCY.js";import"https://cdn.vidstack.io/icons";impo
 
 
 // =======================================================
-// Vidstack 실전 대응 패치 (ESM / SPA 안전)
+// Vidstack 대응 공통 패치 (vidstack.js 이후 로드)
 // =======================================================
+
 (function () {
     'use strict';
 
-    function attach(mediaPlayer) {
-        if (mediaPlayer.__patched) return;
-        mediaPlayer.__patched = true;
+    function waitForPlayer(callback) {
+        let tries = 0;
+        const maxTries = 300;
 
-        function getVideo() {
-            return mediaPlayer.querySelector('video');
-        }
+        const timer = setInterval(() => {
+            const mediaPlayer = document.querySelector('media-player');
+            const video = mediaPlayer?.querySelector('video');
 
-        // ---------------------------------------------------
-        // 1. 전체화면 진입 / 탈출
-        // ---------------------------------------------------
-        mediaPlayer.addEventListener('media-fullscreen-change', (e) => {
-            const isFullscreen = e.detail?.fullscreen === true;
-            const video = getVideo();
+            if (mediaPlayer && video) {
+                clearInterval(timer);
+                callback(mediaPlayer, video);
+            } else if (++tries > maxTries) {
+                clearInterval(timer);
+            }
+        }, 200);
+    }
+
+    waitForPlayer((mediaPlayer, video) => {
+
+    document.addEventListener('fullscreenchange', () => {
+        const fsEl = document.fullscreenElement;
+
+        // fullscreen 진입
+        if (fsEl) {
+            const video = fsEl.querySelector?.('video')
+                       || document.querySelector('video');
+
             if (!video) return;
 
-            if (isFullscreen) {
-                video.play().catch(()=>{});
-                video.muted = false;
-                video.volume = 1.0;
-            } else {
-                video.pause();
-                try {
-                    NativeApp.removeFocusAfterFullScreenOut();
-                } catch {}
-            }
+            NativeApp.jsLog("전체화면 켜기: 비디오 재생");
+            video.play().catch(()=>{});
+            video.volume = 1.0;
+            video.muted = false;
+        }
+        // fullscreen 해제
+        else {
+            const video = document.querySelector('video');
+            if (!video) return;
+
+            NativeApp.jsLog("전체화면 해제: 비디오 일시중지");
+            video.pause();
+
+            try {
+                NativeApp.removeFocusAfterFullScreenOut();
+            } catch (e) {}
+        }
+    }, true); // ★ capture 단계 중요
+
+        // ===================================================
+        // 2. 재생 / 일시정지 상태 Native 전달
+        // ===================================================
+        video.addEventListener('play', () => {
+            try {
+                NativeApp.togglePlayerState(true);
+            } catch (e) {}
         });
 
-        // ---------------------------------------------------
-        // 2. 재생 / 일시정지 상태 전달
-        // ---------------------------------------------------
-        mediaPlayer.addEventListener('media-play', () => {
-            try { NativeApp.togglePlayerState(true); } catch {}
+        video.addEventListener('pause', () => {
+            try {
+                NativeApp.togglePlayerState(false);
+            } catch (e) {}
         });
 
-        mediaPlayer.addEventListener('media-pause', () => {
-            try { NativeApp.togglePlayerState(false); } catch {}
+        // ===================================================
+        // 3. 영상 종료 (다음화 자동재생)
+        // ===================================================
+        video.addEventListener('ended', () => {
+            try {
+                NativeApp.onVideoFinishedFromVideoJs();
+            } catch (e) {}
         });
 
-        // ---------------------------------------------------
-        // 3. 영상 종료
-        // ---------------------------------------------------
-        mediaPlayer.addEventListener('media-ended', () => {
-            try { NativeApp.onVideoFinishedFromVideoJs(); } catch {}
-        });
-
-        // ---------------------------------------------------
+        // ===================================================
         // 4. 워터마크 블러 오버레이
-        // ---------------------------------------------------
+        // ===================================================
         const overlay = document.createElement('div');
-        overlay.style.cssText = `
-            position:absolute;
-            background:rgba(96,96,96,0.25);
-            backdrop-filter:blur(8px);
-            pointer-events:none;
-            z-index:9999;
-            display:none;
-        `;
+        overlay.style.position = 'absolute';
+        overlay.style.background = 'rgba(96,96,96,0.25)';
+        overlay.style.pointerEvents = 'none';
+        overlay.style.zIndex = 9999;
+        overlay.style.backdropFilter = 'blur(8px)';
+        overlay.style.display = 'none';
 
         mediaPlayer.style.position = 'relative';
         mediaPlayer.appendChild(overlay);
 
         function resizeOverlay() {
-            const video = getVideo();
-            if (!video || !video.videoWidth) return;
+            if (!video.videoWidth || !video.videoHeight) return;
 
             const pw = mediaPlayer.offsetWidth;
             const ph = mediaPlayer.offsetHeight;
@@ -79,68 +103,105 @@ import"./chunks/vidstack-duezrkCY.js";import"https://cdn.vidstack.io/icons";impo
             overlay.style.width  = (pw * 0.057) + 'px';
             overlay.style.height = (ph * 0.09)  + 'px';
             overlay.style.top    = (ph * 0.015) + 'px';
-            overlay.style.right = (pw * 0.015) + 'px';
+            overlay.style.right  = (pw * 0.015) + 'px';
         }
 
-        mediaPlayer.addEventListener('media-loaded-metadata', () => {
+        video.addEventListener('loadedmetadata', () => {
             resizeOverlay();
-            try { NativeApp.requestPlayButton(); } catch {}
+            try {
+				NativeApp.jsLog("메타데이터 로드 완료");
+                NativeApp.requestPlayButton();
+            } catch (e) {}
         });
 
-        mediaPlayer.addEventListener('media-fullscreen-change', () => {
+        mediaPlayer.addEventListener('fullscreen-change', () => {
             setTimeout(resizeOverlay, 50);
         });
 
-        // 시간 조건
-        setInterval(() => {
-            const video = getVideo();
-            if (!video) return;
-
-            if (video.currentTime <= 181) {
+        video.addEventListener('timeupdate', () => {
+            if (video.currentTime >= 0 && video.currentTime <= 181) {
                 overlay.style.display = 'block';
                 resizeOverlay();
             } else {
                 overlay.style.display = 'none';
             }
-        }, 300);
+        });
 
-        // ---------------------------------------------------
-        // 5. 외부(Remote) 제어
-        // ---------------------------------------------------
+        // ===================================================
+        // 5. 외부(Remote) 컨트롤
+        // ===================================================
+
+
+        let fakeTimeOverlay;
+
+        function showFakeTime(playerEl, seconds) {
+            if (!fakeTimeOverlay) {
+                fakeTimeOverlay = document.createElement('div');
+                fakeTimeOverlay.style.cssText = `
+                    position:absolute;
+                    bottom:60px;
+                    right:40px;
+                    padding:6px 10px;
+                    background:rgba(0,0,0,0.7);
+                    color:#fff;
+                    font-size:14px;
+                    z-index:10000;
+                    border-radius:4px;
+                `;
+                playerEl.appendChild(fakeTimeOverlay);
+            }
+            fakeTimeOverlay.textContent = formatTime(seconds);
+            fakeTimeOverlay.style.display = 'block';
+        }
+
+        function hideFakeTime() {
+            if (fakeTimeOverlay) {
+                fakeTimeOverlay.style.display = 'none';
+            }
+        }
+
+        function formatTime(t) {
+            const m = Math.floor(t / 60);
+            const s = Math.floor(t % 60);
+            return `${m}:${String(s).padStart(2, '0')}`;
+        }
+
+		function wakeControls(target) {
+			['mousemove', 'pointermove', 'keydown'].forEach(type => {
+				target.dispatchEvent(new Event(type, { bubbles: true }));
+			});
+		}
+		
         window.addEventListener('message', (event) => {
-            if (event.data?.type !== 'REMOTE_CONTROL') return;
-
-            const video = getVideo();
-            if (!video) return;
+            if (!event.data || event.data.type !== 'REMOTE_CONTROL') return;
 
             const action = event.data.action;
 
             if (action === 'ARROW_LEFT' || action === 'ARROW_RIGHT') {
                 const step = action === 'ARROW_LEFT' ? -10 : 10;
-                video.currentTime = Math.max(
-                    0,
-                    Math.min(video.duration || 0, video.currentTime + step)
-                );
+                const newTime = Math.max(0, Math.min(video.duration, video.currentTime + step));
+
+                // 1. 가짜 UI 즉시 표시
+                showFakeTime(mediaPlayer, newTime);
+
+                // 2. 실제 seek
+                video.currentTime = newTime;
+
+                // 3. 진짜 timeupdate가 오면 제거
+                const onTimeUpdate = () => {
+                    hideFakeTime();
+                    video.removeEventListener('timeupdate', onTimeUpdate);
+                };
+                video.addEventListener('timeupdate', onTimeUpdate);
+
+                wakeControls(video);
+                NativeApp.jsLog("시간 조정");
             }
 
             if (action === 'TOGGLE_PLAY') {
                 video.paused ? video.play() : video.pause();
             }
         });
-    }
-
-    // ---------------------------------------------------
-    // media-player 생성 감시 (ESM / SPA 대응)
-    // ---------------------------------------------------
-    const observer = new MutationObserver(() => {
-        document.querySelectorAll('media-player').forEach(attach);
-    });
-
-    observer.observe(document.documentElement, {
-        childList: true,
-        subtree: true
     });
 
 })();
-
-
