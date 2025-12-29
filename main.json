@@ -1,30 +1,26 @@
 {
   "streamingHomeUrl": "https://tvwiki4.net",
-  "mainScriptVersion": "202512242344",
+  "mainScriptVersion": "202512300000",
   "mainScriptUrl": "https://raw.githubusercontent.com/FaAgFFXA6SSkln/tvFlix/refs/heads/main/userScript.js",
   "otherScripts": [
     {
       "name": "hls.min.js",
-      "version": "202512171357",
+      "version": "202512300000",
       "url": "https://raw.githubusercontent.com/FaAgFFXA6SSkln/tvFlix/refs/heads/main/hls.min.js"
     },
     {
-      "name": "video.min.js",
-      "version": "202512242343",
-      "url": "https://raw.githubusercontent.com/FaAgFFXA6SSkln/tvFlix/refs/heads/main/video.min.js"
-    },
-    {
       "name": "p2p-media-loader-core.es.min.js",
-      "version": "202512180946",
+      "version": "202512300000",
       "url": "https://raw.githubusercontent.com/FaAgFFXA6SSkln/tvFlix/refs/heads/main/p2p-media-loader-core.es.min.js"
     },
     {
       "name": "vidstack.js",
-      "version": "202512180947",
+      "version": "202512300000",
       "url": "https://github.com/FaAgFFXA6SSkln/tvFlix/raw/refs/heads/main/vidstack.js"
     }  
   ]
 }
+
 
 
 
