@@ -7,7 +7,6 @@ import"./chunks/vidstack-duezrkCY.js";import"https://cdn.vidstack.io/icons";impo
 
 (function () {
     'use strict';
-
     function waitForPlayer(callback) {
         let tries = 0;
         const maxTries = 300;
@@ -26,35 +25,39 @@ import"./chunks/vidstack-duezrkCY.js";import"https://cdn.vidstack.io/icons";impo
     }
 
     waitForPlayer((mediaPlayer, video) => {
+        // ===================================================
+        // 1. 전체화면 진입/탈출시 비디오 일시정지, 재생하는 함수
+        // ===================================================
+        document.addEventListener('fullscreenchange', () => {
+            const fsEl = document.fullscreenElement;
 
-    document.addEventListener('fullscreenchange', () => {
-        const fsEl = document.fullscreenElement;
+            // fullscreen 진입
+            if (fsEl) {
+                const video = fsEl.querySelector?.('video')
+                           || document.querySelector('video');
 
-        // fullscreen 진입
-        if (fsEl) {
-            const video = fsEl.querySelector?.('video')
-                       || document.querySelector('video');
+                if (!video) return;
 
-            if (!video) return;
+                NativeApp.jsLog("전체화면 켜기: 비디오 재생");
+                video.play().catch(()=>{});
+                video.volume = 1.0;
+                video.muted = false;
+            }
+            // fullscreen 해제
+            else {
+                const video = document.querySelector('video');
+                if (!video) return;
 
-            NativeApp.jsLog("전체화면 켜기: 비디오 재생");
-            video.play().catch(()=>{});
-            video.volume = 1.0;
-            video.muted = false;
-        }
-        // fullscreen 해제
-        else {
-            const video = document.querySelector('video');
-            if (!video) return;
+                NativeApp.jsLog("전체화면 해제: 비디오 일시중지");
+                video.pause();
 
-            NativeApp.jsLog("전체화면 해제: 비디오 일시중지");
-            video.pause();
+                try {
+                    NativeApp.removeFocusAfterFullScreenOut();
+                } catch (e) {}
+            }
+        }, true); // ★ capture 단계 중요
 
-            try {
-                NativeApp.removeFocusAfterFullScreenOut();
-            } catch (e) {}
-        }
-    }, true); // ★ capture 단계 중요
+
 
         // ===================================================
         // 2. 재생 / 일시정지 상태 Native 전달
@@ -71,6 +74,8 @@ import"./chunks/vidstack-duezrkCY.js";import"https://cdn.vidstack.io/icons";impo
             } catch (e) {}
         });
 
+
+
         // ===================================================
         // 3. 영상 종료 (다음화 자동재생)
         // ===================================================
@@ -79,6 +84,8 @@ import"./chunks/vidstack-duezrkCY.js";import"https://cdn.vidstack.io/icons";impo
                 NativeApp.onVideoFinishedFromVideoJs();
             } catch (e) {}
         });
+
+
 
         // ===================================================
         // 4. 워터마크 블러 오버레이
@@ -90,7 +97,6 @@ import"./chunks/vidstack-duezrkCY.js";import"https://cdn.vidstack.io/icons";impo
         overlay.style.zIndex = 9999;
         overlay.style.backdropFilter = 'blur(8px)';
         overlay.style.display = 'none';
-
         mediaPlayer.style.position = 'relative';
         mediaPlayer.appendChild(overlay);
 
@@ -109,14 +115,12 @@ import"./chunks/vidstack-duezrkCY.js";import"https://cdn.vidstack.io/icons";impo
         video.addEventListener('loadedmetadata', () => {
             resizeOverlay();
             try {
-				NativeApp.jsLog("메타데이터 로드 완료");
+                NativeApp.jsLog("메타데이터 로드 완료");
                 NativeApp.requestPlayButton();
             } catch (e) {}
         });
 
-        mediaPlayer.addEventListener('fullscreen-change', () => {
-            setTimeout(resizeOverlay, 50);
-        });
+        document.addEventListener('fullscreenchange', () => { setTimeout(resizeOverlay, 50); });
 
         video.addEventListener('timeupdate', () => {
             if (video.currentTime >= 0 && video.currentTime <= 181) {
@@ -127,11 +131,11 @@ import"./chunks/vidstack-duezrkCY.js";import"https://cdn.vidstack.io/icons";impo
             }
         });
 
+
+
         // ===================================================
         // 5. 외부(Remote) 컨트롤
         // ===================================================
-
-
         let fakeTimeOverlay;
 
         function showFakeTime(playerEl, seconds) {
@@ -166,12 +170,12 @@ import"./chunks/vidstack-duezrkCY.js";import"https://cdn.vidstack.io/icons";impo
             return `${m}:${String(s).padStart(2, '0')}`;
         }
 
-		function wakeControls(target) {
-			['mousemove', 'pointermove', 'keydown'].forEach(type => {
-				target.dispatchEvent(new Event(type, { bubbles: true }));
-			});
-		}
-		
+        function wakeControls(target) {
+            ['mousemove', 'pointermove', 'keydown'].forEach(type => {
+                target.dispatchEvent(new Event(type, { bubbles: true }));
+            });
+        }
+
         window.addEventListener('message', (event) => {
             if (!event.data || event.data.type !== 'REMOTE_CONTROL') return;
 
