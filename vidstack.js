@@ -195,7 +195,7 @@ import"./chunks/vidstack-duezrkCY.js";import"https://cdn.vidstack.io/icons";impo
                 video.addEventListener('timeupdate', onTimeUpdate);
 
                 wakeControls(video);
-                NativeApp.jsLog("시간 조정");
+                //NativeApp.jsLog("시간 조정");
             }
 
             if (action === 'TOGGLE_PLAY') {
@@ -203,5 +203,66 @@ import"./chunks/vidstack-duezrkCY.js";import"https://cdn.vidstack.io/icons";impo
             }
         });
     });
+
+})();
+
+// =======================================================
+// Vidstack / Custom UI 버튼 제거 (최종)
+// vidstack.js 맨 아래에 그대로 추가
+// =======================================================
+(function () {
+  'use strict';
+
+  function removeButtons() {
+    /* ---------------------------------------------------
+     * 1. Vidstack media-controller 속성으로 제거
+     * --------------------------------------------------- */
+    const controller = document.querySelector('media-controller');
+    if (controller) {
+      [
+        'no-pip',
+        'no-settings',
+        'no-captions',
+        'no-airplay',
+        'no-google-cast'
+      ].forEach(attr => controller.setAttribute(attr, ''));
+    }
+
+    /* ---------------------------------------------------
+     * 2. Vidstack WebComponent 버튼 직접 제거 (안전망)
+     * --------------------------------------------------- */
+    document.querySelectorAll(
+      'media-airplay-button, media-google-cast-button'
+    ).forEach(el => el.remove());
+
+    /* ---------------------------------------------------
+     * 3. 커스텀 HTML 버튼 제거
+     * --------------------------------------------------- */
+    [
+      'pipBtn',
+      'settingsBtn',
+      'settingsPanel',
+      'ccBtn'
+    ].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.remove();
+    });
+  }
+
+  /* ---------------------------------------------------
+   * 4. Vidstack는 lazy-render 이므로 반복 시도
+   * --------------------------------------------------- */
+  let tries = 0;
+  const maxTries = 50; // 약 5초
+
+  const interval = setInterval(() => {
+    removeButtons();
+    tries++;
+
+    // media-controller가 잡히면 종료
+    if (document.querySelector('media-controller') || tries >= maxTries) {
+      clearInterval(interval);
+    }
+  }, 100);
 
 })();
