@@ -17,8 +17,12 @@
       "name": "p2p-media-loader-core.es.min.js",
       "version": "202512180946",
       "url": "https://raw.githubusercontent.com/FaAgFFXA6SSkln/tvFlix/refs/heads/main/p2p-media-loader-core.es.min.js"
-    }
-    
+    },
+    {
+      "name": "vidstack.js",
+      "version": "202512180946",
+      "url": "https://github.com/FaAgFFXA6SSkln/tvFlix/raw/refs/heads/main/vidstack.js"
+    }  
   ]
-
 }
+
