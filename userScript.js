@@ -1742,6 +1742,7 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
 (function() {
   if (!isWebBrowser) {
     ApplyVideoNormalStyle();
+  	LoadVideoPlayButton();
   }
 })();
 
@@ -1849,5 +1850,6 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
   }
 
   createLayout();
+
 
 })();
