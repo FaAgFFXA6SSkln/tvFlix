@@ -318,3 +318,77 @@ function resizeOverlay() {
   }, 100);
 
 })();
+
+
+// ===================================================
+// Vidstack 컨트롤 표시 시 프레임 드랍 완화 패치
+// (원본 코드 수정 없음 / 하단 추가 전용)
+// ===================================================
+(function () {
+  function applyVidstackPerfPatch() {
+    const player = document.querySelector('media-player');
+    if (!player) return;
+
+    const video = player.querySelector('video');
+    const controller = player.querySelector('media-controller');
+
+    if (!video || !controller) return;
+
+    // ---------------------------------------------------
+    // 1. video를 GPU 합성 레이어에 강제로 고정
+    // ---------------------------------------------------
+    video.style.transform = 'translateZ(0)';
+    video.style.willChange = 'transform';
+    video.style.backfaceVisibility = 'hidden';
+
+    // ---------------------------------------------------
+    // 2. 컨트롤 애니메이션 / 트랜지션 제거
+    //    (opacity, transform 변화가 레이어 강등 원인)
+    // ---------------------------------------------------
+    const style = document.createElement('style');
+    style.textContent = `
+      media-controller,
+      media-controller * {
+        transition: none !important;
+        animation: none !important;
+      }
+
+      media-controller {
+        will-change: auto !important;
+        contain: layout paint style;
+      }
+    `;
+    document.head.appendChild(style);
+
+    // ---------------------------------------------------
+    // 3. 컨트롤 표시 중 video hit-test 차단
+    //    (포커스/접근성 트리 충돌 방지)
+    // ---------------------------------------------------
+    const updatePointerState = () => {
+      const visible =
+        controller.hasAttribute('data-visible') ||
+        controller.getAttribute('aria-hidden') === 'false';
+
+      video.style.pointerEvents = visible ? 'none' : 'auto';
+    };
+
+    // 초기 상태
+    updatePointerState();
+
+    // ---------------------------------------------------
+    // 4. 컨트롤 상태 변경 감지 (MutationObserver)
+    // ---------------------------------------------------
+    const observer = new MutationObserver(updatePointerState);
+    observer.observe(controller, {
+      attributes: true,
+      attributeFilter: ['data-visible', 'aria-hidden', 'class']
+    });
+  }
+
+  // DOM 준비 후 적용
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', applyVidstackPerfPatch);
+  } else {
+    applyVidstackPerfPatch();
+  }
+})();
