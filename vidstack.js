@@ -100,17 +100,65 @@ import"./chunks/vidstack-duezrkCY.js";import"https://cdn.vidstack.io/icons";impo
         mediaPlayer.style.position = 'relative';
         mediaPlayer.appendChild(overlay);
 
-        function resizeOverlay() {
-            if (!video.videoWidth || !video.videoHeight) return;
+function resizeOverlay() {
+    var playerWidth = mediaPlayer.offsetWidth;
+    var playerHeight = mediaPlayer.offsetHeight;
+    var sourceWidth = video.videoWidth;
+    var sourceHeight = video.videoHeight;
+    var sourceRatio = sourceWidth / sourceHeight;
+    var deviceWidth = window.screen.width;
+    var deviceHeight = window.screen.height;
+    var deviceRatio = deviceWidth / deviceHeight;
 
-            const pw = mediaPlayer.offsetWidth;
-            const ph = mediaPlayer.offsetHeight;
+    var blurWidth = (playerWidth * 0.057);
+    var blurHeight = (playerHeight * 0.09);
+    var blurTop = (playerHeight * 0.015);
+    var blurRight = (playerWidth * 0.015);
+    var zoomRate = 1;
+    var isZoom = false;
 
-            overlay.style.width  = (pw * 0.057) + 'px';
-            overlay.style.height = (ph * 0.09)  + 'px';
-            overlay.style.top    = (ph * 0.015) + 'px';
-            overlay.style.right  = (pw * 0.015) + 'px';
+    if (sourceHeight < 1080 && sourceWidth < 1920) isZoom = true;
+
+    if (deviceWidth > deviceHeight) {
+        if (sourceRatio === deviceRatio) {
+            if (isZoom) zoomRate = 1920 / sourceWidth;
+            blurTop *= zoomRate;
+            blurRight *= zoomRate;
+            blurWidth *= zoomRate;
+            blurHeight *= zoomRate;
+        } else if (sourceRatio > deviceRatio) {
+            var actualHeight = sourceHeight / (sourceWidth / playerWidth);
+            blurTop = 17 / (sourceWidth / deviceWidth) + ((playerHeight - actualHeight) / 2);
+        } else {
+            zoomRate = playerHeight / sourceHeight;
+            var actualWidth = sourceWidth / (sourceHeight / deviceHeight);
+            blurTop = 17 * zoomRate;
+            blurRight = (31 * zoomRate)
+                + (deviceWidth - actualWidth) / 2
+                - (deviceWidth - playerWidth) / 2;
+            blurWidth = 109 * zoomRate;
+            blurHeight = 87 * zoomRate;
         }
+    } else {
+        var playerRatio = playerWidth / playerHeight;
+        if (sourceRatio > playerRatio) {
+            blurTop += (playerHeight - (sourceHeight / (sourceWidth / playerWidth))) / 2;
+        } else if (sourceRatio < playerRatio) {
+            var value = (playerWidth - (sourceWidth / (sourceHeight / playerHeight))) / 2;
+            zoomRate = playerHeight / sourceHeight;
+            blurWidth = 109 * zoomRate;
+            blurHeight = 87 * zoomRate;
+            blurTop = 17 * zoomRate;
+            blurRight = (31 * zoomRate) + value;
+        }
+    }
+
+    overlay.style.width = blurWidth + 'px';
+    overlay.style.height = blurHeight + 'px';
+    overlay.style.top = blurTop + 'px';
+    overlay.style.right = blurRight + 'px';
+}
+
 
         video.addEventListener('loadedmetadata', () => {
             resizeOverlay();
