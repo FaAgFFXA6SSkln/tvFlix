@@ -288,13 +288,14 @@ function resizeOverlay() {
     ).forEach(el => el.remove());
 
     /* ---------------------------------------------------
-     * 3. 커스텀 HTML 버튼 제거
+     * 3. 커스텀 HTML 버튼 제거 (중앙 컨트롤 포함)
      * --------------------------------------------------- */
     [
       'pipBtn',
       'settingsBtn',
       'settingsPanel',
-      'ccBtn'
+      'ccBtn',
+      'centerControls' // ★ 추가
     ].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.remove();
@@ -311,13 +312,13 @@ function resizeOverlay() {
     removeButtons();
     tries++;
 
-    // media-controller가 잡히면 종료
-    if (document.querySelector('media-controller') || tries >= maxTries) {
+    if (document.getElementById('centerControls') === null || tries >= maxTries) {
       clearInterval(interval);
     }
   }, 100);
 
 })();
+
 
 
 // ===================================================
@@ -328,6 +329,12 @@ function resizeOverlay() {
   function applyVidstackPerfPatch() {
     const player = document.querySelector('media-player');
     if (!player) return;
+
+    const controls = player?.querySelector('media-controls');
+
+    player.addEventListener('play', () => {
+      controls.style.display = 'none';
+    }, { once: true });
 
     const video = player.querySelector('video');
     const controller = player.querySelector('media-controller');
