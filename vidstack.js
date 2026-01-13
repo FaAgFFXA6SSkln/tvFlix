@@ -295,7 +295,8 @@ function resizeOverlay() {
       'settingsBtn',
       'settingsPanel',
       'ccBtn',
-      'centerControls' // ★ 추가
+      'centerControls',//가운데 재생, 되감기, 빨리감기 버튼
+      'switchBtnWrap'// 좌상단 플레이어 전환 버튼
     ].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.remove();
@@ -399,3 +400,4 @@ function resizeOverlay() {
     applyVidstackPerfPatch();
   }
 })();
+
