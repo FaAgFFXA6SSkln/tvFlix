@@ -296,7 +296,8 @@ function resizeOverlay() {
       'settingsPanel',
       'ccBtn',
       'centerControls',//가운데 재생, 되감기, 빨리감기 버튼
-      'switchBtnWrap',// 좌상단 플레이어 전환 버튼
+      'switchPlayerBtn',// 좌상단 플레이어 전환 버튼
+      'switchPlayerBtn2',// 좌상단 플레이어 전환 버튼
       'playerSwitchTooltip'//"재생이 안될 경우.." 툴팁 제거
     ].forEach(id => {
       const el = document.getElementById(id);
