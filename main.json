@@ -5,7 +5,7 @@
   "otherScripts": [
     {
       "name": "hls.min.js",
-      "version": "202512300000",
+      "version": "202601240000",
       "url": "https://raw.githubusercontent.com/FaAgFFXA6SSkln/tvFlix/refs/heads/main/hls.min.js"
     },
     {
@@ -25,6 +25,7 @@
     }  
   ]
 }
+
 
 
 
