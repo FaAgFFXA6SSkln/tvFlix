@@ -80,7 +80,7 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
   const elementsToRemove = [
     'div.notice', 'a.logo', '.gnb_mobile', '.top_btn', '.profile_info_ct','.ep_search', '.good', '.emer-content',  '.cast','.view-comment-area', '.over', '#bo_v_act', '#bo_vc', '#float','div.notice',
 	  'ul.banner2', 'li.full.pc-only', 'li.full.mobile-only', '.search_title_mobile', '.category', 'nav.gnb.sf-js-enabled.sf-arrows', 'a.btn_login', '#bnb', '#footer', '.search_wrap ul', '.layer-footer',
-	  '.genre', '#other_list ul li p', '#footer_wrap', '.player-select', '#playerBar', '.player-hover-wrap', '.btn_history'
+	  '.genre', '#other_list ul li p', '#footer_wrap', '.player-select', '#playerBar', '.player-hover-wrap', '.btn_history', '#btnScrollTop'
   ];
 
   elementsToRemove.forEach(selector => {
@@ -114,7 +114,6 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
         const headerWrap = document.getElementById('header_wrap');
         if (headerWrap) {
             headerWrap.style.height = '0px';
-
             document.querySelectorAll("#gnb_mobile").forEach(element => {
               element.remove();
               element.style.height = '0px';
@@ -1736,11 +1735,20 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
 
 
 
-//시작시 비디오 영역 숨기기: TV(O)::Phone(O)::Web(X)
+//비디오 재생 페이지 시작시 비디오 영역 숨기기: TV(O)::Phone(O)::Web(X)
 (function() {
-  if (!isWebBrowser) {
-    ApplyVideoNormalStyle();
-  }
+	if (isWebBrowser) return;//일반 웹브라우저에서는 숨기지 않음
+	if (pathSegments.length < 2) return;//재생페이지가 아니면 숨기지 않음	
+	ApplyVideoNormalStyle();//비디오 영역 숨기기
+	
+
+	//하위 프레임에 메세지를 보내서 비디오 메타데이터 로드되었는지 확인
+    const iframe = document.getElementById('view_iframe');
+    if (!iframe) return;
+    iframe.contentWindow.postMessage(
+        { type: 'CHECK_METADATA', payload: 'CHECK_METADATA' },
+        '*' // 또는 정확한 origin (권장)
+    );	
 })();
 
 // 메인 페이지 재구성: TV(O)::Phone(X)::Web(X)
@@ -1851,3 +1859,4 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
 
 })();
 
+NativeApp.jsLog("UserScript 로드 완료");
