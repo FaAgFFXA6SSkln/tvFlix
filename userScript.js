@@ -27,10 +27,11 @@ var isVideoLoaded = false;
 const pathname = window.location.pathname;
 const pathSegments = pathname.split('/').filter(seg => seg !== '');
 const pageNumber = pathSegments.length;
+var thisEpisodeTitle = "";
 
 function removeByClassName(className) {
 	const el = document.querySelector(className);
-	if (el) el.remove;
+	if (el) el.remove();
 }
 function removeById(id) {
   const el = document.getElementById(id);
@@ -84,10 +85,8 @@ function hideById(id) {
 // 2. 웹사이트 요소 제거
 // ==============================================================================================================
 (function() {
-	'use strict'
-
+	
 	//공통 제거
-	var thisEpisodeTitle = "";
 	const elementsToRemove = [
 	'div.notice', 'a.logo', '.gnb_mobile', '.top_btn', '.profile_info_ct','.ep_search', '.good', '.emer-content',  '.cast','.view-comment-area', '.over', '#bo_v_act', '#bo_vc', '#float','div.notice',
 	  'ul.banner2', 'li.full.pc-only', 'li.full.mobile-only', '.search_title_mobile', '.category', 'nav.gnb.sf-js-enabled.sf-arrows', 'a.btn_login', '#bnb', '#footer', '.search_wrap ul', '.layer-footer',
@@ -99,13 +98,11 @@ function hideById(id) {
 	  });
 	});
 
-	//홈화면	공통
-	if (pageNumber == 0) {
-		// 홈화면의 첫 번째 '.slide_wrap' 제거
-		removeByClassName('.slide_wrap');
-	}
+	//홈화면	첫번째 슬라이드랩 제거		
+	if (pageNumber == 0) removeByClassName('div.slide_wrap');
 
-	//TV 환경
+
+	//TV 환경: 상단 검색 바 제거
 	if (isRunningOnTv) {				
 		hideById('header_wrap');//검색 버튼이 포함된 상단 WRAP을 안보이게 처리
 		hideByClassName('.btn_search')//검색 버튼 숨기기
@@ -113,122 +110,99 @@ function hideById(id) {
 		removeById('sch_submit');//검색창의 검색 실행 버튼 제거
 	}
 
-	//TV 이외 환경: 재생 페이지에서는 상단 Wrap 보이지 않게 처리하고, 그외 메인 페이지나 카테고리, 검색 페이지 등에서는 레이아웃 변경
-	else {
-		if (pageNumber > 1) {
 
-			hideById('header_wrap');//검색 버튼이 포함된 상단 WRAP을 안보이게 처리
-			hideByClassName('.btn_search')//검색 버튼 숨기기
-			disableFocusByClassName('.btn_search');//검색 버튼 포커스 제거
-			removeById('sch_submit');//검색창의 검색 실행 버튼 제거		
-		}
-		else {
-			// 메인 페이지 또는 서브페이지일 때 실행
-			const headerWrap = document.getElementById('header_wrap');
-			if (headerWrap) {
-				headerWrap.style.height = '80px';
+	//TV 환경에서 재생 페이지 회차별 썸네일 제거. 삭제하기 전에 비디오 썸네일 주소 저장하기
+	if (pageNumber > 1) {	  
+	  const currentVideoTitle = document.querySelector('.bo_v_tit');
+	  if (currentVideoTitle) {
+		const videoTitleText = currentVideoTitle.textContent;
+		const items = document.querySelectorAll('#other_list li.searchText');
+		items.forEach(li => {
+			var listTitle = li.classList.value.replace("searchText ", "");
+			if (listTitle == videoTitleText) {
+				const img = li.querySelector('img.lazy');
+				if (img) {
+				  videoThumbUrl = img.getAttribute('data-original')
+				}
 			}
-			// 검색 버튼 수직 중앙 정렬
-			const headerElement = document.getElementById('header');
-			if (headerElement && headerElement.parentElement) {
-				const parent = headerElement.parentElement;
-				parent.style.display = 'flex';
-				parent.style.alignItems = 'center';
+		});
+	  }
+	  //삭제
+	  if (isRunningOnTv) {
+	  // class가 searchText로 시작하는 모든 li 선택
+		const liElements = document.querySelectorAll('li[class^="searchText"]');
+		liElements.forEach(li => {
+			const img = li.querySelector('img');
+			if (img) {
+				img.remove();
 			}
-		}
+		});
+	  }		  
+	}
+
+  
+	//재생 페이지에서 회차가 하나밖에 없는 경우, 회차 영역 전체를 제거
+	//재생 페이지에서 회차가 여러개인 경우, 다음화 자동재생을 위해 에피소드 제목을 목록 배열에 추가  
+	if (pageNumber > 1) {  
+		const target = document.querySelector('#other_list');
+		if (target) {
+	  const ul = target.querySelector('ul');
+	  if (ul) {
+		  const items = ul.querySelectorAll('li');
+
+		  // 에피소드 리스트에 에피소드가 하나밖에 없다면, 에피소드 리스트 자체를 제거
+		  if (items.length <= 1) {
+			  target.remove();
+			isOnlyVideo = true;
+
+		  // 에피소드 리스트에 에피소드가 여러개라면, 현재 에피소드 제목과 리스트를 비교하여 다음 에피소드 링크를 저장
+		  } else {
+			  //현재 회차가 마지막 회차라면 다음화 버튼을 제거
+			  if (thisEpisodeTitle == target.querySelector('li a.title.on').textContent.trim()) {
+				  const btn_next = document.querySelector('.btn_next a');
+					if (btn_next) {
+					  btn_next.remove();
+					}
+			  }
+
+			  //현재 회차가 첫 회차라면 이전화 버튼을 무력화
+			  if (thisEpisodeTitle == items[items.length - 1].textContent.trim()) {
+
+				const btn_prv = document.querySelector('.btn_prv');
+				if (btn_prv) {
+				  btn_prv.querySelectorAll('*').forEach(el => {
+					el.style.visibility = 'hidden';
+				  })
+				}
+			  }
+
+			  let linkCount = 0; // var 대신 let 사용을 권장합니다.
+			  let link_let = [];
+
+			  // ⭐ 수정된 부분: forEach 대신 for...of 루프를 사용합니다.
+			  for (const li of items) {
+				  // <li> 내부의 회차 제목 태그 (a.title.on)를 찾습니다.
+				  const titleElement = li.querySelector('a.title.on');
+
+				  if (titleElement) {
+					  const title_let = titleElement.textContent.trim();
+
+					  // 현재 에피소드 제목을 찾았고, 이전 에피소드 링크가 저장되어 있다면
+					  // (참고: linkCount != 0 조건은 필요 없습니다. link_let.length를 사용하면 됩니다.)
+					  if (link_let.length > 0 && thisEpisodeTitle == title_let) {
+						  nextEpisodeLink = link_let[link_let.length - 1]; // link_let의 마지막 요소 = 이전 에피소드 링크
+						  break; // ⭐ for...of 루프에서는 break를 사용할 수 있습니다.
+					  } else {
+						  link_let.push(titleElement.href);
+						  // linkCount는 더 이상 필요 없지만, 기존 로직 유지를 위해 남겨둡니다.
+						  linkCount = linkCount + 1;
+					  }
+				  }
+			  }
+		  }
+	  }
+	}	  
   }
-
-
-  //재생 페이지 회차별 썸네일 제거(모바일은 유지)
-  //삭제하기 전에 비디오 썸네일 주소 저장
-  const currentVideoTitle = document.querySelector('.bo_v_tit');
-  if (currentVideoTitle) {
-    const videoTitleText = currentVideoTitle.textContent;
-    const items = document.querySelectorAll('#other_list li.searchText');
-    items.forEach(li => {
-        var listTitle = li.classList.value.replace("searchText ", "");
-        if (listTitle == videoTitleText) {
-            const img = li.querySelector('img.lazy');
-            if (img) {
-              videoThumbUrl = img.getAttribute('data-original')
-            }
-        }
-    });
-  }
-
-  //삭제
-  if (isRunningOnTv) {
-  // class가 searchText로 시작하는 모든 li 선택
-    const liElements = document.querySelectorAll('li[class^="searchText"]');
-    liElements.forEach(li => {
-        const img = li.querySelector('img');
-        if (img) {
-            img.remove();
-        }
-    });
-  }
-  //재생 페이지에서 회차가 하나밖에 없는 경우, 회차 영역 전체를 제거
-  //재생 페이지에서 회차가 여러개인 경우, 다음화 자동재생을 위해 에피소드 제목을 목록 배열에 추가
-  const target = document.querySelector('#other_list');
-  if (target) {
-      const ul = target.querySelector('ul');
-      if (ul) {
-          const items = ul.querySelectorAll('li');
-
-          // 에피소드 리스트에 에피소드가 하나밖에 없다면, 에피소드 리스트 자체를 제거
-          if (items.length <= 1) {
-              target.remove();
-            isOnlyVideo = true;
-
-          // 에피소드 리스트에 에피소드가 여러개라면, 현재 에피소드 제목과 리스트를 비교하여 다음 에피소드 링크를 저장
-          } else {
-              //현재 회차가 마지막 회차라면 다음화 버튼을 제거
-              if (thisEpisodeTitle == target.querySelector('li a.title.on').textContent.trim()) {
-                  const btn_next = document.querySelector('.btn_next a');
-                    if (btn_next) {
-                      btn_next.remove();
-                    }
-              }
-
-              //현재 회차가 첫 회차라면 이전화 버튼을 무력화
-              if (thisEpisodeTitle == items[items.length - 1].textContent.trim()) {
-
-                const btn_prv = document.querySelector('.btn_prv');
-                if (btn_prv) {
-                  btn_prv.querySelectorAll('*').forEach(el => {
-                    el.style.visibility = 'hidden';
-                  })
-                }
-              }
-
-              let linkCount = 0; // var 대신 let 사용을 권장합니다.
-              let link_let = [];
-
-              // ⭐ 수정된 부분: forEach 대신 for...of 루프를 사용합니다.
-              for (const li of items) {
-                  // <li> 내부의 회차 제목 태그 (a.title.on)를 찾습니다.
-                  const titleElement = li.querySelector('a.title.on');
-
-                  if (titleElement) {
-                      const title_let = titleElement.textContent.trim();
-
-                      // 현재 에피소드 제목을 찾았고, 이전 에피소드 링크가 저장되어 있다면
-                      // (참고: linkCount != 0 조건은 필요 없습니다. link_let.length를 사용하면 됩니다.)
-                      if (link_let.length > 0 && thisEpisodeTitle == title_let) {
-                          nextEpisodeLink = link_let[link_let.length - 1]; // link_let의 마지막 요소 = 이전 에피소드 링크
-                          break; // ⭐ for...of 루프에서는 break를 사용할 수 있습니다.
-                      } else {
-                          link_let.push(titleElement.href);
-                          // linkCount는 더 이상 필요 없지만, 기존 로직 유지를 위해 남겨둡니다.
-                          linkCount = linkCount + 1;
-                      }
-                  }
-              }
-          }
-      }
-  }
-
-
 
 })();
 // ==============================================================================================================
@@ -569,6 +543,25 @@ function hideById(id) {
 	  }
 	});			
 })();
+//TV 이외 환경 상단 검색 바 레이아웃 변경
+(function() {
+	
+	if (isRunningOnTv) return;
+	
+	// 메인 페이지 또는 서브페이지일 때 실행
+	const headerWrap = document.getElementById('header_wrap');
+	if (headerWrap) {
+		headerWrap.style.height = '80px';
+	}
+	// 검색 버튼 수직 중앙 정렬
+	const headerElement = document.getElementById('header');
+	if (headerElement && headerElement.parentElement) {
+		const parent = headerElement.parentElement;
+		parent.style.display = 'flex';
+		parent.style.alignItems = 'center';
+	}
+	
+})();
 //재생 페이지 제목 변경
 (function() {	
 	if (pageNumber < 2) return;
@@ -578,7 +571,7 @@ function hideById(id) {
 	  // 정규 표현식을 사용하여 모든 '다시보기' 문자열을 빈 문자열로 대체하고 앞뒤 공백 제거
 	  if (element.textContent.includes('다시보기')) {
 		  element.textContent = element.textContent.replace(/다시보기/g, '').trim();
-		  thisEpisodeTitle = element.textContent;
+		  thisEpisodeTitle = element.textContent;	  
 	  }
 	});
 
@@ -602,9 +595,7 @@ function hideById(id) {
 })();
 //재생 페이지 이전화, 다음화 버튼 글씨 크기 조정
 (function() {
-	
-	NativeApp.jsLog(pageNumber);
-	
+
 	if (pageNumber < 2) return;
 	
     const css = `
