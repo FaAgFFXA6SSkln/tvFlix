@@ -47,11 +47,11 @@ function disableFocusByClassName(className) {
 }
 function hideByClassName(className) {
 	const el = document.querySelector(className);
-	if (el) el.style.setProperty('display', 'none', 'important');    
+	if (el) el.style.setProperty('display', 'none', 'important');
 }
 function hideById(id) {
 	const el = document.getElementById(id);
-	if (el) el.style.setProperty('display', 'none', 'important');    
+	if (el) el.style.setProperty('display', 'none', 'important');
 }
 // ==============================================================================================================
 // 1. 웹사이트 내 불필요한 요소 포커스 비활성화
@@ -85,7 +85,7 @@ function hideById(id) {
 // 2. 웹사이트 요소 제거
 // ==============================================================================================================
 (function() {
-	
+
 	//공통 제거
 	const elementsToRemove = [
 	'div.notice', 'a.logo', '.gnb_mobile', '.top_btn', '.profile_info_ct','.ep_search', '.good', '.emer-content',  '.cast','.view-comment-area', '.over', '#bo_v_act', '#bo_vc', '#float','div.notice',
@@ -98,22 +98,22 @@ function hideById(id) {
 	  });
 	});
 
-	//홈화면	첫번째 슬라이드랩 제거		
+	//홈화면	첫번째 슬라이드랩 제거
 	if (pageNumber == 0) removeByClassName('div.slide_wrap');
 
 
 	//TV 환경: 상단 검색 바 제거
-	if (isRunningOnTv) {				
-		
-		hideById('header_wrap');//검색 버튼이 포함된 상단 WRAP을 안보이게 처리		
+	if (isRunningOnTv) {
+
+		hideById('header_wrap');//검색 버튼이 포함된 상단 WRAP을 안보이게 처리
 		hideByClassName('.btn_search')//검색 버튼 숨기기
 		disableFocusByClassName('.btn_search');//검색 버튼 포커스 제거
-		removeById('sch_submit');//검색창의 검색 실행 버튼 제거		
+		removeById('sch_submit');//검색창의 검색 실행 버튼 제거
 	}
 
 
 	//TV 환경에서 재생 페이지 회차별 썸네일 제거. 삭제하기 전에 비디오 썸네일 주소 저장하기
-	if (pageNumber > 1) {	  
+	if (pageNumber > 1) {
 	  const currentVideoTitle = document.querySelector('.bo_v_tit');
 	  if (currentVideoTitle) {
 		const videoTitleText = currentVideoTitle.textContent;
@@ -138,13 +138,13 @@ function hideById(id) {
 				img.remove();
 			}
 		});
-	  }		  
+	  }
 	}
 
-  
+
 	//재생 페이지에서 회차가 하나밖에 없는 경우, 회차 영역 전체를 제거
-	//재생 페이지에서 회차가 여러개인 경우, 다음화 자동재생을 위해 에피소드 제목을 목록 배열에 추가  
-	if (pageNumber > 1) {  
+	//재생 페이지에서 회차가 여러개인 경우, 다음화 자동재생을 위해 에피소드 제목을 목록 배열에 추가
+	if (pageNumber > 1) {
 		const target = document.querySelector('#other_list');
 		if (target) {
 	  const ul = target.querySelector('ul');
@@ -202,7 +202,7 @@ function hideById(id) {
 			  }
 		  }
 	  }
-	}	  
+	}
   }
 
 })();
@@ -542,12 +542,12 @@ function hideById(id) {
 			  }
 		  }
 	  }
-	});			
+	});
 })();
 //TV 이외 환경 상단 검색 바 레이아웃 변경
 (function() {
-	
-	if (isRunningOnTv) return;	
+
+	if (isRunningOnTv) return;
 	// 메인 페이지 또는 서브페이지일 때 실행
 	const headerWrap = document.getElementById('header_wrap');
 	if (headerWrap) {
@@ -560,18 +560,18 @@ function hideById(id) {
 		parent.style.display = 'flex';
 		parent.style.alignItems = 'center';
 	}
-	
+
 })();
 //재생 페이지 제목 변경
-(function() {	
+(function() {
 	if (pageNumber < 2) return;
-	
+
 	// 재생 페이지 제목에서 '다시보기 텍스트 제거 ('.bo_v_tit' 요소에서 '다시보기' 텍스트 제거)
 	document.querySelectorAll('.bo_v_tit').forEach(element => {
 	  // 정규 표현식을 사용하여 모든 '다시보기' 문자열을 빈 문자열로 대체하고 앞뒤 공백 제거
 	  if (element.textContent.includes('다시보기')) {
 		  element.textContent = element.textContent.replace(/다시보기/g, '').trim();
-		  thisEpisodeTitle = element.textContent;	  
+		  thisEpisodeTitle = element.textContent;
 	  }
 	});
 
@@ -579,7 +579,7 @@ function hideById(id) {
 //재생 페이지 작품 제목을 맨 위로 옮기기
 (function() {
 	if (pageNumber < 2) return;
-    
+
 	// 1. 부모 요소 (대상)를 가져옵니다.
     const boV = document.getElementById('bo_v');
     if (boV) {
@@ -597,7 +597,7 @@ function hideById(id) {
 (function() {
 
 	if (pageNumber < 2) return;
-	
+
     const css = `
         /* 전체 버튼 글씨 키우기 */
         .bo_v_nb_mobile li a {
@@ -628,7 +628,7 @@ function hideById(id) {
 })();
 //재생 페이지 다른 회차 제목 글씨 크기 조정
 (function() {
-	
+
 	if (pageNumber < 2) return;
 
     const css = `
@@ -646,14 +646,14 @@ function hideById(id) {
 })();
 //재생 페이지 회차가 하나밖에 없는 컨텐츠라면 컨텐츠 정보 표시
 (function() {
-	if (pageNumber < 2) return;	
+	if (pageNumber < 2) return;
 	if (!isOnlyVideo) document.querySelectorAll('#bo_v_atc').forEach(el => el.remove());
 })();
 //일반 웹브라우저에서 웹사이트 타이틀, 아이콘 변경
 (function() {
 
 	if (!isWebBrowser) return;
-	
+
 	// 타이틀 변경
 	document.title = "Netflix";
 	const logoLink = document.querySelector("a.logo");
@@ -682,21 +682,21 @@ function hideById(id) {
 	  document.head.appendChild(apple);
 	}
 	replaceIcons();
-	
-})(); 
+
+})();
 //재생 페이지에서 비디오 썸네일 자동 스킵
 (function() {
 	if (pageNumber < 2) return;
-	
+
 	// 재생 페이지의 플레이어 썸네일 자동 스킵
 	const button = document.querySelector('a.btn.btn_normal');
 	if (button) {
 	  button.click();
 	NativeApp.jsLog("플레이어 재생 페이지 자동 넘기기 실행");
 	}
-	
-	
-	
+
+
+
 })();
 //기타 UI 요소 변경 스타일 추가
 (function() {
@@ -841,7 +841,7 @@ function hideById(id) {
         /* CSS도 충분히 높여서 혹시 모를 경우 대비 (JS에서 최종 오버라이드 됨) */
         font-size: 1.7em !important;
     }
-	
+
 	/* 상단바 검색 진입 버튼 오른쪽 여백 없애기 */
 	#tnb ul {
         display: flex !important;
@@ -932,6 +932,18 @@ function hideById(id) {
     container.style.overflowX = 'hidden';
     container.style.boxSizing = 'border-box';
 })();
+//TV환경에서 body_wrap 레이아웃이 아래로 밀리는 현상 해결
+(function() {
+	if (!isRunningOnTv) return;
+	const bw = document.querySelector('#body_wrap');
+	if (bw) {
+	  const rect = bw.getBoundingClientRect();
+	  bw.style.transform = `translateY(${-(rect.top - 20)}px)`;
+	}
+
+})();
+
+
 // ==============================================================================================================
 // ==============================================================================================================
 
@@ -1243,7 +1255,7 @@ function hideById(id) {
 // ==============================================================================================================
 //네이티브
 (function() {
-  
+
 	// 웹뷰 여부에 따라 스킵
 	if (isWebBrowser) return;
 
@@ -1883,14 +1895,14 @@ function hideById(id) {
 	  childList: true,
 	  subtree: true
 	});
-	removeDisableDevtool();		
+	removeDisableDevtool();
 })();
 //마무리 디버그
 (function () {
 	if (isWebBrowser) return;
 	NativeApp.jsLog("UserScript 로드 완료");
 	const now = performance.now();
-	console.log(`경과 시간: ${now.toFixed(3)} ms`);	 
-	
-	
+	console.log(`경과 시간: ${now.toFixed(3)} ms`);
+
+
 })();
