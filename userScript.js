@@ -24,16 +24,34 @@ var nextEpisodeLink = "";
 var isOnlyVideo = false;
 var videoThumbUrl = "";
 var isVideoLoaded = false;
+const pathname = window.location.pathname;
+const pathSegments = pathname.split('/').filter(seg => seg !== '');
+const pageNumber = pathSegments.length;
+
+function removeByClassName(className) {
+	const el = document.querySelector(className);
+	if (el) el.remove;
+}
 function removeById(id) {
   const el = document.getElementById(id);
   if (el) el.remove();
 }
-const pathname = window.location.pathname;
-const pathSegments = pathname.split('/').filter(seg => seg !== '');
-
-
-
-
+function disableFocusById(id) {
+	const el = document.getElementById(id);
+	if (el) el.setAttribute('tabIndex', '-1');
+}
+function disableFocusByClassName(className) {
+	const el = document.querySelector(className);
+	if (el) el.setAttribute('tabindex', '-1');
+}
+function hideByClassName(className) {
+	const el = document.querySelector(className);
+	if (el) el.style.setProperty('display', 'none', 'important');    
+}
+function hideById(id) {
+	const el = document.getElementById(id);
+	if (el) el.style.setProperty('display', 'none', 'important');    
+}
 // ==============================================================================================================
 // 1. 웹사이트 내 불필요한 요소 포커스 비활성화
 // ==============================================================================================================
@@ -41,7 +59,7 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
   'use strict';
 
   // 1-1. 단일 쿼리로 모든 포커스 비활성화 대상 요소를 가져옵니다. (DOM 쿼리 최소화)
-  const focusTargets = document.querySelectorAll('.slide_wrap *, a.img, img, img.lazy, iframe, body, #fboardlist, #sch_submit');
+  const focusTargets = document.querySelectorAll('div.slide_wrap *, a.img, img, img.lazy, iframe, body');
   for (const element of focusTargets) {
       // .slide_wrap 내부 요소에 대한 포커스 비활성화 조건
       if (element.closest('.slide_wrap')) {
@@ -53,16 +71,9 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
           element.setAttribute('tabindex', '-1');
       }
   }
+	disableFocusById('fboardlist');
+	disableFocusById('sch_submit');
 
-  // ID 선택자는 쿼리 성능이 좋으므로 그대로 유지 (하지만 위 쿼리에 이미 포함됨, 안전을 위해 유지)
-  const formElement = document.getElementById('fboardlist');
-  if (formElement) {
-    formElement.setAttribute('tabindex', '-1');
-  }
-  const searchElement= document.getElementById('sch_submit');
-  if (searchElement) {
-    searchElement.setAttribute('tabindex', '-1');
-  }
 })();
 // ==============================================================================================================
 // ==============================================================================================================
@@ -73,108 +84,60 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
 // 2. 웹사이트 요소 제거
 // ==============================================================================================================
 (function() {
-  'use strict'
+	'use strict'
 
-  //요소 일괄제거
-  var thisEpisodeTitle = "";
-  const elementsToRemove = [
-    'div.notice', 'a.logo', '.gnb_mobile', '.top_btn', '.profile_info_ct','.ep_search', '.good', '.emer-content',  '.cast','.view-comment-area', '.over', '#bo_v_act', '#bo_vc', '#float','div.notice',
+	//공통 제거
+	var thisEpisodeTitle = "";
+	const elementsToRemove = [
+	'div.notice', 'a.logo', '.gnb_mobile', '.top_btn', '.profile_info_ct','.ep_search', '.good', '.emer-content',  '.cast','.view-comment-area', '.over', '#bo_v_act', '#bo_vc', '#float','div.notice',
 	  'ul.banner2', 'li.full.pc-only', 'li.full.mobile-only', '.search_title_mobile', '.category', 'nav.gnb.sf-js-enabled.sf-arrows', 'a.btn_login', '#bnb', '#footer', '.search_wrap ul', '.layer-footer',
-	  '.genre', '#other_list ul li p', '#footer_wrap', '.player-select', '#playerBar', '.player-hover-wrap', '.btn_history', '#btnScrollTop'
-  ];
+	  '.genre', '#other_list ul li p', '#footer_wrap', '.player-select', '#playerBar', '.player-hover-wrap', '.btn_history', '#btnScrollTop', 'div.search_title_pc'
+	];
+	elementsToRemove.forEach(selector => {
+	  document.querySelectorAll(selector).forEach(element => {
+		  element.remove();
+	  });
+	});
 
-  elementsToRemove.forEach(selector => {
-      document.querySelectorAll(selector).forEach(element => {
-          element.remove();
-      });
-  });
+	//홈화면	공통
+	if (pageNumber == 0) {
+		// 홈화면의 첫 번째 '.slide_wrap' 제거
+		removeByClassName('.slide_wrap');
+	}
 
+	//TV 환경
+	if (isRunningOnTv) {				
+		hideById('header_wrap');//검색 버튼이 포함된 상단 WRAP을 안보이게 처리
+		hideByClassName('.btn_search')//검색 버튼 숨기기
+		disableFocusByClassName('.btn_search');//검색 버튼 포커스 제거
+		removeById('sch_submit');//검색창의 검색 실행 버튼 제거
+	}
 
-  //TV 환경에서는 검색 버튼이 포함된 상단 WRAP을 안보이고 포커스 안되게 처리
-  if (isRunningOnTv) {
-    const headerWrap = document.getElementById('header_wrap');
-    headerWrap.style.height = '0px';
-    headerWrap.querySelectorAll('*').forEach(el => {
-      el.setAttribute('tabindex', '-1');
-      el.height = '0px';
-    });
+	//TV 이외 환경: 재생 페이지에서는 상단 Wrap 보이지 않게 처리하고, 그외 메인 페이지나 카테고리, 검색 페이지 등에서는 레이아웃 변경
+	else {
+		if (pageNumber > 1) {
 
-    const btn_search = document.querySelector('.btn_search');
-    btn_search.style.setProperty('display', 'none', 'important');
-    btn_search.setAttribute('tabindex', '-1');
-
-    removeById('sch_submit');//검색창의 검색실행 버튼 제거
-
+			hideById('header_wrap');//검색 버튼이 포함된 상단 WRAP을 안보이게 처리
+			hideByClassName('.btn_search')//검색 버튼 숨기기
+			disableFocusByClassName('.btn_search');//검색 버튼 포커스 제거
+			removeById('sch_submit');//검색창의 검색 실행 버튼 제거		
+		}
+		else {
+			// 메인 페이지 또는 서브페이지일 때 실행
+			const headerWrap = document.getElementById('header_wrap');
+			if (headerWrap) {
+				headerWrap.style.height = '80px';
+			}
+			// 검색 버튼 수직 중앙 정렬
+			const headerElement = document.getElementById('header');
+			if (headerElement && headerElement.parentElement) {
+				const parent = headerElement.parentElement;
+				parent.style.display = 'flex';
+				parent.style.alignItems = 'center';
+			}
+		}
   }
 
-  //TV 이외 환경에서는 재생 페이지에서는 보이지 않게 처리하고, 그외 메인 페이지나 카테고리, 검색 페이지 등에서는 레이아웃 변경
-  else {
-
-    if (pathSegments.length > 1) {
-        const headerWrap = document.getElementById('header_wrap');
-        if (headerWrap) {
-            headerWrap.style.height = '0px';
-            document.querySelectorAll("#gnb_mobile").forEach(element => {
-              element.remove();
-              element.style.height = '0px';
-            });
-
-            const btn_search = document.querySelector('.btn_search');
-            btn_search.style.setProperty('display', 'none', 'important');
-            btn_search.setAttribute('tabindex', '-1');
-        }
-    }
-    else {
-        // 메인 페이지 또는 서브페이지일 때 실행
-        const headerWrap = document.getElementById('header_wrap');
-        if (headerWrap) {
-            headerWrap.style.height = '80px';
-        }
-
-        // 검색 버튼 수직 중앙 정렬
-        const headerElement = document.getElementById('header');
-        if (headerElement && headerElement.parentElement) {
-            const parent = headerElement.parentElement;
-            parent.style.display = 'flex';
-            parent.style.alignItems = 'center';
-        }
-    }
-  }
-
-
-  // 재생 페이지 제목에서 '다시보기 텍스트 제거 ('.bo_v_tit' 요소에서 '다시보기' 텍스트 제거)
-  document.querySelectorAll('.bo_v_tit').forEach(element => {
-      // 정규 표현식을 사용하여 모든 '다시보기' 문자열을 빈 문자열로 대체하고 앞뒤 공백 제거
-      if (element.textContent.includes('다시보기')) {
-          element.textContent = element.textContent.replace(/다시보기/g, '').trim();
-          thisEpisodeTitle = element.textContent;
-      }
-  });
-
-  // 홈화면의 첫 번째 '.slide_wrap' 제거
-  const firstSlideWrap = document.querySelector('.slide_wrap');
-  if (firstSlideWrap) {
-      firstSlideWrap.remove();
-  }
-
-  // 홈화면 남은 Slide Wrap 제목 변경 로직
-  const slideWraps = document.querySelectorAll('.slide_wrap');
-  const newTitles = ['드라마', '영화', '예능', '애니메이션'];
-  slideWraps.forEach((wrap, index) => {
-      if (index < newTitles.length) {
-          const h2 = wrap.querySelector('h2');
-          if (h2) {
-              const moreLink = h2.querySelector('a.more');
-              const newTitleText = newTitles[index];
-
-              if (moreLink) {
-                  h2.innerHTML = `${newTitleText}${moreLink.outerHTML}`;
-              } else {
-                  h2.textContent = newTitleText;
-              }
-          }
-      }
-  });
 
   //재생 페이지 회차별 썸네일 제거(모바일은 유지)
   //삭제하기 전에 비디오 썸네일 주소 저장
@@ -582,11 +545,50 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
 // ==============================================================================================================
 // 4. 웹사이트 요소 변경
 // ==============================================================================================================
+
+//홈화면 SlideWrap 제목 변경
+(function() {
+	if (pageNumber !== 0) return;
+
+	// 홈화면 남은 Slide Wrap 제목 변경 로직
+	const slideWraps = document.querySelectorAll('.slide_wrap');
+	const newTitles = ['드라마', '영화', '예능', '애니메이션'];
+	slideWraps.forEach((wrap, index) => {
+	  if (index < newTitles.length) {
+		  const h2 = wrap.querySelector('h2');
+		  if (h2) {
+			  const moreLink = h2.querySelector('a.more');
+			  const newTitleText = newTitles[index];
+
+			  if (moreLink) {
+				  h2.innerHTML = `${newTitleText}${moreLink.outerHTML}`;
+			  } else {
+				  h2.textContent = newTitleText;
+			  }
+		  }
+	  }
+	});			
+})();
+//재생 페이지 제목 변경
+(function() {	
+	if (pageNumber < 2) return;
+	
+	// 재생 페이지 제목에서 '다시보기 텍스트 제거 ('.bo_v_tit' 요소에서 '다시보기' 텍스트 제거)
+	document.querySelectorAll('.bo_v_tit').forEach(element => {
+	  // 정규 표현식을 사용하여 모든 '다시보기' 문자열을 빈 문자열로 대체하고 앞뒤 공백 제거
+	  if (element.textContent.includes('다시보기')) {
+		  element.textContent = element.textContent.replace(/다시보기/g, '').trim();
+		  thisEpisodeTitle = element.textContent;
+	  }
+	});
+
+})();
 //재생 페이지 작품 제목을 맨 위로 옮기기
 (function() {
-    // 1. 부모 요소 (대상)를 가져옵니다.
+	if (pageNumber < 2) return;
+    
+	// 1. 부모 요소 (대상)를 가져옵니다.
     const boV = document.getElementById('bo_v');
-
     if (boV) {
         // 2. 이동시킬 요소 (<header>)를 가져옵니다.
         // bo_v 내부에 있는 첫 번째 <header> 요소를 찾습니다.
@@ -600,6 +602,11 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
 })();
 //재생 페이지 이전화, 다음화 버튼 글씨 크기 조정
 (function() {
+	
+	NativeApp.jsLog(pageNumber);
+	
+	if (pageNumber < 2) return;
+	
     const css = `
         /* 전체 버튼 글씨 키우기 */
         .bo_v_nb_mobile li a {
@@ -630,7 +637,8 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
 })();
 //재생 페이지 다른 회차 제목 글씨 크기 조정
 (function() {
-    'use strict';
+	
+	if (pageNumber < 2) return;
 
     const css = `
         a.title.on {
@@ -647,13 +655,59 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
 })();
 //재생 페이지 회차가 하나밖에 없는 컨텐츠라면 컨텐츠 정보 표시
 (function() {
-  if (!isOnlyVideo) {
-    document.querySelectorAll('#bo_v_atc').forEach(el => el.remove());
-  }
-
-
+	if (pageNumber < 2) return;	
+	if (!isOnlyVideo) document.querySelectorAll('#bo_v_atc').forEach(el => el.remove());
 })();
-//기타 UI 요소 변경
+//일반 웹브라우저에서 웹사이트 타이틀, 아이콘 변경
+(function() {
+
+	if (!isWebBrowser) return;
+	
+	// 타이틀 변경
+	document.title = "Netflix";
+	const logoLink = document.querySelector("a.logo");
+	if (logoLink) {
+	  const img = logoLink.querySelector("img");
+	  if (img) {
+		  img.src = "https://i.imgur.com/rBAwaXX.png";
+		  img.style.width = "110px";
+		  img.style.height = "auto";
+	  }
+	}
+	// 아이콘 변경 함수 호출
+	const faviconURL = "https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg";
+	const appleIconURL = "https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg";
+
+	function replaceIcons() {
+	  document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"]').forEach(el => el.remove());
+	  const icon = document.createElement('link');
+	  icon.rel = "icon";
+	  icon.type = "image/svg+xml";
+	  icon.href = faviconURL;
+	  document.head.appendChild(icon);
+	  const apple = document.createElement('link');
+	  apple.rel = "apple-touch-icon";
+	  apple.href = appleIconURL;
+	  document.head.appendChild(apple);
+	}
+	replaceIcons();
+	
+})(); 
+//재생 페이지에서 비디오 썸네일 자동 스킵
+(function() {
+	if (pageNumber < 2) return;
+	
+	// 재생 페이지의 플레이어 썸네일 자동 스킵
+	const button = document.querySelector('a.btn.btn_normal');
+	if (button) {
+	  button.click();
+	NativeApp.jsLog("플레이어 재생 페이지 자동 넘기기 실행");
+	}
+	
+	
+	
+})();
+//기타 UI 요소 변경 스타일 추가
 (function() {
   'use strict'
 
@@ -806,46 +860,6 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
 
   `;
   document.head.appendChild(style);
-
-  // 타이틀 변경
-  document.title = "Netflix";
-  const logoLink = document.querySelector("a.logo");
-  if (logoLink) {
-      const img = logoLink.querySelector("img");
-      if (img) {
-          img.src = "https://i.imgur.com/rBAwaXX.png";
-          img.style.width = "110px";
-          img.style.height = "auto";
-      }
-  }
-  // 아이콘 변경 함수 호출
-  const faviconURL = "https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg";
-  const appleIconURL = "https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg";
-
-  function replaceIcons() {
-      document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"]').forEach(el => el.remove());
-      const icon = document.createElement('link');
-      icon.rel = "icon";
-      icon.type = "image/svg+xml";
-      icon.href = faviconURL;
-      document.head.appendChild(icon);
-      const apple = document.createElement('link');
-      apple.rel = "apple-touch-icon";
-      apple.href = appleIconURL;
-      document.head.appendChild(apple);
-  }
-  replaceIcons();
-
-  // 재생 페이지의 플레이어 썸네일 자동 스킵
-  const button = document.querySelector('a.btn.btn_normal');
-  if (button) {
-      button.click();
-    NativeApp.jsLog("플레이어 재생 페이지 자동 넘기기 실행");
-  }
-
-
-
-
 })();
 //검색 결과 페이지 재배치(모바일만 적용)
 (function() {
@@ -1233,24 +1247,19 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
 // ==============================================================================================================
 //네이티브
 (function() {
-  'use strict';
-  // 웹뷰 여부에 따라 스킵
-  if (isWebBrowser) return;
+  
+	// 웹뷰 여부에 따라 스킵
+	if (isWebBrowser) return;
 
-  //G보드 기본 자동완성 기능 막기
-  const input = document.getElementById('sch_stx');
-  input.setAttribute('autocomplete', 'off');
-  input.setAttribute('autocorrect', 'off');
-  input.setAttribute('autocapitalize', 'off');
-  input.setAttribute('spellcheck', 'false');
-  input.removeAttribute('value');
-
-
+	//G보드 기본 자동완성 기능 막기
+	const input = document.getElementById('sch_stx');
+	input.setAttribute('autocomplete', 'off');
+	input.setAttribute('autocorrect', 'off');
+	input.setAttribute('autocapitalize', 'off');
+	input.setAttribute('spellcheck', 'false');
+	input.removeAttribute('value');
 
     const searchWrap = document.querySelector('.search_wrap');
-
-
-
 
     if (!input || !searchWrap) return;
 
@@ -1395,8 +1404,6 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
 //Monkey 지원 웹브라우저
 (function() {
   if (!isWebBrowser) return;
-
-  'use strict';
 
   const TMDB_API_KEY = '8c0ffa89de81017aeee4dba11012b5d6';
   const input = document.querySelector('#sch_stx');
@@ -1738,9 +1745,9 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
 //비디오 재생 페이지 시작시 비디오 영역 숨기기: TV(O)::Phone(O)::Web(X)
 (function() {
 	if (isWebBrowser) return;//일반 웹브라우저에서는 숨기지 않음
-	if (pathSegments.length < 2) return;//재생페이지가 아니면 숨기지 않음	
+	if (pageNumber < 2) return;//재생페이지가 아니면 숨기지 않음
 	ApplyVideoNormalStyle();//비디오 영역 숨기기
-	
+
 
 	//하위 프레임에 메세지를 보내서 비디오 메타데이터 로드되었는지 확인
     const iframe = document.getElementById('view_iframe');
@@ -1748,13 +1755,11 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
     iframe.contentWindow.postMessage(
         { type: 'CHECK_METADATA', payload: 'CHECK_METADATA' },
         '*' // 또는 정확한 origin (권장)
-    );	
+    );
 })();
-
 // 메인 페이지 재구성: TV(O)::Phone(X)::Web(X)
 (function () {
-  'use strict';
-  if (pathSegments.length !== 0) return;
+  if (pageNumber !== 0) return;
   if (!isRunningOnTv) return;
 
   const links = [
@@ -1858,5 +1863,38 @@ const pathSegments = pathname.split('/').filter(seg => seg !== '');
 
 
 })();
+//개발자 도구 차단 스크립트 무효화
+(function () {
 
-NativeApp.jsLog("UserScript 로드 완료");
+	const removeDisableDevtool = () => {
+	  document.querySelectorAll('script[src*="disable-devtool"]').forEach(s => s.remove());
+	};
+	// 2) 동적 삽입 감시
+	const mo = new MutationObserver(mutations => {
+	  for (const m of mutations) {
+		  for (const n of m.addedNodes) {
+			  if (
+				  n.tagName === 'SCRIPT' &&
+				  n.src &&
+				  n.src.includes('disable-devtool')
+			  ) {
+				  n.remove();
+			  }
+		  }
+	  }
+	});
+	mo.observe(document.documentElement, {
+	  childList: true,
+	  subtree: true
+	});
+	removeDisableDevtool();		
+})();
+//마무리 디버그
+(function () {
+	if (isWebBrowser) return;
+	NativeApp.jsLog("UserScript 로드 완료");
+	const now = performance.now();
+	console.log(`경과 시간: ${now.toFixed(3)} ms`);	 
+	
+	
+})();
