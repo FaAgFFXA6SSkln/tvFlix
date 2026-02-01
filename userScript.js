@@ -104,10 +104,11 @@ function hideById(id) {
 
 	//TV 환경: 상단 검색 바 제거
 	if (isRunningOnTv) {				
-		hideById('header_wrap');//검색 버튼이 포함된 상단 WRAP을 안보이게 처리
+		
+		hideById('header_wrap');//검색 버튼이 포함된 상단 WRAP을 안보이게 처리		
 		hideByClassName('.btn_search')//검색 버튼 숨기기
 		disableFocusByClassName('.btn_search');//검색 버튼 포커스 제거
-		removeById('sch_submit');//검색창의 검색 실행 버튼 제거
+		removeById('sch_submit');//검색창의 검색 실행 버튼 제거		
 	}
 
 
@@ -546,8 +547,7 @@ function hideById(id) {
 //TV 이외 환경 상단 검색 바 레이아웃 변경
 (function() {
 	
-	if (isRunningOnTv) return;
-	
+	if (isRunningOnTv) return;	
 	// 메인 페이지 또는 서브페이지일 때 실행
 	const headerWrap = document.getElementById('header_wrap');
 	if (headerWrap) {
@@ -742,9 +742,7 @@ function hideById(id) {
         font-size: 1.7em !important;
     }
     /* =========================================================== */
-
     /* (기존 포커스 및 UI 스타일 유지) */
-
     /* =========================================================== */
     /* [FIX] Owl Carousel: Restore Sliding, Keep Aspect Ratio (2:3 assumed) */
 
@@ -843,7 +841,14 @@ function hideById(id) {
         /* CSS도 충분히 높여서 혹시 모를 경우 대비 (JS에서 최종 오버라이드 됨) */
         font-size: 1.7em !important;
     }
-
+	
+	/* 상단바 검색 진입 버튼 오른쪽 여백 없애기 */
+	#tnb ul {
+        display: flex !important;
+        align-items: center !important;
+        height: 70px;
+        gap: 4px;
+    }
 
     #body_wrap {
         margin-top: 20px;
