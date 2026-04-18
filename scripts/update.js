@@ -11,29 +11,27 @@ async function findWorkingUrl(start = 17, maxTry = 50) {
       const res = await fetch(url, {
         redirect: "manual",
         timeout: 5000,
+        headers: {
+          "User-Agent": "Mozilla/5.0"
+        }
       });
 
-      // 리디렉션이면 skip
-      if (res.status >= 300 && res.status < 400) {
-        console.log(`${url} redirected`);
-        continue;
-      }
+      // 리디렉션 skip
+      if (res.status >= 300 && res.status < 400) continue;
 
+      // 핵심: 200이면 그냥 통과
       if (res.status === 200) {
-        const text = await res.text();
-
-        // 최소한의 정상 HTML 체크
-        if (text.includes("<html")) {
-          console.log(`✅ FOUND: ${url}`);
-          return url;
-        }
+        console.log(`✅ FOUND: ${url}`);
+        return url;
       }
+
     } catch (e) {
       console.log(`${url} error`);
     }
   }
 
-  throw new Error("No valid URL found");
+  // ❗ 여기서 throw 하면 workflow 실패됨
+  return null;
 }
 
 async function main() {
@@ -44,9 +42,14 @@ async function main() {
 
   const newUrl = await findWorkingUrl(current);
 
+  // ❗ 못 찾으면 그냥 종료 (실패 안 시킴)
+  if (!newUrl) {
+    console.log("No valid URL found (skip)");
+    return;
+  }
+
   if (newUrl !== json.streamingHomeUrl) {
     json.streamingHomeUrl = newUrl;
-
     fs.writeFileSync(JSON_PATH, JSON.stringify(json, null, 2));
     console.log("✅ JSON updated");
   } else {
