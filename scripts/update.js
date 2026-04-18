@@ -12,6 +12,8 @@ async function findWorkingUrl(start = 0, maxTry = 50) {
         headers: { "User-Agent": "Mozilla/5.0" }
       });
 
+      console.log("url try: ", url);
+
       if (res.status >= 300 && res.status < 400) continue;
 
       if (res.status === 200) {
