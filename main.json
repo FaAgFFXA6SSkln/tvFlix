@@ -1,5 +1,5 @@
 {
-  "streamingHomeUrl": "https://tvwiki13.net",
+  "streamingHomeUrl": "https://tvwiki17.net",
   "mainScriptVersion": "202603210010",
   "mainScriptUrl": "https://raw.githubusercontent.com/FaAgFFXA6SSkln/tvFlix/refs/heads/main/userScript.js",
   "otherScripts": [
@@ -22,28 +22,6 @@
       "name": "video.min.js",
       "version": "202602010001",
       "url": "https://github.com/FaAgFFXA6SSkln/tvFlix/raw/refs/heads/main/video.min.js"
-    }  
+    }
   ]
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
