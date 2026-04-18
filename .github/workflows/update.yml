@@ -2,35 +2,55 @@ name: Update Streaming URL
 
 on:
   schedule:
-    - cron: "*/15 * * * *"   # 15분마다
+    - cron: "*/15 * * * *"   # 15분마다 실행
   workflow_dispatch:
+
+# 🔥 Node 24 강제 (경고 제거 + 미래 대비)
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   update:
     runs-on: ubuntu-latest
 
     permissions:
-      contents: write   # 🔥 이거 중요 (push 권한)
+      contents: write   # push 권한 필수
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22   # node-fetch 제거했으면 22 이상 권장
 
+      # ❗ node-fetch 제거했으면 필요 없음
       - name: Install dependencies
-        run: npm install
+        run: echo "No dependencies"
 
-      - name: Run script
+      # 🔍 디버깅 (문제 있을 때 매우 중요)
+      - name: Debug files
+        run: |
+          echo "Current dir:"
+          pwd
+          echo "List root:"
+          ls -al
+          echo "List main:"
+          ls -al main || true
+
+      - name: Run updater
         run: node scripts/update.js
 
-      - name: Commit & Push
+      - name: Commit & Push if changed
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
+
           git add main/main.json
-          git diff --quiet && git diff --staged --quiet || git commit -m "auto: update streaming url"
+
+          # 변경 없으면 skip
+          git diff --quiet && git diff --staged --quiet && echo "No changes" && exit 0
+
+          git commit -m "auto: update streaming url"
           git push
