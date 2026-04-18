@@ -36,6 +36,8 @@ async function findWorkingUrl(start = 0, maxTry = 50) {
     //const current = match ? parseInt(match[1], 10) : 17;
     const current = 12;
 
+    console.log(current);
+
     const newUrl = await findWorkingUrl(current);
 
     if (!newUrl) {
