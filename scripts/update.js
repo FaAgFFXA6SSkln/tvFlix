@@ -1,6 +1,6 @@
 const fs = require("fs");
 
-const JSON_PATH = "./main/main.json";
+const JSON_PATH = "./main.json";
 
 async function findWorkingUrl(start = 17, maxTry = 50) {
   for (let i = start; i < start + maxTry; i++) {
