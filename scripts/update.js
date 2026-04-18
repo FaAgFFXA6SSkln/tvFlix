@@ -33,7 +33,8 @@ async function findWorkingUrl(start = 0, maxTry = 50) {
     const json = JSON.parse(raw);
 
     const match = json.streamingHomeUrl?.match(/tvwiki(\d+)/);
-    const current = match ? parseInt(match[1], 10) : 17;
+    //const current = match ? parseInt(match[1], 10) : 17;
+    const current = 12;
 
     const newUrl = await findWorkingUrl(current);
 
