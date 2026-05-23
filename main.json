@@ -6,6 +6,7 @@
   "mainScriptUrl": "https://raw.githubusercontent.com/FaAgFFXA6SSkln/tvFlix/refs/heads/main/userScript.js",
   
   "removeSelectors": [
+    ".profile_info_ct",
     ".notice",
     ".logo",
     ".gnb",
