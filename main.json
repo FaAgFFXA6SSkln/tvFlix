@@ -6,7 +6,7 @@
   "mainScriptUrl": "https://raw.githubusercontent.com/FaAgFFXA6SSkln/tvFlix/refs/heads/main/userScript.js",
   
   "removeSelectors": [
-    ".btn_.theme_toggle",
+    ".btn_theme_toggle",
     "#dnsguide-modal-overlay",
     ".profile_info_ct",
     ".notice",
