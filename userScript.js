@@ -1818,36 +1818,43 @@ function hideById(id) {
 //비디오 플레이어의 워터마크 사용 여부 판단
 (function() {
 
-    // .profile_info_ct 안의 "등록된 날짜" 텍스트 가져오기
-    const text = document.querySelector('.profile_info_ct li')?.textContent || '';
+    // video min js에서 준비완료후 포스트를 보내면 워터마크를 사용할지 말지 답장한다.
+    window.addEventListener('message', (event) => {
 
-    // 날짜 부분 추출 (예: 2026.05.19)
-    const match = text.match(/(\d{4})\.(\d{2})\.(\d{2})/);
+        if (event.data?.type === 'VIDEO_MIN_READY') {
 
-    if (match) {
-        // YYYYMMDD 형태로 변환
-        const dateNum = Number(`${match[1]}${match[2]}${match[3]}`);
+            console.log('iframe 준비 완료');
 
-        if (dateNum > 20260203) {
+            // .profile_info_ct 안의 "등록된 날짜" 텍스트 가져오기
+            const text = document.querySelector('.profile_info_ct li')?.textContent || '';
 
-            //video min js로 postMessage
-            const iframe = document.getElementById('view_iframe');
-            if (!iframe) return;
-            iframe.contentWindow.postMessage(
-                { type: 'STOP_WATERMARK_BLUR', payload: 'STOP_WATERMARK_BLUR' },
-                '*' // 또는 정확한 origin (권장)
-            );
+            // 날짜 부분 추출 (예: 2026.05.19)
+            const match = text.match(/(\d{4})\.(\d{2})\.(\d{2})/);
 
-            console.log('yes');
+            if (match) {
+                // YYYYMMDD 형태로 변환
+                const dateNum = Number(`${match[1]}${match[2]}${match[3]}`);
 
-        } else {
-            console.log('no');
+                if (dateNum > 20260203) {
+
+                    //video min js로 postMessage
+                    const iframe = document.getElementById('view_iframe');
+                    if (!iframe) return;
+                    iframe.contentWindow.postMessage(
+                        { type: 'STOP_WATERMARK_BLUR', payload: 'STOP_WATERMARK_BLUR' },
+                        '*' // 또는 정확한 origin (권장)
+                    );
+
+                    console.log('yes');
+
+                } else {
+                    console.log('no');
+                }
+            } else {
+                console.log('등록된 날짜를 찾을 수 없음');
+            }
         }
-    } else {
-        console.log('등록된 날짜를 찾을 수 없음');
-    }
-
-
+    });
 })();
 // 메인 페이지 재구성: TV(O)::Phone(X)::Web(X)
 (function () {
