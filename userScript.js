@@ -88,9 +88,39 @@ function hideById(id) {
 
 	//공통 제거
 	const elementsToRemove = [
-	'div.notice', 'a.logo', '.gnb_mobile', '.top_btn', '.ep_search', '.good', '.emer-content',  '.cast','.view-comment-area', '.over', '#bo_v_act', '#bo_vc', '#float','div.notice',
-	  'ul.banner2', 'li.full.pc-only', 'li.full.mobile-only', '.search_title_mobile', '.category', 'nav.gnb.sf-js-enabled.sf-arrows', 'a.btn_login', '#bnb', '#footer', '.search_wrap ul', '.layer-footer',
-	  '.genre', '#other_list ul li p', '#footer_wrap', '.player-select', '#playerBar', '.player-hover-wrap', '.btn_history', '#btnScrollTop', 'div.search_title_pc'
+	'div.notice',
+	'a.logo',
+	'.gnb_mobile',
+	'.top_btn',
+	'.ep_search',
+	'.good',
+	'.emer-content',
+	'.cast',
+	'.view-comment-area',
+	'.over',
+	'#bo_v_act',
+	'#bo_vc',
+	'#float',
+	'ul.banner2',
+	'li.full.pc-only',
+	'li.full.mobile-only',
+	'.search_title_mobile',
+	'.category',
+	'nav.gnb.sf-js-enabled.sf-arrows',
+	'a.btn_login',
+	'#bnb',
+	'#footer',
+	'.search_wrap ul',
+	'.layer-footer',
+	'.genre',
+	'#other_list ul li p',
+	'#footer_wrap',
+	'.player-select',
+	'#playerBar',
+	'.player-hover-wrap',
+	'.btn_history',
+	'#btnScrollTop',
+	'div.search_title_pc'
 	];
 	elementsToRemove.forEach(selector => {
 	  document.querySelectorAll(selector).forEach(element => {
@@ -1799,7 +1829,7 @@ function hideById(id) {
         const dateNum = Number(`${match[1]}${match[2]}${match[3]}`);
 
         if (dateNum > 20260203) {
-            console.log('yes');
+
             //video min js로 postMessage
             const iframe = document.getElementById('view_iframe');
             if (!iframe) return;
@@ -1807,6 +1837,8 @@ function hideById(id) {
                 { type: 'STOP_WATERMARK_BLUR', payload: 'STOP_WATERMARK_BLUR' },
                 '*' // 또는 정확한 origin (권장)
             );
+
+            console.log('yes');
 
         } else {
             console.log('no');
