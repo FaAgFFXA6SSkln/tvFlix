@@ -8,7 +8,6 @@
   "removeSelectors": [
     ".btn_theme_toggle",
     "#dnsguide-modal-overlay",
-    ".profile_info_ct",
     ".notice",
     ".logo",
     ".gnb",
