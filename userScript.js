@@ -1799,7 +1799,7 @@ function hideById(id) {
         const dateNum = Number(`${match[1]}${match[2]}${match[3]}`);
 
         if (dateNum > 20260203) {
-            //console.log('yes');
+            console.log('yes');
             //video min js로 postMessage
             const iframe = document.getElementById('view_iframe');
             if (!iframe) return;
@@ -1809,10 +1809,10 @@ function hideById(id) {
             );
 
         } else {
-            //console.log('no');
+            console.log('no');
         }
     } else {
-        //console.log('등록된 날짜를 찾을 수 없음');
+        console.log('등록된 날짜를 찾을 수 없음');
     }
 
 
