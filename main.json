@@ -1,10 +1,7 @@
 {
-  "streamingHomeUrl": "https://tvwiki24.net",
-  
+  "streamingHomeUrl": "https://tvwiki23.net",
   "mainScriptVersion": "202605240008",
-  
   "mainScriptUrl": "https://raw.githubusercontent.com/FaAgFFXA6SSkln/tvFlix/refs/heads/main/userScript.js",
-  
   "removeSelectors": [
     ".btn_theme_toggle",
     "#dnsguide-modal-overlay",
@@ -35,7 +32,6 @@
     ".genre",
     "#other_list ul li p"
   ],
-  
   "otherScripts": [
     {
       "name": "hls.min.js",
