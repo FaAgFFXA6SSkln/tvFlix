@@ -2,6 +2,11 @@ const fs = require("fs");
 
 const JSON_PATH = "./main.json";
 
+function extractNumber(url) {
+  const match = url.match(/tvwiki(\d+)\.net/);
+  return match ? parseInt(match[1], 10) : null;
+}
+
 async function getLatestUrl() {
   const res = await fetch("https://dnsguide.shop", {
     headers: {
@@ -36,7 +41,19 @@ async function getLatestUrl() {
       return;
     }
 
-    if (newUrl !== json.streamingHomeUrl) {
+    const oldUrl = json.streamingHomeUrl;
+
+    const oldNum = extractNumber(oldUrl);
+    const newNum = extractNumber(newUrl);
+
+    if (oldNum !== null && newNum !== null && newNum <= oldNum) {
+      console.log(
+        `SKIP: old=${oldNum}, new=${newNum} (new is not greater)`
+      );
+      return;
+    }
+
+    if (newUrl !== oldUrl) {
       json.streamingHomeUrl = newUrl;
       fs.writeFileSync(JSON_PATH, JSON.stringify(json, null, 2));
       console.log("UPDATED:", newUrl);
