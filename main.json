@@ -1,6 +1,6 @@
 {
   "streamingHomeUrl": "https://tvwiki30.net",
-  "mainScriptVersion": "202605240008",
+  "mainScriptVersion": "202606210000",
   "mainScriptUrl": "https://raw.githubusercontent.com/FaAgFFXA6SSkln/tvFlix/refs/heads/main/userScript.js",
   "removeSelectors": [
     ".btn_theme_toggle",
