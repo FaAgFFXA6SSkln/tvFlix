@@ -17,7 +17,6 @@
 // 8. 검색어 자동완성 기능: TMDB(The Move Database) Api 적용
 // 9. 검색창, 카테고리 필터 관련 키 입력 오버라이드
 // ==============================================================================================================
-
 const isRunningOnTv = (navigator.userAgent.toLowerCase().includes("tv"));
 const isWebBrowser = (typeof NativeApp == 'undefined');
 var nextEpisodeLink = "";
@@ -446,9 +445,21 @@ function hideById(id) {
 
     // 클릭 이벤트
     playButton.onclick = () => {
+		console.log("클릭이벤트0");
       if (typeof NativeApp !== 'undefined' && NativeApp.handlePlayButtonClick) {
-          NativeApp.handlePlayButtonClick();
-          sendWatchListAddSignToNative();
+          //NativeApp.handlePlayButtonClick();
+          //sendWatchListAddSignToNative();
+		//하위 프레임에 메세지를 보내서 비디오 메타데이터 로드되었는지 확인
+		console.log("클릭이벤트1");
+		const iframe = document.getElementById('view_iframe');
+		if (!iframe) return;
+		console.log("클릭이벤트2");
+		iframe.contentWindow.postMessage(
+        { type: 'CLICK_PLAY_BUTTON', payload: 'CLICK_PLAY_BUTTON' },
+        '*' // 또는 정확한 origin (권장)
+		);
+		  
+		  
       }
       else {
         document.querySelector('.bo_v_mov_overlay').remove();
