@@ -52,6 +52,11 @@
       "name": "video.min.js",
       "version": "202605240008",
       "url": "https://github.com/FaAgFFXA6SSkln/tvFlix/raw/refs/heads/main/video.min.js"
-    }
+    },
+    {
+      "name": "artplayer.js",
+      "version": "202606270000",
+      "url": "https://raw.githubusercontent.com/FaAgFFXA6SSkln/tvFlix/refs/heads/main/artplayer.js"
+    }   
   ]
 }
