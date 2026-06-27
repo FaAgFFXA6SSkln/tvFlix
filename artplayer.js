@@ -1100,12 +1100,7 @@ document.addEventListener("keydown", (event) => {
 		
         case "KeyF":
             event.preventDefault();
-
-            if (e.paused) {
-                e.play();
-            } else {
-                e.pause();
-            }
+            e.toggle();
             break;
 			
         case "ArrowRight":
