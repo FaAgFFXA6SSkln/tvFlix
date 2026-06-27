@@ -1094,6 +1094,42 @@
 							}
                         }
                         )
+// 추가
+document.addEventListener("keydown", (event) => {
+    switch (event.code) {
+        case "ArrowRight":
+            event.preventDefault();
+            e.currentTime = Math.min(
+                e.duration,
+                e.currentTime + 10
+            );
+            break;
+
+        case "ArrowLeft":
+            event.preventDefault();
+            e.currentTime = Math.max(
+                0,
+                e.currentTime - 10
+            );
+            break;
+
+        case "ArrowUp":
+            event.preventDefault();
+            e.volume = Math.min(1, e.volume + 0.1);
+            break;
+
+        case "ArrowDown":
+            event.preventDefault();
+            e.volume = Math.max(0, e.volume - 0.1);
+            break;
+
+        case "Space":
+            event.preventDefault();
+            e.toggle();
+            break;
+    }
+});
+						
                     }
                 })
             }({
