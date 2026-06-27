@@ -1802,9 +1802,9 @@ function hideById(id) {
 
 //비디오 재생 페이지 시작시 비디오 영역 숨기기: TV(O)::Phone(O)::Web(X)
 (function() {
-	//if (isWebBrowser) return;//일반 웹브라우저에서는 숨기지 않음
-	//if (pageNumber < 2) return;//재생페이지가 아니면 숨기지 않음
-	//ApplyVideoNormalStyle();//비디오 영역 숨기기
+	if (isWebBrowser) return;//일반 웹브라우저에서는 숨기지 않음
+	if (pageNumber < 2) return;//재생페이지가 아니면 숨기지 않음
+	ApplyVideoNormalStyle();//비디오 영역 숨기기
 
 
 	//하위 프레임에 메세지를 보내서 비디오 메타데이터 로드되었는지 확인
