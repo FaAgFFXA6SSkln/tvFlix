@@ -1097,6 +1097,17 @@
 // 추가
 document.addEventListener("keydown", (event) => {
     switch (event.code) {
+		
+        case "KeyF":
+            event.preventDefault();
+
+            if (e.paused) {
+                e.play();
+            } else {
+                e.pause();
+            }
+            break;
+			
         case "ArrowRight":
             event.preventDefault();
             e.currentTime = Math.min(
