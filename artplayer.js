@@ -3973,27 +3973,27 @@ window.addEventListener("message", (event) => {
 						
 			//풀스크린 종료 시 자동 일시정지
 			document.addEventListener("keydown", (event) => {
-				
-				const art = window._art;			
-				switch (event.code) {
-					case "KeyF":
-					case "Enter":          // 일반 키보드 Enter
-					case "NumpadEnter":    // 숫자패드 Enter
-					case "Space":          // Space
-					case "Spacebar":       // 구형 브라우저 호환
-					case "Select":         // Android TV 일부 기기
-					case "MediaPlayPause": // 미디어 버튼
-						console.log("재생키 감지 :", event.code);
-						
-						event.preventDefault();
-						
-						if (_art.playing) {
-							_art.pause();
-						}
-						else {
-							_art.play();
-						}			
-						break;
+				const isPlayKey =
+					event.code === "KeyF" ||
+					event.code === "Enter" ||
+					event.code === "NumpadEnter" ||
+					event.code === "Space" ||
+					event.key === "Enter" ||
+					event.key === "Select" ||
+					event.keyCode === 23 ||   // DPAD_CENTER
+					event.keyCode === 66 ||   // ENTER
+					event.key === "MediaPlayPause";
+
+				if (!isPlayKey) return;
+
+				console.log("재생키 감지", event);
+
+				event.preventDefault();
+
+				if (_art.playing) {
+					_art.pause();
+				} else {
+					_art.play();
 				}
 			});
 	
@@ -4002,3 +4002,7 @@ window.addEventListener("message", (event) => {
 					//e.play(); 
 				} 
 			});
+			
+			window._art.on('ready', () => {
+			console.log('ArtPlayer ready');
+});
