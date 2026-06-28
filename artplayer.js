@@ -1044,6 +1044,7 @@
         }
         init() {
             const {option: t} = this.art;
+			window._art = this.art;
             t.isLive || this.add(mt({
                 name: "progress",
                 position: "top",
@@ -1068,8 +1069,9 @@
                         function l() {
                             w(n, "display", "none"),
                             w(i, "display", "flex")
-                        }
-                        T(n, o.get("Play")),
+                        }                     
+						
+						T(n, o.get("Play")),
                         T(i, o.get("Pause")),
                         r(n, "click", () => {
                             e.play()
@@ -1081,60 +1083,23 @@
                         ),
                         e.playing ? l() : s(),
                         e.on("video:playing", () => {
-                            l();
-							if (!e.fullscreen) {
+                            l()
 							e.fullscreen = true;
-							}
                         }
                         ),
                         e.on("video:pause", () => {
-                            s();
-							if (e.fullscreen) {
+                            s()
 							e.fullscreen = false;
-							}
                         }
                         )
-// 추가
-document.addEventListener("keydown", (event) => {
-    switch (event.code) {
-		
-        case "KeyF":
-            event.preventDefault();
-            e.toggle();
-            break;
-			
-        case "ArrowRight":
-            event.preventDefault();
-            e.currentTime = Math.min(
-                e.duration,
-                e.currentTime + 10
-            );
-            break;
+						
+						
 
-        case "ArrowLeft":
-            event.preventDefault();
-            e.currentTime = Math.max(
-                0,
-                e.currentTime - 10
-            );
-            break;
-
-        case "ArrowUp":
-            event.preventDefault();
-            e.volume = Math.min(1, e.volume + 0.1);
-            break;
-
-        case "ArrowDown":
-            event.preventDefault();
-            e.volume = Math.max(0, e.volume - 0.1);
-            break;
-
-        case "Space":
-            event.preventDefault();
-            e.toggle();
-            break;
-    }
-});
+						
+						
+						
+						
+						
 						
                     }
                 })
@@ -3984,3 +3949,56 @@ document.addEventListener("keydown", (event) => {
     , 100)),
     Kt
 });
+
+
+//추가 코드
+
+/*
+window.addEventListener("message", (event) => {
+    const art = window._art;
+    if (!art) return;
+    switch (event.data.action) {	
+        case "CLICK_PLAY_BUTTON":
+            art.play();
+            break;
+
+        case "CLICK_PAUSE_BUTTON":
+            art.pause();
+            break;
+    }
+});
+*/
+
+						//추가 코드
+						
+			//풀스크린 종료 시 자동 일시정지
+			document.addEventListener("keydown", (event) => {
+				
+				const art = window._art;			
+				switch (event.code) {
+					case "KeyF":
+					case "Enter":          // 일반 키보드 Enter
+					case "NumpadEnter":    // 숫자패드 Enter
+					case "Space":          // Space
+					case "Spacebar":       // 구형 브라우저 호환
+					case "Select":         // Android TV 일부 기기
+					case "MediaPlayPause": // 미디어 버튼
+						console.log("재생키 감지 :", event.code);
+						
+						event.preventDefault();
+						
+						if (_art.playing) {
+							_art.pause();
+						}
+						else {
+							_art.play();
+						}			
+						break;
+				}
+			});
+	
+			window.addEventListener("message", (event) => { 
+				if (event.data.action === "CLICK_PLAY_BUTTON") { 
+					//e.play(); 
+				} 
+			});

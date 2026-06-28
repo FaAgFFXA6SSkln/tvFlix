@@ -396,6 +396,8 @@ function hideById(id) {
   });
 })();
 // 재생 페이지'.bo_v_mov'에 '동영상 재생' 버튼 추가: TV(O)::Phone(O)::Web(X)
+
+
 (function() {
   if (isWebBrowser) return;
 
@@ -447,7 +449,7 @@ function hideById(id) {
     playButton.onclick = () => {
 		console.log("클릭이벤트0");
       if (typeof NativeApp !== 'undefined' && NativeApp.handlePlayButtonClick) {
-          //NativeApp.handlePlayButtonClick();
+          NativeApp.handlePlayButtonClick();
           //sendWatchListAddSignToNative();
 		//하위 프레임에 메세지를 보내서 비디오 메타데이터 로드되었는지 확인
 		console.log("클릭이벤트1");
@@ -489,8 +491,13 @@ function hideById(id) {
 
         if (typeof NativeApp !== 'undefined' && NativeApp.handlePlayButtonClick) {
             // 3. 약간의 지연 후 네이티브 호출 (JS 스택이 비워진 후 네이티브가 동작하도록)
-          NativeApp.handlePlayButtonClick();
+          console.log("클릭이벤트22");
+		  NativeApp.handlePlayButtonClick();
           sendWatchListAddSignToNative();
+		  
+		//const iframe = document.getElementById('view_iframe');
+		//if (!iframe) return;		
+		//iframe.contentWindow.postMessage({action: "CLICK_PLAY_BUTTON"}, "*");
 
         } else {
             // Fallback 로직
@@ -567,6 +574,8 @@ function hideById(id) {
     }
 
 })();
+
+
 // ==============================================================================================================
 // ==============================================================================================================
 
@@ -1857,9 +1866,7 @@ function hideById(id) {
 
     // 반복 전송 시작
     const interval = setInterval(() => {
-
-        console.log('STOP_WATERMARK_BLUR 전송');
-
+        //console.log('STOP_WATERMARK_BLUR 전송');
         iframe.contentWindow?.postMessage(
             {
                 type: 'STOP_WATERMARK_BLUR'
