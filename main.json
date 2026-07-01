@@ -1,5 +1,5 @@
 {
-  "streamingHomeUrl": "https://tvwiki33.net",
+  "streamingHomeUrl": "https://tvwiki36.net",
   "mainScriptVersion": "202606280001",
   "mainScriptUrl": "https://raw.githubusercontent.com/FaAgFFXA6SSkln/tvFlix/refs/heads/main/userScript.js",
   "removeSelectors": [
@@ -57,6 +57,6 @@
       "name": "artplayer.js",
       "version": "202606280001",
       "url": "https://raw.githubusercontent.com/FaAgFFXA6SSkln/tvFlix/refs/heads/main/artplayer.js"
-    }   
+    }
   ]
 }
