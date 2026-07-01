@@ -8,7 +8,7 @@ function extractNumber(url) {
 }
 
 async function getLatestUrl() {
-  const res = await fetch("https://dnsguide.shop", {
+  const res = await fetch("https://xn--9w3b43d58f04atzyznd.com/", {
     headers: {
       "User-Agent": "Mozilla/5.0"
     }
