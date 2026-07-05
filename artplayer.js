@@ -1089,7 +1089,6 @@
                         ),
                         e.on("video:pause", () => {
                             s()
-							e.fullscreen = false;
                         }
                         )
 						

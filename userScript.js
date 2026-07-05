@@ -1610,6 +1610,21 @@ function hideById(id) {
 	if (isWebBrowser) return;//일반 웹브라우저에서는 숨기지 않음
 	if (pageNumber < 2) return;//재생페이지가 아니면 숨기지 않음
 	
+	//재생 버튼 탈출 시 포커스 효과를 제거하는 함수
+	function removePlayButtonFocusEffect() {
+    const playButton = document.getElementById("playButton");
+    if (!playButton) return;
+
+    playButton.style.removeProperty("z-index");
+    playButton.style.removeProperty("outline");
+    playButton.style.removeProperty("outline-offset");
+    playButton.style.removeProperty("box-shadow");
+    playButton.style.removeProperty("transition");
+
+    // 생성 시의 원래 배경색으로 복원
+    playButton.style.backgroundColor = "#ff0000";
+}
+	
 	//재생 버튼 탈출을 위한 함수
 	function moveFocusFrom(current, direction) {
 		const currentRect = current.getBoundingClientRect();
@@ -1655,6 +1670,8 @@ function hideById(id) {
 				best = el;
 			}
 		}
+		
+		removePlayButtonFocusEffect();
 
 		if (best) {
 			best.focus({ preventScroll: true });
@@ -1865,41 +1882,12 @@ function hideById(id) {
 		
 		//재생 버튼에서 탈출하기 위한 메시지
 		else if (event.data?.action === "IFRAME_MOVE_FOCUS") {
-			const current = document.getElementById("playButton");
-			
-			NativeApp.jsLog("메시지 확인 ");
+			const current = document.getElementById("playButton");	
 			if (!current) return;			
 			moveFocusFrom(current, event.data.direction);
 		}
-		
-		else {
-			
-			NativeApp.jsLog(event.data?.action);
-		}
-			
 	});
 })();
-
-
-
-//재생 페이지에서 재생 버튼 탈출과 이동
-(function() {
-	
-	
-
-	
-	
-	
-	
-	
-	
-	window.addEventListener("message", (event) => {
-
-	});
-	
-	
-})();
-
 //비디오 플레이어의 워터마크 사용 여부 판단
 (function () {
 
@@ -1957,10 +1945,6 @@ function hideById(id) {
     });
 
 })();
-
-
-
-
 // 메인 페이지 재구성: TV(O)::Phone(X)::Web(X)
 (function () {
   if (pageNumber !== 0) return;
@@ -1986,8 +1970,7 @@ function hideById(id) {
   const bodyWrap = document.getElementById('body_wrap');
   if (bodyWrap) bodyWrap.remove();
 
-  // 스타일 주입
-// 스타일 주입
+	// 스타일 주입
   const style = document.createElement('style');
   style.textContent = `
     /* 브라우저 기본 여백 제거 및 스크롤 차단 */
