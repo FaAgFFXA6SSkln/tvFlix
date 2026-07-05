@@ -3952,54 +3952,54 @@
 
 
 //추가 코드
+
+
 document.addEventListener("keyup", (event) => {
 
+    const isPlayKey =
+        event.code === "KeyF" ||
+        event.code === "Enter" ||
+        event.code === "NumpadEnter" ||
+        event.code === "Space" ||
+        event.key === "Enter" ||
+        event.key === "Select" ||
+        event.keyCode === 23 ||   // DPAD_CENTER
+        event.keyCode === 66 ||   // ENTER
+        event.key === "MediaPlayPause";
+
+    if (isPlayKey) {
+        if (_art.playing) {
+            _art.pause();
+        } else {
+            _art.play();
+        }
+        return;
+    }
+
     switch (event.code) {
-
-        // 재생 / 일시정지
-        case "KeyF":
-        case "Enter":
-        case "NumpadEnter":
-        case "Space":
-            console.log("재생키 감지");
-
-            if (_art.playing) {
-                _art.pause();
-            } else {
-                _art.play();
-            }
-            break;
-
-        // 볼륨 증가
         case "ArrowUp":
             event.preventDefault();
             _art.volume = Math.min(1, _art.volume + 0.1);
-            console.log("Volume:", _art.volume);
             break;
 
-        // 볼륨 감소
         case "ArrowDown":
             event.preventDefault();
             _art.volume = Math.max(0, _art.volume - 0.1);
-            console.log("Volume:", _art.volume);
             break;
 
-        // 10초 되감기
         case "ArrowLeft":
             event.preventDefault();
             _art.currentTime = Math.max(0, _art.currentTime - 10);
             break;
 
-        // 10초 앞으로
         case "ArrowRight":
             event.preventDefault();
-            _art.currentTime = Math.min(
-                _art.duration,
-                _art.currentTime + 10
-            );
+            _art.currentTime = Math.min(_art.duration, _art.currentTime + 10);
             break;
     }
 });
+
+
 
 document.addEventListener("fullscreenchange", () => {
     if (!document.fullscreenElement && window._art?.playing) {
@@ -4007,6 +4007,8 @@ document.addEventListener("fullscreenchange", () => {
     }
 });
 
+
+//키 입력 처리
 window.addEventListener("keydown", (e) => {
 
     // fullscreen이면 ArtPlayer가 그대로 처리
