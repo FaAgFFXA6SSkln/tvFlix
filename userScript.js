@@ -395,183 +395,16 @@ function hideById(id) {
       }
   });
 })();
+
+
+
 // 재생 페이지'.bo_v_mov'에 '동영상 재생' 버튼 추가: TV(O)::Phone(O)::Web(X)
 
 
 (function() {
   if (isWebBrowser) return;
 
-  //재생 버튼
-  const container = document.querySelector('div.bo_v_mov');
-  if (container) {
-    // 새로운 컨테이너 생성
-    const overlay = document.createElement('div');
-    overlay.className = 'bo_v_mov_overlay';
 
-    // overlay 스타일 수정
-    //overlay.style.position = 'relative';
-    overlay.style.width = '100%';
-    const overlayHeight = (isRunningOnTv) ? '310px' : '240px';
-    overlay.style.setProperty('height', overlayHeight, 'important');
-
-
-    // **가운데 정렬**
-    overlay.style.display = 'flex';
-    overlay.style.alignItems = 'center';     // 세로 중앙
-    overlay.style.justifyContent = 'center'; // 가로 중앙
-
-    // 버튼 생성
-    const playButton = document.createElement('button');
-    playButton.id = 'playButton';
-    const playButtonWidth = (isRunningOnTv) ? "180px" : "120px";
-    const playButtonHeight = (isRunningOnTv) ? "80px" : "60px";
-    const playButtonFontSize = (isRunningOnTv) ? "24px" : "20px";
-    playButton.textContent = '▶ 재생';
-    playButton.style.cssText = `
-        background-color: #ff0000;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        font-size: ${playButtonFontSize};
-        font-weight: bold;
-        cursor: pointer;
-        width: ${playButtonWidth};
-        height: ${playButtonHeight};
-        display: none;
-        align-items: center;
-        justify-content: center;
-    `;
-
-    overlay.appendChild(playButton);
-    container.insertAdjacentElement('afterend', overlay);
-
-    // 클릭 이벤트
-    playButton.onclick = () => {
-		console.log("클릭이벤트0");
-      if (typeof NativeApp !== 'undefined' && NativeApp.handlePlayButtonClick) {
-          NativeApp.handlePlayButtonClick();
-          //sendWatchListAddSignToNative();
-		//하위 프레임에 메세지를 보내서 비디오 메타데이터 로드되었는지 확인
-		console.log("클릭이벤트1");
-		const iframe = document.getElementById('view_iframe');
-		if (!iframe) return;
-		console.log("클릭이벤트2");
-		iframe.contentWindow.postMessage(
-        { type: 'CLICK_PLAY_BUTTON', payload: 'CLICK_PLAY_BUTTON' },
-        '*' // 또는 정확한 origin (권장)
-		);
-		  
-		  
-      }
-      else {
-        document.querySelector('.bo_v_mov_overlay').remove();
-        const bovmov = document.querySelector('.bo_v_mov');
-        bovmov.style.setProperty('height', '480px', 'important');
-        bovmov.style.setProperty('display', 'block', 'important');
-      }
-    };
-
-
-
-
-
-
-
-    // 재생 버튼 이벤트 바인딩 부분 수정
-    const handlePlayAction = (e) => {
-        // 1. 기본 동작 및 이벤트 전파 즉시 차단 (리모컨 Enter 키 중복 방지)
-        if (e) {
-            if (typeof e.preventDefault === 'function') e.preventDefault();
-            if (typeof e.stopPropagation === 'function') e.stopPropagation();
-        }
-
-        // 2. 포커스 강제 해제
-        //playButton.blur();
-        //window.focus(); // 윈도우로 포커스를 한 번 뺐다가 네이티브가 가져가게 함
-
-        if (typeof NativeApp !== 'undefined' && NativeApp.handlePlayButtonClick) {
-            // 3. 약간의 지연 후 네이티브 호출 (JS 스택이 비워진 후 네이티브가 동작하도록)
-          console.log("클릭이벤트22");
-		  NativeApp.handlePlayButtonClick();
-          sendWatchListAddSignToNative();
-		  
-		//const iframe = document.getElementById('view_iframe');
-		//if (!iframe) return;		
-		//iframe.contentWindow.postMessage({action: "CLICK_PLAY_BUTTON"}, "*");
-
-        } else {
-            // Fallback 로직
-            const overlay = document.querySelector('.bo_v_mov_overlay');
-            if (overlay) overlay.remove();
-            const bovmov = document.querySelector('.bo_v_mov');
-            if (bovmov) {
-                bovmov.style.setProperty('height', '480px', 'important');
-                bovmov.style.setProperty('display', 'block', 'important');
-            }
-        }
-    };
-
-
-
-    // 마우스 클릭 대응
-    playButton.onclick = handlePlayAction;
-
-
-    // 리모컨/키보드 대응 (Enter 또는 Space가 기본 클릭을 유발하지만, 명시적으로 제어)
-    playButton.onkeydown = (e) => {
-        if (e.keyCode === 13 || e.keyCode === 32) { // Enter or Space
-            handlePlayAction(e);
-        }
-    };
-
-
-  }
-
-  //로딩서클 오버레이
-  if (container) {
-    //로딩중 오버레이
-    const loadingOverlaystyle = document.createElement('style');
-    loadingOverlaystyle.textContent = `
-    #userscript-loading-overlay {
-        position: fixed;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.9);
-        z-index: 999999;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-	#userscript-loading-spinner {
-		width: 80px;
-		height: 80px;
-		border: 7px solid transparent;  /* 전체 두께, 투명 */
-		border-top-color: #00FFFF00;       /* 12시 방향 */
-		border-right-color: #00FFFF00;     /* 3시 방향 */
-		border-bottom-color: #00FFFF00;    /* 6시 방향 */
-		border-radius: 50%;
-		animation: userscript-spin 1s linear infinite;
-	}
-
-
-    @keyframes userscript-spin {
-        to { transform: rotate(360deg); }
-    }
-    `;
-    document.head.appendChild(loadingOverlaystyle);
-
-    if (document.getElementById('userscript-loading-overlay')) return;
-
-    const overlay = document.createElement('div');
-    overlay.id = 'userscript-loading-overlay';
-
-    const spinner = document.createElement('div');
-    spinner.id = 'userscript-loading-spinner';
-
-    overlay.appendChild(spinner);
-    document.body.appendChild(overlay);
-
-    }
 
 })();
 
@@ -1122,17 +955,6 @@ function hideById(id) {
     return true;
   }
 
-  //재생 버튼 보이고 로딩중 오버레이 감추기
-  window.LoadVideoPlayButton = function() {
-    if (!isVideoLoaded) {
-      isVideoLoaded = true;
-      const playButton = document.getElementById('playButton');
-      playButton.style.display = 'flex';
-      const overlay = document.getElementById('userscript-loading-overlay');
-      if (overlay) overlay.remove();
-    }
-  }
-
   //로깅 함수
   window.customLog = function(message) {
     console.log(message);
@@ -1308,12 +1130,7 @@ function hideById(id) {
     // 페이지 스크롤 제거
     //document.body.style.overflow = 'hidden';
 };
-  window.ApplyVideoNormalStyle = function() {
-    const movDiv = document.querySelector('.bo_v_mov');
-    if (!movDiv) return;
-    movDiv.style.setProperty('height', '0px', 'important');
-    movDiv.style.setProperty('display', 'flex', 'important');
-};
+
 })();
 // ==============================================================================================================
 // ==============================================================================================================
@@ -1819,25 +1636,277 @@ function hideById(id) {
 
 
 
-
-//비디오 재생 페이지 시작시 비디오 영역 숨기기: TV(O)::Phone(O)::Web(X)
+//재생 페이지 진입시 비디오 영역, 재생 버튼 숨기고, 로드 완료되면 표시: TV(O)::Phone(O)::Web(X)
 (function() {
 	if (isWebBrowser) return;//일반 웹브라우저에서는 숨기지 않음
 	if (pageNumber < 2) return;//재생페이지가 아니면 숨기지 않음
-	ApplyVideoNormalStyle();//비디오 영역 숨기기
+
+	//재생 버튼 생성하기
+	const container = document.querySelector('div.bo_v_mov');
+	if (container) {
+		// 새로운 컨테이너 생성
+		const overlay = document.createElement('div');
+		overlay.className = 'bo_v_mov_overlay';
+
+		// overlay 스타일 수정
+		overlay.style.width = '100%';
+		const overlayHeight = (isRunningOnTv) ? '310px' : '240px';
+		overlay.style.setProperty('height', overlayHeight, 'important');
+
+		// **가운데 정렬**
+		overlay.style.display = 'flex';
+		overlay.style.alignItems = 'center';     // 세로 중앙
+		overlay.style.justifyContent = 'center'; // 가로 중앙
+
+		// 버튼 생성
+		const playButton = document.createElement('button');
+		playButton.id = 'playButton';
+		const playButtonWidth = (isRunningOnTv) ? "180px" : "120px";
+		const playButtonHeight = (isRunningOnTv) ? "80px" : "60px";
+		const playButtonFontSize = (isRunningOnTv) ? "24px" : "20px";
+		playButton.textContent = '▶ 재생';
+		playButton.style.cssText = `
+			background-color: #ff0000;
+			color: white;
+			border: none;
+			border-radius: 4px;
+			font-size: ${playButtonFontSize};
+			font-weight: bold;
+			cursor: pointer;
+			width: ${playButtonWidth};
+			height: ${playButtonHeight};
+			display: none;
+			align-items: center;
+			justify-content: center;
+		`;
+
+		overlay.appendChild(playButton);
+		container.insertAdjacentElement('afterend', overlay);
+
+		// 클릭 이벤트
+		playButton.onclick = () => {
+		if (typeof NativeApp !== 'undefined' && NativeApp.handlePlayButtonClick) {
+			NativeApp.handlePlayButtonClick();
+			sendWatchListAddSignToNative();
+		}
+		else {
+			document.querySelector('.bo_v_mov_overlay').remove();
+			const bovmov = document.querySelector('.bo_v_mov');
+			bovmov.style.setProperty('height', '480px', 'important');
+			bovmov.style.setProperty('display', 'block', 'important');
+		}
+	};
+
+    // 재생 버튼 이벤트 바인딩 부분 수정
+    const handlePlayAction = (e) => {
+        // 1. 기본 동작 및 이벤트 전파 즉시 차단 (리모컨 Enter 키 중복 방지)
+        if (e) {
+            if (typeof e.preventDefault === 'function') e.preventDefault();
+            if (typeof e.stopPropagation === 'function') e.stopPropagation();
+        }
+
+        // 2. 포커스 강제 해제
+        //playButton.blur();
+        //window.focus(); // 윈도우로 포커스를 한 번 뺐다가 네이티브가 가져가게 함
+
+        if (typeof NativeApp !== 'undefined' && NativeApp.handlePlayButtonClick) {
+            // 3. 약간의 지연 후 네이티브 호출 (JS 스택이 비워진 후 네이티브가 동작하도록)
+          //console.log("클릭이벤트22");
+		  //NativeApp.handlePlayButtonClick();
+          //sendWatchListAddSignToNative();
+		  
+		  const target = document.getElementById("view_iframe");
+          target.focus();
+		  
+        } else {
+            // Fallback 로직
+            const overlay = document.querySelector('.bo_v_mov_overlay');
+            if (overlay) overlay.remove();
+            const bovmov = document.querySelector('.bo_v_mov');
+            if (bovmov) {
+                bovmov.style.setProperty('height', '480px', 'important');
+                bovmov.style.setProperty('display', 'block', 'important');
+            }
+        }
+    };
 
 
-	//하위 프레임에 메세지를 보내서 비디오 메타데이터 로드되었는지 확인
-    const iframe = document.getElementById('view_iframe');
-    if (!iframe) return;
-    iframe.contentWindow.postMessage(
-        { type: 'CHECK_METADATA', payload: 'CHECK_METADATA' },
-        '*' // 또는 정확한 origin (권장)
-    );
+
+    // 마우스 클릭 대응
+    playButton.onclick = handlePlayAction;
+	playButton.onfocus = () => {		
+		document.getElementById("view_iframe")?.focus();
+		playButton.style.outline = "2px solid #4da3ff";
+		playButton.style.outlineOffset = "2px";
+	}
+	
+
+
+    // 리모컨/키보드 대응 (Enter 또는 Space가 기본 클릭을 유발하지만, 명시적으로 제어)
+    playButton.onkeydown = (e) => {
+        if (e.keyCode === 13 || e.keyCode === 32) { // Enter or Space
+            handlePlayAction(e);
+        }
+    };
+
+
+  }
+
+	//로딩서클 오버레이
+	if (container) {
+    //로딩중 오버레이
+    const loadingOverlaystyle = document.createElement('style');
+    loadingOverlaystyle.textContent = `
+    #userscript-loading-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.9);
+        z-index: 999999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+	#userscript-loading-spinner {
+		width: 68px;
+		height: 68px;
+		border: 6px solid transparent;  /* 전체 두께, 투명 */
+		border-top-color: #00FF00;       /* 12시 방향 */
+		border-right-color: #00FF00;     /* 3시 방향 */
+		border-bottom-color: #00FF00;    /* 6시 방향 */
+		border-radius: 50%;
+		animation: userscript-spin 1s linear infinite;
+	}
+
+
+    @keyframes userscript-spin {
+        to { transform: rotate(360deg); }
+    }
+    `;
+    document.head.appendChild(loadingOverlaystyle);
+
+    if (document.getElementById('userscript-loading-overlay')) return;
+
+    const overlay = document.createElement('div');
+    overlay.id = 'userscript-loading-overlay';
+
+    const spinner = document.createElement('div');
+    spinner.id = 'userscript-loading-spinner';
+
+    overlay.appendChild(spinner);
+    document.body.appendChild(overlay);
+
+    }
+	
+	//비디오 영역 숨기기
+	const movDiv = document.querySelector('.bo_v_mov');
+	if (!movDiv) return;
+	movDiv.style.setProperty('height', '0px', 'important');
+	movDiv.style.setProperty('display', 'flex', 'important');
+
+	//자식으로부터 비디오 로드 완료 여부 수신받기
+	window.addEventListener('message', (event) => {
+		//재생 버튼 표시하고 오버레이 지우기
+		if (event.data?.action === "VIDEO_READY") {			
+			NativeApp.jsLog("userscript: 비디오 준비 완료 수신");
+			const playButton = document.getElementById('playButton');
+			playButton.style.display = 'flex';
+			const overlay = document.getElementById('userscript-loading-overlay');
+			if (overlay) overlay.remove();				
+			clearInterval(interval);				
+		}
+	});
+
+
 })();
+
+
+//재생 페이지에서 재생 버튼 탈출과 이동
+(function() {
+	
+	
+	function moveFocusFrom(current, direction) {
+		const currentRect = current.getBoundingClientRect();
+
+		const candidates = [...document.querySelectorAll(
+			'button, a, input, select, textarea, [tabindex]:not([tabindex="-1"])'
+		)].filter(el =>
+			el !== current &&
+			el.offsetParent !== null // 화면에 보이는 요소만
+		);
+
+		let best = null;
+		let bestDistance = Infinity;
+
+		for (const el of candidates) {
+			const r = el.getBoundingClientRect();
+
+			let valid = false;
+
+			switch (direction) {
+				case "ArrowUp":
+					valid = r.bottom <= currentRect.top;
+					break;
+				case "ArrowDown":
+					valid = r.top >= currentRect.bottom;
+					break;
+				case "ArrowLeft":
+					valid = r.right <= currentRect.left;
+					break;
+				case "ArrowRight":
+					valid = r.left >= currentRect.right;
+					break;
+			}
+
+			if (!valid) continue;
+
+			const dx = (r.left + r.width / 2) - (currentRect.left + currentRect.width / 2);
+			const dy = (r.top + r.height / 2) - (currentRect.top + currentRect.height / 2);
+			const distance = Math.hypot(dx, dy);
+
+			if (distance < bestDistance) {
+				bestDistance = distance;
+				best = el;
+			}
+		}
+
+		if (best) {
+			best.focus({ preventScroll: true });
+			best.scrollIntoView({
+				block: "nearest",
+				inline: "nearest",
+				behavior: "auto"
+			});
+		} else {
+			switch (direction) {
+				case "ArrowUp":
+					window.scrollBy({ top: -150, behavior: "auto" });
+					break;
+
+				case "ArrowDown":
+					window.scrollBy({ top: 150, behavior: "auto" });
+					break;
+			}
+		}
+	}
+	
+	window.addEventListener("message", (event) => {
+		if (event.data?.action !== "IFRAME_MOVE_FOCUS") return;
+
+		const current = document.getElementById("playButton");
+		if (!current) return;
+
+		moveFocusFrom(current, event.data.direction);
+	});
+	
+	
+})();
+
+
 //비디오 플레이어의 워터마크 사용 여부 판단
 (function () {
 
+	if (pageNumber < 2) return;//재생페이지가 아니면 사용하지 않음
     // 등록일 체크
     const text = document.querySelector('.profile_info_ct li')?.textContent || '';
 

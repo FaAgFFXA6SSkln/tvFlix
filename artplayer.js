@@ -3952,57 +3952,95 @@
 
 
 //추가 코드
+document.addEventListener("keyup", (event) => {
 
-/*
-window.addEventListener("message", (event) => {
-    const art = window._art;
-    if (!art) return;
-    switch (event.data.action) {	
-        case "CLICK_PLAY_BUTTON":
-            art.play();
+    switch (event.code) {
+
+        // 재생 / 일시정지
+        case "KeyF":
+        case "Enter":
+        case "NumpadEnter":
+        case "Space":
+            console.log("재생키 감지");
+
+            if (_art.playing) {
+                _art.pause();
+            } else {
+                _art.play();
+            }
             break;
 
-        case "CLICK_PAUSE_BUTTON":
-            art.pause();
+        // 볼륨 증가
+        case "ArrowUp":
+            event.preventDefault();
+            _art.volume = Math.min(1, _art.volume + 0.1);
+            console.log("Volume:", _art.volume);
+            break;
+
+        // 볼륨 감소
+        case "ArrowDown":
+            event.preventDefault();
+            _art.volume = Math.max(0, _art.volume - 0.1);
+            console.log("Volume:", _art.volume);
+            break;
+
+        // 10초 되감기
+        case "ArrowLeft":
+            event.preventDefault();
+            _art.currentTime = Math.max(0, _art.currentTime - 10);
+            break;
+
+        // 10초 앞으로
+        case "ArrowRight":
+            event.preventDefault();
+            _art.currentTime = Math.min(
+                _art.duration,
+                _art.currentTime + 10
+            );
             break;
     }
 });
-*/
 
-						//추가 코드
-						
-			//풀스크린 종료 시 자동 일시정지
-			document.addEventListener("keydown", (event) => {
-				const isPlayKey =
-					event.code === "KeyF" ||
-					event.code === "Enter" ||
-					event.code === "NumpadEnter" ||
-					event.code === "Space" ||
-					event.key === "Enter" ||
-					event.key === "Select" ||
-					event.keyCode === 23 ||   // DPAD_CENTER
-					event.keyCode === 66 ||   // ENTER
-					event.key === "MediaPlayPause";
-
-				if (!isPlayKey) return;
-
-				console.log("재생키 감지", event);
-
-				event.preventDefault();
-
-				if (_art.playing) {
-					_art.pause();
-				} else {
-					_art.play();
-				}
-			});
-	
-			window.addEventListener("message", (event) => { 
-				if (event.data.action === "CLICK_PLAY_BUTTON") { 
-					//e.play(); 
-				} 
-			});
-			
-			window._art.on('ready', () => {
-			console.log('ArtPlayer ready');
+document.addEventListener("fullscreenchange", () => {
+    if (!document.fullscreenElement && window._art?.playing) {
+        window._art.pause();
+    }
 });
+
+window.addEventListener("keydown", (e) => {
+
+    // fullscreen이면 ArtPlayer가 그대로 처리
+    if (document.fullscreenElement) return;
+
+	NativeApp.jsLog("풀스크린 아닌 상태에서 방향키 받음");
+
+    switch (e.code) {
+        case "ArrowUp":
+        case "ArrowDown":
+        case "ArrowLeft":
+        case "ArrowRight":
+            e.preventDefault();
+
+            window.top.postMessage({
+                action: "IFRAME_MOVE_FOCUS",
+                direction: e.code
+            }, "*");
+            break;
+    }
+});
+
+
+//비디오가 준비되면 실행되는 이벤트
+(function waitReady() {
+    const timer = setInterval(() => {
+        const video = window._art?.video;
+        if (!video) return;
+
+        if (video.readyState >= 3) {
+            clearInterval(timer);
+			window.top.postMessage({
+				action: "VIDEO_READY"
+			}, "*");
+        }
+    }, 100);
+})();
