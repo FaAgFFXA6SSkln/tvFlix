@@ -1902,7 +1902,6 @@ function hideById(id) {
 	
 })();
 
-
 //비디오 플레이어의 워터마크 사용 여부 판단
 (function () {
 
