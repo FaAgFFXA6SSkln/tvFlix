@@ -1871,6 +1871,12 @@ function hideById(id) {
 			if (!current) return;			
 			moveFocusFrom(current, event.data.direction);
 		}
+		
+		else {
+			
+			NativeApp.jsLog(event.data?.action);
+		}
+			
 	});
 })();
 

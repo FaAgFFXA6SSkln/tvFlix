@@ -4023,7 +4023,8 @@ window.addEventListener("keydown", (e) => {
 			NativeApp.jsLog("artplayer: 풀스크린 아닌 상태, 방향키 수신");
 
             window.top.postMessage({
-                action: "REMOVE_PLAYBUTTON_FOCUS"
+                action: "IFRAME_MOVE_FOCUS",
+                direction: e.code
             }, "*");
             break;
     }
