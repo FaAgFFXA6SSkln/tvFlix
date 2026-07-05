@@ -4008,7 +4008,6 @@ document.addEventListener("fullscreenchange", () => {
     }
 });
 
-
 //키 입력 처리
 window.addEventListener("keydown", (e) => {
 
@@ -4024,8 +4023,7 @@ window.addEventListener("keydown", (e) => {
 			NativeApp.jsLog("artplayer: 풀스크린 아닌 상태, 방향키 수신");
 
             window.top.postMessage({
-                action: "IFRAME_MOVE_FOCUS",
-                direction: e.code
+                action: "REMOVE_PLAYBUTTON_FOCUS"
             }, "*");
             break;
     }

@@ -1609,8 +1609,74 @@ function hideById(id) {
 (function() {
 	if (isWebBrowser) return;//일반 웹브라우저에서는 숨기지 않음
 	if (pageNumber < 2) return;//재생페이지가 아니면 숨기지 않음
+	
+	//재생 버튼 탈출을 위한 함수
+	function moveFocusFrom(current, direction) {
+		const currentRect = current.getBoundingClientRect();
 
-	//재생 버튼 생성하기
+		const candidates = [...document.querySelectorAll(
+			'button, a, input, select, textarea, [tabindex]:not([tabindex="-1"])'
+		)].filter(el =>
+			el !== current &&
+			el.offsetParent !== null // 화면에 보이는 요소만
+		);
+
+		let best = null;
+		let bestDistance = Infinity;
+
+		for (const el of candidates) {
+			const r = el.getBoundingClientRect();
+
+			let valid = false;
+
+			switch (direction) {
+				case "ArrowUp":
+					valid = r.bottom <= currentRect.top;
+					break;
+				case "ArrowDown":
+					valid = r.top >= currentRect.bottom;
+					break;
+				case "ArrowLeft":
+					valid = r.right <= currentRect.left;
+					break;
+				case "ArrowRight":
+					valid = r.left >= currentRect.right;
+					break;
+			}
+
+			if (!valid) continue;
+
+			const dx = (r.left + r.width / 2) - (currentRect.left + currentRect.width / 2);
+			const dy = (r.top + r.height / 2) - (currentRect.top + currentRect.height / 2);
+			const distance = Math.hypot(dx, dy);
+
+			if (distance < bestDistance) {
+				bestDistance = distance;
+				best = el;
+			}
+		}
+
+		if (best) {
+			best.focus({ preventScroll: true });
+			best.scrollIntoView({
+				block: "nearest",
+				inline: "nearest",
+				behavior: "auto"
+			});
+		} else {
+			switch (direction) {
+				case "ArrowUp":
+					window.scrollBy({ top: -150, behavior: "auto" });
+					break;
+
+				case "ArrowDown":
+					window.scrollBy({ top: 150, behavior: "auto" });
+					break;
+			}
+		}
+	}
+
+	//재생 버튼 생성
 	const container = document.querySelector('div.bo_v_mov');
 	if (container) {
 		// 새로운 컨테이너 생성
@@ -1703,11 +1769,24 @@ function hideById(id) {
 
     // 마우스 클릭 대응
     playButton.onclick = handlePlayAction;
-	playButton.onfocus = () => {		
+	playButton.onfocus = () => {
 		document.getElementById("view_iframe")?.focus();
-		playButton.style.outline = "2px solid #4da3ff";
-		playButton.style.outlineOffset = "2px";
-	}
+
+		playButton.style.setProperty("z-index", "9999", "important");
+		playButton.style.setProperty("background-color", "#552E00", "important");
+		playButton.style.setProperty("outline", "4px solid #FFD700", "important");
+		playButton.style.setProperty("outline-offset", "0px", "important");
+		playButton.style.setProperty(
+			"box-shadow",
+			"0 0 0 400px #552E00 inset, 0 0 400px rgba(255, 215, 0, 1)",
+			"important"
+		);
+		playButton.style.setProperty(
+			"transition",
+			"outline-color 0.2s, box-shadow 0.2s",
+			"important"
+		);
+	};
 	
 
 
@@ -1767,26 +1846,32 @@ function hideById(id) {
 
     }
 	
-	//비디오 영역 숨기기
+	//기존 비디오 영역 숨기기
 	const movDiv = document.querySelector('.bo_v_mov');
 	if (!movDiv) return;
 	movDiv.style.setProperty('height', '0px', 'important');
 	movDiv.style.setProperty('display', 'flex', 'important');
 
-	//자식으로부터 비디오 로드 완료 여부 수신받기
+	//Post Message 수신 받기
 	window.addEventListener('message', (event) => {
 		//재생 버튼 표시하고 오버레이 지우기
 		if (event.data?.action === "VIDEO_READY") {			
-			NativeApp.jsLog("userscript: 비디오 준비 완료 수신");
 			const playButton = document.getElementById('playButton');
 			playButton.style.display = 'flex';
 			const overlay = document.getElementById('userscript-loading-overlay');
 			if (overlay) overlay.remove();				
 			clearInterval(interval);				
 		}
+		
+		//재생 버튼에서 탈출하기 위한 메시지
+		else if (event.data?.action === "IFRAME_MOVE_FOCUS") {
+			const current = document.getElementById("playButton");
+			
+			NativeApp.jsLog("메시지 확인 ");
+			if (!current) return;			
+			moveFocusFrom(current, event.data.direction);
+		}
 	});
-
-
 })();
 
 
@@ -1795,78 +1880,15 @@ function hideById(id) {
 (function() {
 	
 	
-	function moveFocusFrom(current, direction) {
-		const currentRect = current.getBoundingClientRect();
 
-		const candidates = [...document.querySelectorAll(
-			'button, a, input, select, textarea, [tabindex]:not([tabindex="-1"])'
-		)].filter(el =>
-			el !== current &&
-			el.offsetParent !== null // 화면에 보이는 요소만
-		);
-
-		let best = null;
-		let bestDistance = Infinity;
-
-		for (const el of candidates) {
-			const r = el.getBoundingClientRect();
-
-			let valid = false;
-
-			switch (direction) {
-				case "ArrowUp":
-					valid = r.bottom <= currentRect.top;
-					break;
-				case "ArrowDown":
-					valid = r.top >= currentRect.bottom;
-					break;
-				case "ArrowLeft":
-					valid = r.right <= currentRect.left;
-					break;
-				case "ArrowRight":
-					valid = r.left >= currentRect.right;
-					break;
-			}
-
-			if (!valid) continue;
-
-			const dx = (r.left + r.width / 2) - (currentRect.left + currentRect.width / 2);
-			const dy = (r.top + r.height / 2) - (currentRect.top + currentRect.height / 2);
-			const distance = Math.hypot(dx, dy);
-
-			if (distance < bestDistance) {
-				bestDistance = distance;
-				best = el;
-			}
-		}
-
-		if (best) {
-			best.focus({ preventScroll: true });
-			best.scrollIntoView({
-				block: "nearest",
-				inline: "nearest",
-				behavior: "auto"
-			});
-		} else {
-			switch (direction) {
-				case "ArrowUp":
-					window.scrollBy({ top: -150, behavior: "auto" });
-					break;
-
-				case "ArrowDown":
-					window.scrollBy({ top: 150, behavior: "auto" });
-					break;
-			}
-		}
-	}
+	
+	
+	
+	
+	
 	
 	window.addEventListener("message", (event) => {
-		if (event.data?.action !== "IFRAME_MOVE_FOCUS") return;
 
-		const current = document.getElementById("playButton");
-		if (!current) return;
-
-		moveFocusFrom(current, event.data.direction);
 	});
 	
 	
@@ -2057,8 +2079,6 @@ function createLayout() {
       }
     });
   }
-
-  createLayout();
 
   createLayout();
 
