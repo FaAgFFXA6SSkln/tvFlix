@@ -4012,14 +4012,13 @@ window.addEventListener("keydown", (e) => {
     // fullscreen이면 ArtPlayer가 그대로 처리
     if (document.fullscreenElement) return;
 
-	NativeApp.jsLog("풀스크린 아닌 상태에서 방향키 받음");
-
     switch (e.code) {
         case "ArrowUp":
         case "ArrowDown":
         case "ArrowLeft":
         case "ArrowRight":
             e.preventDefault();
+			NativeApp.jsLog("artplayer: 풀스크린 아닌 상태, 방향키 수신");
 
             window.top.postMessage({
                 action: "IFRAME_MOVE_FOCUS",
