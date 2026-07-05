@@ -80,46 +80,18 @@ function hideById(id) {
 
 
 
+
+
 // ==============================================================================================================
 // 2. 웹사이트 요소 제거
 // ==============================================================================================================
 (function() {
-
+	
 	//공통 제거
 	const elementsToRemove = [
-	'div.notice',
-	'a.logo',
-	'.gnb_mobile',
-	'.top_btn',
-	'.ep_search',
-	'.good',
-	'.emer-content',
-	'.cast',
-	'.view-comment-area',
-	'.over',
-	'#bo_v_act',
-	'#bo_vc',
-	'#float',
-	'ul.banner2',
-	'li.full.pc-only',
-	'li.full.mobile-only',
-	'.search_title_mobile',
-	'.category',
-	'nav.gnb.sf-js-enabled.sf-arrows',
-	'a.btn_login',
-	'#bnb',
-	'#footer',
-	'.search_wrap ul',
-	'.layer-footer',
-	'.genre',
-	'#other_list ul li p',
-	'#footer_wrap',
-	'.player-select',
-	'#playerBar',
-	'.player-hover-wrap',
-	'.btn_history',
-	'#btnScrollTop',
-	'div.search_title_pc'
+	'div.notice', 'a.logo', '.gnb_mobile', '.top_btn', '.profile_info_ct','.ep_search', '.good', '.emer-content',  '.cast','.view-comment-area', '.over', '#bo_v_act', '#bo_vc', '#float','div.notice',
+	  'ul.banner2', 'li.full.pc-only', 'li.full.mobile-only', '.search_title_mobile', '.category', 'nav.gnb.sf-js-enabled.sf-arrows', 'a.btn_login', '#bnb', '#footer', '.search_wrap ul', '.layer-footer',
+	  '.genre', '#other_list ul li p', '#footer_wrap', '.player-select', '#playerBar', '.player-hover-wrap', '.btn_history', '#btnScrollTop', 'div.search_title_pc'
 	];
 	elementsToRemove.forEach(selector => {
 	  document.querySelectorAll(selector).forEach(element => {
@@ -127,22 +99,22 @@ function hideById(id) {
 	  });
 	});
 
-	//홈화면	첫번째 슬라이드랩 제거
+	//홈화면	첫번째 슬라이드랩 제거		
 	if (pageNumber == 0) removeByClassName('div.slide_wrap');
 
 
 	//TV 환경: 상단 검색 바 제거
-	if (isRunningOnTv) {
-
-		hideById('header_wrap');//검색 버튼이 포함된 상단 WRAP을 안보이게 처리
+	if (isRunningOnTv) {				
+		
+		hideById('header_wrap');//검색 버튼이 포함된 상단 WRAP을 안보이게 처리		
 		hideByClassName('.btn_search')//검색 버튼 숨기기
 		disableFocusByClassName('.btn_search');//검색 버튼 포커스 제거
-		removeById('sch_submit');//검색창의 검색 실행 버튼 제거
+		removeById('sch_submit');//검색창의 검색 실행 버튼 제거		
 	}
 
 
 	//TV 환경에서 재생 페이지 회차별 썸네일 제거. 삭제하기 전에 비디오 썸네일 주소 저장하기
-	if (pageNumber > 1) {
+	if (pageNumber > 1) {	  
 	  const currentVideoTitle = document.querySelector('.bo_v_tit');
 	  if (currentVideoTitle) {
 		const videoTitleText = currentVideoTitle.textContent;
@@ -167,13 +139,13 @@ function hideById(id) {
 				img.remove();
 			}
 		});
-	  }
+	  }		  
 	}
 
-
+  
 	//재생 페이지에서 회차가 하나밖에 없는 경우, 회차 영역 전체를 제거
-	//재생 페이지에서 회차가 여러개인 경우, 다음화 자동재생을 위해 에피소드 제목을 목록 배열에 추가
-	if (pageNumber > 1) {
+	//재생 페이지에서 회차가 여러개인 경우, 다음화 자동재생을 위해 에피소드 제목을 목록 배열에 추가  
+	if (pageNumber > 1) {  
 		const target = document.querySelector('#other_list');
 		if (target) {
 	  const ul = target.querySelector('ul');
@@ -188,20 +160,20 @@ function hideById(id) {
 		  // 에피소드 리스트에 에피소드가 여러개라면, 현재 에피소드 제목과 리스트를 비교하여 다음 에피소드 링크를 저장
 		  } else {
 			  //현재 회차가 마지막 회차라면 다음화 버튼을 제거
-
-
+			  
+			  
 			// 재생 페이지 제목에서 '다시보기 텍스트 제거 ('.bo_v_tit' 요소에서 '다시보기' 텍스트 제거)
 			document.querySelectorAll('.bo_v_tit').forEach(element => {
 			  // 정규 표현식을 사용하여 모든 '다시보기' 문자열을 빈 문자열로 대체하고 앞뒤 공백 제거
 			  if (element.textContent.includes('다시보기')) {
 				  element.textContent = element.textContent.replace(/다시보기/g, '').trim();
-				  thisEpisodeTitle = element.textContent;
+				  thisEpisodeTitle = element.textContent;	  
 			  }
 			});
-
-			  //NativeApp.jsLog(thisEpisodeTitle);
-			  //NativeApp.jsLog(target.querySelector('li a.title.on').textContent.trim());
-
+			  
+			  NativeApp.jsLog(thisEpisodeTitle);
+			  NativeApp.jsLog(target.querySelector('li a.title.on').textContent.trim());
+			  
 			  if (thisEpisodeTitle == target.querySelector('li a.title.on').textContent.trim()) {
 				  const btn_next = document.querySelector('.btn_next a');
 					if (btn_next) {
@@ -245,12 +217,15 @@ function hideById(id) {
 			  }
 		  }
 	  }
-	}
+	}	  
   }
 
 })();
 // ==============================================================================================================
-// ==============================================================================================================
+// 
+
+
+
 
 
 
@@ -397,16 +372,6 @@ function hideById(id) {
 })();
 
 
-
-// 재생 페이지'.bo_v_mov'에 '동영상 재생' 버튼 추가: TV(O)::Phone(O)::Web(X)
-
-
-(function() {
-  if (isWebBrowser) return;
-
-
-
-})();
 
 
 // ==============================================================================================================
@@ -1037,6 +1002,7 @@ function hideById(id) {
       a.setAttribute('tabindex', '0');
   });
 
+/*
   document.forms["fsearchbox"].addEventListener("submit", function (e) {
     const input = document.getElementById("sch_stx");
 
@@ -1046,6 +1012,7 @@ function hideById(id) {
         input.focus();// 포커스 다시 주기 (선택)
     }
   });
+  */
 
 })();
 //영화, 외국 드라마 페이지 버튼 겹침 해결: TV(O)::Phone(O)::Web(O)
@@ -1145,7 +1112,7 @@ function hideById(id) {
 
 	// 웹뷰 여부에 따라 스킵
 	if (isWebBrowser) return;
-
+/*
 	//G보드 기본 자동완성 기능 막기
 	const input = document.getElementById('sch_stx');
 	input.setAttribute('autocomplete', 'off');
@@ -1294,6 +1261,8 @@ function hideById(id) {
             container.style.visibility = 'hidden';
         }
     });
+	
+	*/
 
 })();
 //Monkey 지원 웹브라우저
@@ -1821,6 +1790,7 @@ function hideById(id) {
 })();
 
 
+
 //재생 페이지에서 재생 버튼 탈출과 이동
 (function() {
 	
@@ -1989,15 +1959,25 @@ function hideById(id) {
   if (bodyWrap) bodyWrap.remove();
 
   // 스타일 주입
+// 스타일 주입
   const style = document.createElement('style');
   style.textContent = `
+    /* 브라우저 기본 여백 제거 및 스크롤 차단 */
+    body {
+      margin: 0 !important;
+      padding: 0 !important;
+      overflow: hidden !important;
+      background: #141414 !important;
+    }
+
     .tv-container {
-      position: absolute;
+      position: fixed; /* absolute 대신 fixed를 사용하여 화면 전체를 확실히 덮음 */
       inset: 0;
       background: #141414;
       display: flex;
       align-items: center;
       justify-content: center;
+      z-index: 999999; /* 기존 웹사이트의 모든 잔여 요소를 덮어버림 */
     }
 
     .tv-grid {
@@ -2029,13 +2009,14 @@ function hideById(id) {
       transition: transform 0.2s ease;
     }
 
-    .tv-card:focus {
+    .tv-card:focus, .tv-card:hover {
       transform: translateZ(0) scale(1.08);
+      background: #3a3a3a; /* 포커스 시 색상도 살짝 밝게 변경 (선택사항) */
     }
   `;
   document.head.appendChild(style);
 
-  function createLayout() {
+function createLayout() {
     const fragment = document.createDocumentFragment();
 
     const container = document.createElement('div');
@@ -2044,11 +2025,18 @@ function hideById(id) {
     const grid = document.createElement('div');
     grid.className = 'tv-grid';
 
+    let firstCard = null; // 첫 번째 카드를 저장할 변수
+
     for (let i = 0; i < names.length; i++) {
       const card = document.createElement('div');
       card.className = 'tv-card';
       card.tabIndex = 0;
       card.textContent = names[i];
+
+      // i가 0일 때(첫 번째 순서일 때) firstCard 변수에 저장
+      if (i === 0) {
+        firstCard = card;
+      }
 
       card.addEventListener('click', () => {
         window.location.href = links[i];
@@ -2062,8 +2050,15 @@ function hideById(id) {
 
     requestAnimationFrame(() => {
       document.body.appendChild(fragment);
+      
+      // 화면에 요소가 추가된 직후 첫 번째 카드에 포커스 부여
+      if (firstCard) {
+        firstCard.focus();
+      }
     });
   }
+
+  createLayout();
 
   createLayout();
 
@@ -2101,8 +2096,4 @@ function hideById(id) {
 	NativeApp.jsLog("UserScript 로드 완료");
 	const now = performance.now();
 	NativeApp.jsLog(`경과 시간: ${now.toFixed(3)} ms`);
-
-
-	LoadVideoPlayButton();
-
 })();

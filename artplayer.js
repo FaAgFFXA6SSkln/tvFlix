@@ -3968,7 +3968,10 @@ document.addEventListener("keyup", (event) => {
         event.key === "MediaPlayPause";
 
     if (isPlayKey) {
-        if (_art.playing) {
+        
+		NativeApp.jsLog("artplayer: 풀스크린 아닌 상태, 확인키 수신");
+		
+		if (_art.playing) {
             _art.pause();
         } else {
             _art.play();
@@ -3998,8 +4001,6 @@ document.addEventListener("keyup", (event) => {
             break;
     }
 });
-
-
 
 document.addEventListener("fullscreenchange", () => {
     if (!document.fullscreenElement && window._art?.playing) {
