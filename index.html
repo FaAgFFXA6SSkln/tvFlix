@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <!-- 아이폰 전체 화면 및 노치 영역 디자인 대응(viewport-fit=cover) 및 확대 방지 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <!-- 아이폰 사파리 전체 화면(웹앱 모드) 활성화 태그 -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <!-- 상단 상태바(배터리, 시간 표시줄)를 투명하게 만들어 콘텐츠를 꽉 채움 -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <!-- 홈 화면에 저장될 기본 앱 이름 -->
+    <meta name="apple-mobile-web-app-title" content="삼성보안">
+
+    <title>SAMSUNG E&A 보안정책</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Noto Sans KR', sans-serif;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #ff0000;
+            transition: background-color 0.05s ease;
+        }
+
+        body.state-red {
+            background: linear-gradient(to bottom, #cc0000 0%, #e60000 65%, #660000 100%);
+        }
+        body.state-orange {
+            background: linear-gradient(to bottom, #ff5500 0%, #ff7700 65%, #882200 100%);
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            color: #ffffff;
+            text-align: center;
+            /* 아이폰 상하단 노치 및 홈바 여백 레이아웃 자동 확보 */
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        .header {
+            margin-top: 30px; /* 전체 화면 대응을 위해 상단 여백 살짝 조정 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+        .header h1 {
+            font-size: 38px;
+            font-weight: 700;
+            color: #121858;
+            letter-spacing: 0.2px;
+        }
+        .header .camera-icon {
+            width: 38px;
+            height: 28px;
+            background-color: #d84315;
+            border-radius: 6px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .header .camera-icon::after {
+            content: '';
+            width: 16px;
+            height: 16px;
+            background-color: #ffea00;
+            border-radius: 50%;
+        }
+
+        .phone-number {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 12px;
+            font-weight: 400;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding-top: 20px;
+        }
+
+        .date-string {
+            font-size: 32px;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.85);
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        .time-string {
+            font-size: 82px;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: -1px;
+            line-height: 1;
+            margin-bottom: 40px;
+        }
+
+        /* 정밀 수정된 자물쇠 영역 */
+        .lock-area {
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0.1) 70%);
+            border: 1.5px solid rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            margin-bottom: 45px;
+            position: relative;
+        }
+        
+        .lock-visual {
+            width: 32px;
+            height: 25px;
+            background-color: #ffffff;
+            border-radius: 5px;
+            position: relative;
+            margin-top: 16px;
+        }
+        
+        .lock-visual::before {
+            content: '';
+            width: 22px;
+            height: 23px;
+            border: 4.5px solid #ffffff;
+            border-bottom: none;
+            border-radius: 11px 11px 0 0;
+            position: absolute;
+            top: -19px;
+            left: 5px;
+            box-sizing: border-box;
+        }
+
+        .policy-text {
+            font-size: 16px;
+            color: #ffffff;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        .policy-time {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 6px;
+            font-weight: 400;
+        }
+
+        .bottom-menu {
+            background-color: rgba(0, 0, 0, 0.18);
+            padding: 22px 0 18px 0;
+        }
+        
+        .menu-grid {
+            display: flex;
+            justify-content: space-around;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .menu-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .menu-item svg {
+            width: 32px;
+            height: 32px;
+            fill: rgba(255, 255, 255, 0.9);
+        }
+
+        .menu-item span {
+            font-size: 11px;
+            color: #ffffff;
+            font-weight: 500;
+        }
+
+        .restricted-section {
+            background-color: rgba(0, 0, 0, 0.32);
+            padding: 20px 25px 35px 25px;
+            text-align: left;
+        }
+
+        .restricted-title {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 20px;
+            font-weight: 500;
+            padding-left: 5px;
+        }
+
+        .restricted-grid {
+            display: flex;
+            gap: 40px;
+            padding-left: 10px;
+        }
+
+        .restricted-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .restricted-item svg {
+            width: 32px;
+            height: 32px;
+            fill: rgba(255, 255, 255, 0.5);
+        }
+
+        .restricted-item span {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .version-text {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.3);
+            text-align: center;
+            margin-top: 25px;
+            font-family: sans-serif;
+        }
+    </style>
+</head>
+<body class="state-red">
+
+    <div class="container">
+        <!-- 헤더 -->
+        <div class="header">
+            <h1>SAMSUNG E&A</h1>
+            <div class="camera-icon"></div>
+        </div>
+        <div class="phone-number">☎ 01085718642</div>
+
+        <!-- 메인 콘텐츠 -->
+        <div class="main-content">
+            <div class="date-string" id="current-date">2026-07-08(수)</div>
+            <div class="time-string" id="current-time">17:32:03</div>
+
+            <!-- 자물쇠 -->
+            <div class="lock-area">
+                <div class="lock-visual"></div>
+            </div>
+
+            <div class="policy-text">보안정책 적용</div>
+            <div class="policy-time">적용시간 : 2026-07-08 06:14:15</div>
+        </div>
+
+        <!-- 하단 버튼 메뉴 -->
+        <div class="bottom-menu">
+            <div class="menu-grid">
+                <div class="menu-item">
+                    <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
+                    <span>공지/약관</span>
+                </div>
+                <div class="menu-item">
+                    <svg viewBox="0 0 24 24"><path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.977.977 0 0 0-1.01.24l-2.2 2.2c-2.83-1.44-5.15-3.75-6.59-6.59l2.2-2.21c.28-.26.36-.65.25-1A11.36 11.36 0 0 1 8.5 4c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1 0 9.39 7.61 17 17 17 .55 0 1-.45 1-1v-3.5c0-.55-.45-1-1-1z"/></svg>
+                    <span>헬프데스크</span>
+                </div>
+                <div class="menu-item" onclick="location.reload();">
+                    <svg viewBox="0 0 24 24"><path d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+                    <span>Refresh</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 제한된 기능 영역 -->
+        <div class="restricted-section">
+            <div class="restricted-title">제한된 기능</div>
+            <div class="restricted-grid">
+                <div class="restricted-item">
+                    <svg viewBox="0 0 24 24"><path d="M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/></svg>
+                    <span>카메라</span>
+                </div>
+                <div class="restricted-item">
+                    <svg viewBox="0 0 24 24"><path d="M15 7v4h1V7h-2zm-3 0v4h1V7h-1zm-3 0v4h1V7H9zm6-5H9c-1.1 0-2 .9-2 2v3h10V4c0-1.1-.9-2-2-2zm2 14c0 1.1-.9 2-2 2h-1v2h-2v-2h-2v2H9v-2H8c-1.1 0-2-.9-2-2v-7h12v7z"/></svg>
+                    <span>USB</span>
+                </div>
+                <div class="restricted-item">
+                    <svg viewBox="0 0 24 24"><path d="M18 2h-8L4 8v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM9 4h2v4H9V4zm-3 6h2v4H6v-4zm3 4h2v4H9v-4zm6 4h-2v-4h2v4zm0-6h-2V8h2v4z"/></svg>
+                    <span>SD카드</span>
+                </div>
+            </div>
+            <div class="version-text">삼성 모바일보안 4.0.49</div>
+        </div>
+    </div>
+
+    <script>
+        // 실시간 시간 로직
+        function updateTime() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const date = String(now.getDate()).padStart(2, '0');
+            const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
+            const dayOfWeek = weekDays[now.getDay()];
+            
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            
+            document.getElementById('current-date').innerText = `${year}-${month}-${date}(${dayOfWeek})`;
+            document.getElementById('current-time').innerText = `${hours}:${minutes}:${seconds}`;
+        }
+
+        updateTime();
+        setInterval(updateTime, 1000);
+
+        // 0.5초(500ms) 색상 토글
+        const bodyEl = document.body;
+        setInterval(() => {
+            if (bodyEl.classList.contains('state-red')) {
+                bodyEl.classList.remove('state-red');
+                bodyEl.classList.add('state-orange');
+            } else {
+                bodyEl.classList.remove('state-orange');
+                bodyEl.classList.add('state-red');
+            }
+        }, 500);
+    </script>
+</body>
+</html>
+
