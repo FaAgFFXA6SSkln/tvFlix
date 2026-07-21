@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Samsung E&A Demo</title>
+<style>
+html, body {
+  margin: 0;
+  height: 100%;
+  font-family: Arial, sans-serif;
+  color: #fff;
+  overflow: hidden;
+}
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #d83c4f;
+  transition: .08s;
+}
+.bg {
+  position: fixed;
+  inset: 0;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.05) 25%, transparent 25%) 0 0/120px 120px,
+    linear-gradient(315deg, rgba(255,255,255,.05) 25%, transparent 25%) 0 0/120px 120px;
+}
+.statusbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 28px;
+  background: #111;
+  z-index: 10;
+}
+
+/* 상단 막 추가 */
+.top-bar {
+  position: fixed;
+  top: 0px;
+  left: 0;
+  right: 0;
+  height: 200px;
+  background: rgba(68,68,68,.5);
+  display: flex;
+  justify-content:center;
+  align-items: center;
+  padding: 0 20px;
+  z-index: 10;
+}
+.top-bar .logo{
+    position:absolute;
+    top:-25px;
+    left:52%;
+    transform:translateX(-50%);
+    width:380px;      /* 크기 조절 */
+    height:auto;
+    display:block;
+    pointer-events:none;
+    user-select:none;
+}
+.phone{
+    position:absolute;
+    left:50%;
+    top:128px;           /* 기존 bottom 방식 대신 위에서 배치 */
+    transform:translateX(-50%);
+    font-size:15px;     /* 18px → 15px */
+    white-space:nowrap;
+}
+
+.top-bar .cam {
+  position: absolute;
+  right: 48px;
+  top: 76px;
+}
+
+.top-bar .cam img {
+    width: 36px;
+    height: auto;
+    display: block;
+    filter: none !important;
+}
+
+/* 하얀색 아이콘 공통 필터 */
+.white-icon {
+  filter: brightness(0) invert(1);
+  display: inline-block;
+}
+
+.card {
+  position: relative;
+  margin-top: -5px;
+  z-index: 1;
+  width: 95%;
+  max-width: 430px;
+  text-align: center;
+}
+
+.date {
+  margin-top: 20px;
+  font-size: 30px;
+  letter-spacing: 4px;
+}
+.time {
+  font-size: 64px;
+  letter-spacing: 1px;
+
+}
+.lock {
+  width: 72px;
+  height: 72px;
+  margin: 12px auto 18px;
+  font-size: 38px;
+  border-radius: 50%;
+  background: radial-gradient(#fff6,#0003);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:2px solid #fff8;
+}
+.state {
+  font-size: 24px;
+}
+.apply {
+  font-size: 18px;
+  margin-top: 8px;
+  letter-spacing: 3px;
+}
+
+/* 하단 바 및 메뉴 스타일 수정 */
+.bottom {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(68,68,68,.5);
+  padding: 16px 0 110px; /* 하단 위치를 띄우기 위해 bottom padding 증가 */
+  z-index: 10;
+}
+
+/* 하단 */
+.bottom{
+    padding:32px 0 60px;    /* 아이콘들을 아래로 */
+}
+
+.bot-item{
+    margin-top:10px;
+}
+
+.ver{
+    margin-top:22px;
+}
+
+
+.menu {
+  display: flex;
+  justify-content: space-around;
+  font-size: 14px;
+}
+.menu-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px; /* 아이콘과 글자 사이 간격 확보 */
+}
+.menu-item span {
+  font-size: 22px;
+  filter: brightness(0) invert(1); /* 하얀색 아이콘 */
+}
+
+.bot-item{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    color:#fff;
+    font-size:14px;
+}
+
+.bot-icon{
+    width:42px;
+    height:42px;
+    object-fit:contain;
+    margin-bottom:8px;
+    display:block;
+}
+
+
+.ver {
+  font-size: 12px;
+  text-align: center;
+  margin-top: 14px;
+  color: #ddd;
+}
+</style>
+</head>
+<body>
+
+<div class="bg"></div>
+<div class="statusbar"></div>
+
+<!-- 상단 막 -->
+<div class="top-bar">
+
+<img class="logo" src="https://i.postimg.cc/tRMr5jDr/sena.png" alt="SAMSUNG E&A">
+
+  <div class="cam">
+  <img src="https://i.postimg.cc/76G7Dv1h/file-00000000aa9482069a157d04ee054c36-(1).png">
+  </div>
+  <div class="phone">
+    <span class="white-icon">☎</span>
+    01083708642
+  </div>
+</div>
+
+  </div>
+
+<div class="card">
+  <div class="date" id="date"></div>
+  <div class="time" id="time"></div>
+  <div class="lock"><span class="white-icon">🔒</span></div>
+  <div class="state">보안정책 적용</div>
+  <div class="apply" id="apply"></div>
+</div>
+
+<!-- 하단 막 -->
+<div class="bottom">
+  <div class="menu">
+
+    <div class="bot-item">
+      <img src="https://i.postimg.cc/N9G7jvn6/file-000000002568822fab0ecd83e406425a-(4).png" class="bot-icon" alt="">
+      <div>공지/약관</div>
+    </div>
+
+    <div class="bot-item">
+      <img src="https://i.postimg.cc/MMZbpJL0/file-000000002568822fab0ecd83e406425a-(2).png" class="bot-icon" alt="">
+      <div>헬프데스크</div>
+    </div>
+
+    <div class="bot-item">
+      <img src="https://i.postimg.cc/5HSSJ2sn/file-000000002568822fab0ecd83e406425a-(1).png" class="bot-icon" alt="">
+      <div>Refresh</div>
+    </div>
+
+    <div class="bot-item">
+      <img src="https://i.postimg.cc/hz4btRY9/file-000000002568822fab0ecd83e406425a-(3).png" class="bot-icon" alt="">
+      <div>에이전트 삭제</div>
+    </div>
+
+  </div>
+
+  <div class="ver">삼성 모바일보안 4.0.41</div>
+</div>
+
+<script>
+function u(){
+  let n=new Date(), w=["일","월","화","수","목","금","토"];
+  date.textContent=`${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,"0")}-${String(n.getDate()).padStart(2,"0")}(${w[n.getDay()]})`;
+  time.textContent=`${String(n.getHours()).padStart(2,"0")} : ${String(n.getMinutes()).padStart(2,"0")} : ${String(n.getSeconds()).padStart(2,"0")}`;
+
+apply.textContent =
+`적용시간∶${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,"0")}-${String(n.getDate()).padStart(2,"0")} 06:15`;
+
+}
+u();
+setInterval(u,1000);
+
+let r=true;
+setInterval(()=>{
+  document.body.style.background=r?"#d83c4f":"#e5be00";
+  r=!r;
+},500);
+</script>
+</body>
+</html>
