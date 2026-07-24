@@ -16,7 +16,7 @@ async function getLatestUrl() {
 
   const text = await res.text();
 
-  const match = text.match(/hoohootv/);
+  const match = text.match(/https:/);
 
   if (match) {
     console.log("FOUND:", match[0]);
