@@ -8,7 +8,7 @@ function extractNumber(url) {
 }
 
 async function getLatestUrl() {
-  const res = await fetch("https://xn--9w3b43d58f04atzyznd.com/", {
+  const res = await fetch("https://telegra.ph/%ED%9B%84%ED%9B%84%ED%8B%B0%EB%B9%84-%EC%B5%9C%EC%8B%A0-%EC%A3%BC%EC%86%8C-09-03", {
     headers: {
       "User-Agent": "Mozilla/5.0"
     }
@@ -16,7 +16,7 @@ async function getLatestUrl() {
 
   const text = await res.text();
 
-  const match = text.match(/https:\/\/tvwiki\d+\.net/);
+  const match = text.match(/hoohootv/);
 
   if (match) {
     console.log("FOUND:", match[0]);
