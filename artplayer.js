@@ -3966,9 +3966,12 @@ document.addEventListener("keyup", (event) => {
         event.keyCode === 66 ||   // ENTER
         event.key === "MediaPlayPause";
 
-    if (isPlayKey) {
+		if (isPlayKey) {
         
 		NativeApp.jsLog("artplayer: 풀스크린 아닌 상태, 확인키 수신");
+		window.top.postMessage({
+			action: "sendWatchListAddSignToNative",
+		}, "*");
 		
 		if (_art.playing) {
             _art.pause();
@@ -4043,4 +4046,647 @@ window.addEventListener("keydown", (e) => {
 			}, "*");
         }
     }, 100);
+})();
+
+
+//현재시간 선반영을 위한 코드
+(function () {
+    if (window.__pureVideoSeekerInitialized__) return;
+    window.__pureVideoSeekerInitialized__ = true;
+
+    window.__pureVideoState__ = {
+        timer: null,
+        rafId: null, // 하드웨어 가속 싱크용 ID
+        isSeeking: false,
+        virtualTime: 0,
+        wasPlaying: false
+    };
+
+    window.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+            const video = document.querySelector('video');
+            if (!video || !video.duration) return; 
+
+            e.stopImmediatePropagation();
+            e.preventDefault();
+
+            const state = window.__pureVideoState__;
+
+            // 1. 최초 탐색 시작 시 딱 한번만 실행
+            if (!state.isSeeking) {
+                state.isSeeking = true;
+                state.virtualTime = video.currentTime;
+                state.wasPlaying = !video.paused;
+                video.pause(); // 시간 고정
+            }
+
+            // 2. 가상 시간 가감 (10초씩 이동)
+            const step = 10;
+            if (e.key === 'ArrowRight') {
+                state.virtualTime = Math.min(video.duration, state.virtualTime + step);
+            } else if (e.key === 'ArrowLeft') {
+                state.virtualTime = Math.max(0, state.virtualTime - step);
+            }
+
+            // 3. 렉 방지 및 하드웨어 가속 싱크 (requestAnimationFrame)
+            if (state.rafId) cancelAnimationFrame(state.rafId);
+            state.rafId = requestAnimationFrame(function () {
+                
+                // 시간 포맷팅
+                const m = Math.floor(state.virtualTime / 60).toString().padStart(2, '0');
+                const s = Math.floor(state.virtualTime % 60).toString().padStart(2, '0');
+                const formattedCurrent = `${m}:${s}`;
+
+                // [DOM 조작 1] 하단 시간 텍스트 변경
+                const timeCurrentEl = document.querySelector('.art-time-current');
+                if (timeCurrentEl) timeCurrentEl.textContent = formattedCurrent;
+
+                // [DOM 조작 2] 프로그레스 바 및 핸들 셀렉터 타겟팅
+                const percent = (state.virtualTime / video.duration) * 100;
+                const playedBars = document.querySelectorAll('.art-progress-played, .art-slider-played');
+                const handles = document.querySelectorAll('.art-progress-handle, .art-slider-handle');
+
+                // ⭐️ [핵심] 탐색 중에는 CSS 애니메이션(Transition)을 강제로 제거하여 뚝뚝 끊김 방지
+                playedBars.forEach(bar => {
+                    bar.style.setProperty('transition', 'none', 'important');
+                    bar.style.width = percent + '%';
+                });
+                handles.forEach(handle => {
+                    handle.style.setProperty('transition', 'none', 'important');
+                    handle.style.left = percent + '%';
+                });
+
+                // [DOM 조작 3] 중앙 알림창 띄우기
+                let noticeEl = document.querySelector('.art-notice');
+                if (noticeEl) {
+                    noticeEl.style.display = 'block';
+                    noticeEl.style.opacity = '1';
+                    const noticeText = noticeEl.querySelector('.art-notice-text') || noticeEl;
+                    
+                    const tm = Math.floor(video.duration / 60).toString().padStart(2, '0');
+                    const ts = Math.floor(video.duration % 60).toString().padStart(2, '0');
+                    noticeText.textContent = `${formattedCurrent} / ${tm}:${ts}`;
+                }
+            });
+
+            // 4. [비디오 실제 이동] 키보드 입력이 멈추고 250ms 뒤 최종 실행
+            clearTimeout(state.timer);
+            state.timer = setTimeout(function () {
+                // 실제 비디오 시간 축 이동
+                video.currentTime = state.virtualTime; 
+
+                // 원래 재생 중이었다면 부드럽게 다시 재생
+                if (state.wasPlaying) {
+                    video.play().catch(function(err) { console.log(err); });
+                }
+                
+                // ⭐️ 탐색이 완료되었으므로 원래 플레이어의 CSS 트랜지션 복원
+                setTimeout(() => {
+                    const playedBars = document.querySelectorAll('.art-progress-played, .art-slider-played');
+                    const handles = document.querySelectorAll('.art-progress-handle, .art-slider-handle');
+                    playedBars.forEach(bar => bar.style.removeProperty('transition'));
+                    handles.forEach(handle => handle.style.removeProperty('transition'));
+                    
+                    state.isSeeking = false; // 플래그 해제
+                }, 50);
+
+                // 중앙 알림창 서서히 감추기
+                let noticeEl = document.querySelector('.art-notice');
+                if (noticeEl) {
+                    setTimeout(() => {
+                        if (!state.isSeeking) {
+                            noticeEl.style.opacity = '0';
+                            setTimeout(() => { if(!state.isSeeking) noticeEl.style.display = 'none'; }, 200);
+                        }
+                    }, 600);
+                }
+            }, 10); // 대기 시간을 250ms로 최적화하여 반응성 향상
+        }
+    }, true);
+})();
+
+
+
+// ============================================================
+// TV용 가상 Seek Bar
+// ArrowLeft / ArrowRight를 누르고 있는 동안 실제 영상은 건드리지 않음
+// 키를 놓는 순간 최종 위치로 한 번만 이동
+// ============================================================
+(function () {
+    'use strict';
+
+    if (window.__tvVirtualSeekInitialized__) return;
+    window.__tvVirtualSeekInitialized__ = true;
+
+    let seekOverlay = null;
+    let seekBar = null;
+    let seekProgress = null;
+    let seekHandle = null;
+    let seekTime = null;
+
+    let seeking = false;
+    let virtualTime = 0;
+    let wasPlaying = false;
+
+    let repeatTimer = null;
+    let hideTimer = null;
+
+    const STEP = 10;          // 한 번 이동할 초
+    const REPEAT_INTERVAL = 100; // 꾹 누를 때 이동 간격
+
+
+    // ------------------------------------------------------------
+    // 비디오 가져오기
+    // ------------------------------------------------------------
+
+    function getVideo() {
+        return window._art?.video || document.querySelector('video');
+    }
+
+
+    // ------------------------------------------------------------
+    // 시간 표시
+    // ------------------------------------------------------------
+
+    function formatTime(seconds) {
+
+        seconds = Math.max(0, Math.floor(seconds));
+
+        const h = Math.floor(seconds / 3600);
+        const m = Math.floor((seconds % 3600) / 60);
+        const s = seconds % 60;
+
+        if (h > 0) {
+            return (
+                String(h).padStart(2, '0') +
+                ':' +
+                String(m).padStart(2, '0') +
+                ':' +
+                String(s).padStart(2, '0')
+            );
+        }
+
+        return (
+            String(m).padStart(2, '0') +
+            ':' +
+            String(s).padStart(2, '0')
+        );
+    }
+
+
+    // ------------------------------------------------------------
+    // 오버레이 생성
+    // ------------------------------------------------------------
+
+    function createSeekOverlay() {
+
+        if (seekOverlay) return;
+
+
+        seekOverlay = document.createElement('div');
+
+        seekOverlay.id = 'tv-virtual-seek-overlay';
+
+        seekOverlay.innerHTML = `
+            <div id="tv-virtual-seek-time">
+                00:00 / 00:00
+            </div>
+
+            <div id="tv-virtual-seek-bar">
+                <div id="tv-virtual-seek-progress"></div>
+                <div id="tv-virtual-seek-handle"></div>
+            </div>
+        `;
+
+
+        Object.assign(seekOverlay.style, {
+
+            position: 'fixed',
+
+            left: '8%',
+            right: '8%',
+            bottom: '70px',
+
+            height: '70px',
+
+            zIndex: '999999',
+
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+
+            pointerEvents: 'none',
+
+            opacity: '0',
+
+            transition: 'opacity 0.1s ease'
+
+        });
+
+
+        seekTime =
+            seekOverlay.querySelector(
+                '#tv-virtual-seek-time'
+            );
+
+        seekBar =
+            seekOverlay.querySelector(
+                '#tv-virtual-seek-bar'
+            );
+
+        seekProgress =
+            seekOverlay.querySelector(
+                '#tv-virtual-seek-progress'
+            );
+
+        seekHandle =
+            seekOverlay.querySelector(
+                '#tv-virtual-seek-handle'
+            );
+
+
+        Object.assign(seekTime.style, {
+
+            color: '#fff',
+
+            fontSize: '22px',
+
+            fontWeight: 'bold',
+
+            textAlign: 'center',
+
+            marginBottom: '10px',
+
+            textShadow:
+                '0 2px 4px rgba(0,0,0,0.8)'
+
+        });
+
+
+        Object.assign(seekBar.style, {
+
+            position: 'relative',
+
+            width: '100%',
+
+            height: '10px',
+
+            background: 'rgba(255,255,255,0.35)',
+
+            borderRadius: '5px'
+
+        });
+
+
+        Object.assign(seekProgress.style, {
+
+            position: 'absolute',
+
+            left: '0',
+
+            top: '0',
+
+            height: '100%',
+
+            width: '0%',
+
+            background: '#ff0000',
+
+            borderRadius: '5px'
+
+        });
+
+
+        Object.assign(seekHandle.style, {
+
+            position: 'absolute',
+
+            top: '50%',
+
+            left: '0%',
+
+            width: '22px',
+
+            height: '22px',
+
+            transform: 'translate(-50%, -50%)',
+
+            borderRadius: '50%',
+
+            background: '#fff',
+
+            border: '3px solid #ff0000',
+
+            boxSizing: 'border-box'
+
+        });
+
+
+        document.body.appendChild(seekOverlay);
+    }
+
+
+    // ------------------------------------------------------------
+    // 오버레이 표시
+    // ------------------------------------------------------------
+
+    function showOverlay() {
+
+        createSeekOverlay();
+
+        seekOverlay.style.opacity = '1';
+    }
+
+
+    // ------------------------------------------------------------
+    // 오버레이 업데이트
+    // ------------------------------------------------------------
+
+    function updateOverlay() {
+
+        const video = getVideo();
+
+        if (!video) return;
+
+        if (!Number.isFinite(video.duration)) return;
+
+        const duration = video.duration;
+
+        const percent =
+            Math.max(
+                0,
+                Math.min(
+                    100,
+                    (virtualTime / duration) * 100
+                )
+            );
+
+
+        seekProgress.style.width =
+            percent + '%';
+
+        seekHandle.style.left =
+            percent + '%';
+
+
+        seekTime.textContent =
+            formatTime(virtualTime) +
+            ' / ' +
+            formatTime(duration);
+    }
+
+
+    // ------------------------------------------------------------
+    // 가상 시간 이동
+    // ------------------------------------------------------------
+
+    function moveVirtualTime(direction) {
+
+        const video = getVideo();
+
+        if (!video) return;
+
+        if (!Number.isFinite(video.duration)) return;
+
+
+        virtualTime +=
+            direction * STEP;
+
+
+        virtualTime =
+            Math.max(
+                0,
+                Math.min(
+                    video.duration,
+                    virtualTime
+                )
+            );
+
+
+        updateOverlay();
+    }
+
+
+    // ------------------------------------------------------------
+    // Seek 시작
+    // ------------------------------------------------------------
+
+    function startSeek(direction) {
+
+        const video = getVideo();
+
+        if (!video) return;
+
+        if (!Number.isFinite(video.duration)) return;
+
+
+        // 최초 입력
+        if (!seeking) {
+
+            seeking = true;
+
+            /*
+             * 실제 영상의 현재 위치만 가져옴.
+             * 이후에는 video.currentTime을 절대 건드리지 않음.
+             */
+            virtualTime =
+                video.currentTime;
+
+
+            wasPlaying =
+                !video.paused;
+
+
+            showOverlay();
+
+            updateOverlay();
+        }
+
+
+        /*
+         * 첫 번째 입력 즉시 이동
+         */
+        moveVirtualTime(direction);
+
+
+        /*
+         * 기존 반복 타이머 제거
+         */
+        if (repeatTimer) {
+            clearInterval(repeatTimer);
+        }
+
+
+        /*
+         * 버튼을 계속 누르고 있을 때
+         */
+        repeatTimer =
+            setInterval(() => {
+
+                if (!seeking) return;
+
+                moveVirtualTime(direction);
+
+            }, REPEAT_INTERVAL);
+    }
+
+
+    // ------------------------------------------------------------
+    // Seek 종료
+    // ------------------------------------------------------------
+
+    function finishSeek() {
+
+        if (!seeking) return;
+
+
+        /*
+         * 반복 중지
+         */
+        if (repeatTimer) {
+
+            clearInterval(repeatTimer);
+
+            repeatTimer = null;
+        }
+
+
+        const video = getVideo();
+
+        if (video) {
+
+            /*
+             * ★ 실제 영상 위치 변경은 여기서 딱 한 번
+             */
+            video.currentTime =
+                virtualTime;
+
+
+            /*
+             * 원래 재생 중이었다면 계속 재생
+             */
+            if (wasPlaying) {
+
+                const promise =
+                    video.play();
+
+                if (promise) {
+                    promise.catch(() => {});
+                }
+            }
+        }
+
+
+        seeking = false;
+
+
+        /*
+         * 오버레이 잠시 유지
+         */
+        clearTimeout(hideTimer);
+
+        hideTimer =
+            setTimeout(() => {
+
+                if (!seeking && seekOverlay) {
+
+                    seekOverlay.style.opacity = '0';
+                }
+
+            }, 700);
+    }
+
+
+    // ------------------------------------------------------------
+    // KeyDown
+    // ------------------------------------------------------------
+
+    window.addEventListener(
+        'keydown',
+        function (event) {
+
+            /*
+             * fullscreen이면 ArtPlayer 기본 동작 사용
+             */
+            if (document.fullscreenElement) {
+                return;
+            }
+
+
+            if (
+                event.code !== 'ArrowLeft' &&
+                event.code !== 'ArrowRight'
+            ) {
+                return;
+            }
+
+
+            event.preventDefault();
+
+            event.stopImmediatePropagation();
+
+
+            const direction =
+                event.code === 'ArrowLeft'
+                    ? -1
+                    : 1;
+
+
+            /*
+             * 최초 keydown
+             */
+            if (!seeking) {
+
+                startSeek(direction);
+
+                return;
+            }
+
+
+            /*
+             * Android TV가 발생시키는
+             * key repeat은 여기서 무시.
+             *
+             * 자체 repeatTimer가 처리한다.
+             */
+        },
+        true
+    );
+
+
+    // ------------------------------------------------------------
+    // KeyUp
+    // ------------------------------------------------------------
+
+    window.addEventListener(
+        'keyup',
+        function (event) {
+
+            if (
+                event.code !== 'ArrowLeft' &&
+                event.code !== 'ArrowRight'
+            ) {
+                return;
+            }
+
+
+            if (!seeking) return;
+
+
+            event.preventDefault();
+
+            event.stopImmediatePropagation();
+
+
+            /*
+             * 버튼을 놓는 순간
+             * 최종 virtualTime으로 실제 seek
+             */
+            finishSeek();
+
+        },
+        true
+    );
+
+
 })();

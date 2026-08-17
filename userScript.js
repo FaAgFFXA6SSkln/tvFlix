@@ -52,171 +52,23 @@ function hideById(id) {
 	const el = document.getElementById(id);
 	if (el) el.style.setProperty('display', 'none', 'important');
 }
-// ==============================================================================================================
-// 1. 웹사이트 내 불필요한 요소 포커스 비활성화
-// ==============================================================================================================
-(function() {
-  'use strict';
-
-  // 1-1. 단일 쿼리로 모든 포커스 비활성화 대상 요소를 가져옵니다. (DOM 쿼리 최소화)
-  const focusTargets = document.querySelectorAll('div.slide_wrap *, a.img, img, img.lazy, iframe, body');
-  for (const element of focusTargets) {
-      // .slide_wrap 내부 요소에 대한 포커스 비활성화 조건
-      if (element.closest('.slide_wrap')) {
-          if (element.classList && !element.classList.contains('title') && !element.classList.contains('more')) {
-              element.setAttribute('tabindex', '-1');
-          }
-      } else {
-          // 기타 모든 대상에 대한 포커스 비활성화
-          element.setAttribute('tabindex', '-1');
-      }
-  }
-	disableFocusById('fboardlist');
-	disableFocusById('sch_submit');
-
-})();
-// ==============================================================================================================
-// ==============================================================================================================
-
-
-
-
 
 // ==============================================================================================================
 // 2. 웹사이트 요소 제거
 // ==============================================================================================================
 (function() {
-	
-	//공통 제거
-	const elementsToRemove = [
-	'div.notice', 'a.logo', '.gnb_mobile', '.top_btn', '.profile_info_ct','.ep_search', '.good', '.emer-content',  '.cast','.view-comment-area', '.over', '#bo_v_act', '#bo_vc', '#float','div.notice',
-	  'ul.banner2', 'li.full.pc-only', 'li.full.mobile-only', '.search_title_mobile', '.category', 'nav.gnb.sf-js-enabled.sf-arrows', 'a.btn_login', '#bnb', '#footer', '.search_wrap ul', '.layer-footer',
-	  '.genre', '#other_list ul li p', '#footer_wrap', '.player-select', '#playerBar', '.player-hover-wrap', '.btn_history', '#btnScrollTop', 'div.search_title_pc'
-	];
-	elementsToRemove.forEach(selector => {
-	  document.querySelectorAll(selector).forEach(element => {
-		  element.remove();
-	  });
-	});
-
-	//홈화면	첫번째 슬라이드랩 제거		
-	if (pageNumber == 0) removeByClassName('div.slide_wrap');
 
 
-	//TV 환경: 상단 검색 바 제거
-	if (isRunningOnTv) {				
-		
-		hideById('header_wrap');//검색 버튼이 포함된 상단 WRAP을 안보이게 처리		
-		hideByClassName('.btn_search')//검색 버튼 숨기기
-		disableFocusByClassName('.btn_search');//검색 버튼 포커스 제거
-		removeById('sch_submit');//검색창의 검색 실행 버튼 제거		
-	}
-
-
-	//TV 환경에서 재생 페이지 회차별 썸네일 제거. 삭제하기 전에 비디오 썸네일 주소 저장하기
-	if (pageNumber > 1) {	  
-	  const currentVideoTitle = document.querySelector('.bo_v_tit');
-	  if (currentVideoTitle) {
-		const videoTitleText = currentVideoTitle.textContent;
-		const items = document.querySelectorAll('#other_list li.searchText');
-		items.forEach(li => {
-			var listTitle = li.classList.value.replace("searchText ", "");
-			if (listTitle == videoTitleText) {
-				const img = li.querySelector('img.lazy');
-				if (img) {
-				  videoThumbUrl = img.getAttribute('data-original')
-				}
-			}
-		});
-	  }
-	  //삭제
-	  if (isRunningOnTv) {
-	  // class가 searchText로 시작하는 모든 li 선택
-		const liElements = document.querySelectorAll('li[class^="searchText"]');
-		liElements.forEach(li => {
-			const img = li.querySelector('img');
-			if (img) {
-				img.remove();
-			}
-		});
-	  }		  
-	}
-
-  
 	//재생 페이지에서 회차가 하나밖에 없는 경우, 회차 영역 전체를 제거
 	//재생 페이지에서 회차가 여러개인 경우, 다음화 자동재생을 위해 에피소드 제목을 목록 배열에 추가  
 	if (pageNumber > 1) {  
-		const target = document.querySelector('#other_list');
+		const target = document.querySelector('.episode-list');
 		if (target) {
-	  const ul = target.querySelector('ul');
-	  if (ul) {
-		  const items = ul.querySelectorAll('li');
-
-		  // 에피소드 리스트에 에피소드가 하나밖에 없다면, 에피소드 리스트 자체를 제거
-		  if (items.length <= 1) {
-			  target.remove();
+		const items = target.querySelectorAll('a');
+		if ( items.length <= 1) {			
+			target.remove();
 			isOnlyVideo = true;
-
-		  // 에피소드 리스트에 에피소드가 여러개라면, 현재 에피소드 제목과 리스트를 비교하여 다음 에피소드 링크를 저장
-		  } else {
-			  //현재 회차가 마지막 회차라면 다음화 버튼을 제거
-			  
-			  
-			// 재생 페이지 제목에서 '다시보기 텍스트 제거 ('.bo_v_tit' 요소에서 '다시보기' 텍스트 제거)
-			document.querySelectorAll('.bo_v_tit').forEach(element => {
-			  // 정규 표현식을 사용하여 모든 '다시보기' 문자열을 빈 문자열로 대체하고 앞뒤 공백 제거
-			  if (element.textContent.includes('다시보기')) {
-				  element.textContent = element.textContent.replace(/다시보기/g, '').trim();
-				  thisEpisodeTitle = element.textContent;	  
-			  }
-			});
-			  
-			  NativeApp.jsLog(thisEpisodeTitle);
-			  NativeApp.jsLog(target.querySelector('li a.title.on').textContent.trim());
-			  
-			  if (thisEpisodeTitle == target.querySelector('li a.title.on').textContent.trim()) {
-				  const btn_next = document.querySelector('.btn_next a');
-					if (btn_next) {
-					  btn_next.remove();
-					}
-			  }
-
-			  //현재 회차가 첫 회차라면 이전화 버튼을 무력화
-			  if (thisEpisodeTitle == items[items.length - 1].textContent.trim()) {
-
-				const btn_prv = document.querySelector('.btn_prv');
-				if (btn_prv) {
-				  btn_prv.querySelectorAll('*').forEach(el => {
-					el.style.visibility = 'hidden';
-				  })
-				}
-			  }
-
-			  let linkCount = 0; // var 대신 let 사용을 권장합니다.
-			  let link_let = [];
-
-			  // ⭐ 수정된 부분: forEach 대신 for...of 루프를 사용합니다.
-			  for (const li of items) {
-				  // <li> 내부의 회차 제목 태그 (a.title.on)를 찾습니다.
-				  const titleElement = li.querySelector('a.title.on');
-
-				  if (titleElement) {
-					  const title_let = titleElement.textContent.trim();
-
-					  // 현재 에피소드 제목을 찾았고, 이전 에피소드 링크가 저장되어 있다면
-					  // (참고: linkCount != 0 조건은 필요 없습니다. link_let.length를 사용하면 됩니다.)
-					  if (link_let.length > 0 && thisEpisodeTitle == title_let) {
-						  nextEpisodeLink = link_let[link_let.length - 1]; // link_let의 마지막 요소 = 이전 에피소드 링크
-						  break; // ⭐ for...of 루프에서는 break를 사용할 수 있습니다.
-					  } else {
-						  link_let.push(titleElement.href);
-						  // linkCount는 더 이상 필요 없지만, 기존 로직 유지를 위해 남겨둡니다.
-						  linkCount = linkCount + 1;
-					  }
-				  }
-			  }
-		  }
-	  }
+		}	
 	}	  
   }
 
@@ -225,33 +77,13 @@ function hideById(id) {
 // 
 
 
-
+console.log("UserSciprt Process : 2");
 
 
 
 // ==============================================================================================================
 // 3. 웹사이트 요소 추가(검색버튼 텍스트, 동영상 재생버튼, 특수 포커스 효과)
 // ==============================================================================================================
-//검색 버튼 옆에 텍스트 추가: TV(X)::Phone(O)::Web(O)
-(function() {
-  'use strict'
-  if (isRunningOnTv) return;
-  // 메인 페이지, 카테고리 페이지, 검색 결과 페이지 상단에 검색 버튼 텍스트 추가 로직 및 인라인 스타일 강제 오버라이드
-  const searchButton = document.querySelector('a.btn_search');
-  if (searchButton) {
-
-      // 1. 텍스트를 담을 span 요소를 생성
-      const searchLabel = document.createElement('span');
-      searchLabel.textContent = ' 검색 ';
-      searchLabel.classList.add('search-label');
-
-      // 2. 폰트 크기를 인라인 스타일로 강제 적용 (가장 높은 우선순위)
-      searchLabel.style.setProperty('font-size', '24px', 'important'); // <<-- 최종 폰트 크기 강제 적용
-
-    // 3. 버튼 아이콘 앞에 텍스트 추가
-      searchButton.prepend(searchLabel);
-  }
-})();
 //특수 포커스 효과: TV(O)::Phone(X)::Web(X)
 (function() {
   if (!isRunningOnTv) return;
@@ -377,77 +209,12 @@ function hideById(id) {
 // ==============================================================================================================
 // ==============================================================================================================
 
-
+console.log("UserSciprt Process : 3");
 
 // ==============================================================================================================
 // 4. 웹사이트 요소 변경
 // ==============================================================================================================
 
-//홈화면 SlideWrap 제목 변경
-(function() {
-	if (pageNumber !== 0) return;
-
-	// 홈화면 남은 Slide Wrap 제목 변경 로직
-	const slideWraps = document.querySelectorAll('.slide_wrap');
-	const newTitles = ['드라마', '영화', '예능', '애니메이션'];
-	slideWraps.forEach((wrap, index) => {
-	  if (index < newTitles.length) {
-		  const h2 = wrap.querySelector('h2');
-		  if (h2) {
-			  const moreLink = h2.querySelector('a.more');
-			  const newTitleText = newTitles[index];
-
-			  if (moreLink) {
-				  h2.innerHTML = `${newTitleText}${moreLink.outerHTML}`;
-			  } else {
-				  h2.textContent = newTitleText;
-			  }
-		  }
-	  }
-	});
-})();
-//TV 이외 환경 상단 검색 바 레이아웃 변경
-(function() {
-
-	if (isRunningOnTv) return;
-	// 메인 페이지 또는 서브페이지일 때 실행
-	const headerWrap = document.getElementById('header_wrap');
-	if (headerWrap) {
-		headerWrap.style.height = '80px';
-	}
-	// 검색 버튼 수직 중앙 정렬
-	const headerElement = document.getElementById('header');
-	if (headerElement && headerElement.parentElement) {
-		const parent = headerElement.parentElement;
-		parent.style.display = 'flex';
-		parent.style.alignItems = 'center';
-	}
-
-})();
-//재생 페이지 제목 변경
-(function() {
-	if (pageNumber < 2) return;
-
-
-
-})();
-//재생 페이지 작품 제목을 맨 위로 옮기기
-(function() {
-	if (pageNumber < 2) return;
-
-	// 1. 부모 요소 (대상)를 가져옵니다.
-    const boV = document.getElementById('bo_v');
-    if (boV) {
-        // 2. 이동시킬 요소 (<header>)를 가져옵니다.
-        // bo_v 내부에 있는 첫 번째 <header> 요소를 찾습니다.
-        const headerElement = boV.querySelector('header');
-
-        if (headerElement) {
-            // 3. prepend() 메소드를 사용하여 header 요소를 boV의 맨 앞으로 이동시킵니다.
-            boV.prepend(headerElement);
-        }
-    }
-})();
 //재생 페이지 이전화, 다음화 버튼 글씨 크기 조정
 (function() {
 
@@ -481,341 +248,13 @@ function hideById(id) {
     style.innerHTML = css;
     document.head.appendChild(style);
 })();
-//재생 페이지 다른 회차 제목 글씨 크기 조정
-(function() {
 
-	if (pageNumber < 2) return;
-
-    const css = `
-        a.title.on {
-            font-size: 1.4rem !important;
-            font-weight: 600 !important;
-            line-height: 1.4 !important;
-            color: #ffffff !important;
-        }
-    `;
-
-    const style = document.createElement('style');
-    style.textContent = css;
-    document.documentElement.appendChild(style);
-})();
-//재생 페이지 회차가 하나밖에 없는 컨텐츠라면 컨텐츠 정보 표시
-(function() {
-	if (pageNumber < 2) return;
-	if (!isOnlyVideo) document.querySelectorAll('#bo_v_atc').forEach(el => el.remove());
-})();
-//일반 웹브라우저에서 웹사이트 타이틀, 아이콘 변경
-(function() {
-
-	if (!isWebBrowser) return;
-
-	// 타이틀 변경
-	document.title = "Netflix";
-	const logoLink = document.querySelector("a.logo");
-	if (logoLink) {
-	  const img = logoLink.querySelector("img");
-	  if (img) {
-		  img.src = "https://i.imgur.com/rBAwaXX.png";
-		  img.style.width = "110px";
-		  img.style.height = "auto";
-	  }
-	}
-	// 아이콘 변경 함수 호출
-	const faviconURL = "https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg";
-	const appleIconURL = "https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg";
-
-	function replaceIcons() {
-	  document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"]').forEach(el => el.remove());
-	  const icon = document.createElement('link');
-	  icon.rel = "icon";
-	  icon.type = "image/svg+xml";
-	  icon.href = faviconURL;
-	  document.head.appendChild(icon);
-	  const apple = document.createElement('link');
-	  apple.rel = "apple-touch-icon";
-	  apple.href = appleIconURL;
-	  document.head.appendChild(apple);
-	}
-	replaceIcons();
-
-})();
-//재생 페이지에서 비디오 썸네일 자동 스킵
-(function() {
-	if (pageNumber < 2) return;
-
-	// 재생 페이지의 플레이어 썸네일 자동 스킵
-	const button = document.querySelector('a.btn.btn_normal');
-	if (button) {
-	  button.click();
-	NativeApp.jsLog("플레이어 재생 페이지 자동 넘기기 실행");
-	}
-
-
-
-})();
-//기타 UI 요소 변경 스타일 추가
-(function() {
-  'use strict'
-
-
-  // =======================================================
-  // 4. UI 요소 변경
-  // =======================================================
-  // D-Pad 포커스 테두리 (Outline) 스타일 개선 및 UI 조정 CSS
-
-
-
-  const style = document.createElement('style');
-  style.innerHTML = `
-
-    /* =========================================================== */
-    /* 메인 페이지 '전체보기' 링크 오른쪽에서 띄우기 */
-    /* =========================================================== */
-      .more {
-          padding-right: 15px !important;
-      }
-
-
-    /* =========================================================== */
-    /* [FIX 2] Title Link Font Size and Vertical Alignment */
-    /* 높은 명시도로 폰트 크기 및 수직 정렬을 강제 적용합니다. */
-    .owl-carousel .owl-item .title, .owl-carousel .owl-item .box a.title, a.more /* 명시도 확보를 위한 추가 셀렉터 */
-    a.title {
-        /* 1. 높이 유지 (50px) 및 수직 중앙 정렬을 위해 line-height를 높이와 동일하게 설정 */
-        height: 50px !important;
-        line-height: 50px !important;
-
-        /* 2. 폰트 크기 키우기 (명시도 + 크기 강제) */
-        font-size: 1.4em !important;
-    }
-
-    a.more {
-        font-size: 0.9em !important;
-    }
-
-    h2 {
-        font-size: 1.7em !important;
-    }
-    /* =========================================================== */
-    /* (기존 포커스 및 UI 스타일 유지) */
-    /* =========================================================== */
-    /* [FIX] Owl Carousel: Restore Sliding, Keep Aspect Ratio (2:3 assumed) */
-
-
-    /* 2. Owl Stage의 transform 및 width 초기화 제거 */
-    /* -> Owl Carousel JS가 슬라이딩을 위해 설정하는 transform을 복구합니다. */
-
-
-    /* 3. 이미지 컨테이너 (.img)에 비율 유지 핵 적용 (썸네일 비율 2:3 가정) */
-    /* * 비율 유지를 위해 .img 요소에 padding-top: 150%만 적용 */
-    .owl-carousel .owl-item .box > a.img {
-        /* position: relative 필수: 자식 img가 absolute로 배치될 기준점 */
-        position: relative !important;
-        width: 100% !important;
-        height: 0 !important; /* 높이는 padding-top으로 대체 */
-
-        /* Aspect Ratio Hack: 가로 2 : 세로 3 (150%) 비율 유지 */
-        padding-top: 150% !important;
-        overflow: hidden !important;
-        display: block !important;
-    }
-
-    /* 4. 비율 유지 컨테이너 내부의 이미지 크기 강제 */
-    .owl-carousel .owl-item .box > a.img > img {
-        position: absolute !important;
-        top: 0 !important;
-        left: 0 !important;
-        width: 100% !important;
-        height: 100% !important;
-        object-fit: cover !important; /* 이미지 잘림 없이 컨테이너에 맞춤 */
-    }
-
-
-
-    /* 5. 제목(.title) 높이도 줄어든 크기에 맞게 조정 */
-    /* (이 부분은 비율과 관계 없지만 전체 세로 길이 축소를 위해 유지) */
-    .owl-carousel .owl-item .title {
-        height: 35px !important;
-        line-height: 1.2 !important;
-        font-size: 14px !important;
-    }
-    a.title2{
-                height: 35px !important;
-        line-height: 1.2 !important;
-        font-size: 19px !important;
-    }
-
-    /* =========================================================== */
-
-    /* [NEW FIX: 부모 li 확장] #tnb 내부의 li에 걸린 고정 크기 및 float를 해제하여 버튼이 확장할 공간을 확보 */
-    #header_wrap #header #tnb ul li {
-        float: none !important;
-        display: inline-block !important;
-        width: auto !important;
-        height: auto !important;
-        min-width: unset !important;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-
-    /* [MAX SPECIFICITY FIX] ID 선택자를 모두 포함하여 명시도를 최상으로 높임 */
-    #header_wrap #header #tnb ul li a.btn_search {
-        /* Flexbox로 가로 정렬 강제 */
-        display: flex !important;
-        flex-direction: row !important;
-        flex-wrap: nowrap !important; /* 줄바꿈 절대 금지 */
-        align-items: center !important; /* 수직 중앙 정렬 */
-
-        /* 너비/높이 고정값 무효화 및 내용물에 맞게 확장 */
-        width: auto !important;
-        height: auto !important;
-        min-width: 0 !important; /* 최소 너비 제한 해제 */
-
-        justify-content: flex-start !important;
-        padding: 8px 15px !important;
-        line-height: normal !important; /* 폰트 관련 문제 해결 */
-        box-sizing: content-box !important; /* 패딩이 너비에 영향을 주지 않도록 함 */
-    }
-
-    /* 텍스트와 아이콘도 명시도를 높여서 가로 배치에 협조하도록 강제 */
-    #header_wrap #header #tnb ul li a.btn_search span.search-label,
-    #header_wrap #header #tnb ul li a.btn_search i {
-        display: inline-block !important; /* Flex 아이템으로 잘 동작하도록 설정 */
-        margin: 0 !important; /* 외부 마진 초기화 */
-        padding: 0 !important; /* 외부 패딩 초기화 */
-        white-space: nowrap !important;
-        flex-shrink: 0 !important; /* 공간이 부족해도 축소되지 않도록 함 */
-        line-height: 1 !important;
-    }
-
-    /* 텍스트와 아이콘 사이의 간격 재설정 */
-    #header_wrap #header #tnb ul li a.btn_search span.search-label {
-        margin-right: 8px !important;
-        font-weight: bold;
-        color: inherit;
-        /* CSS도 충분히 높여서 혹시 모를 경우 대비 (JS에서 최종 오버라이드 됨) */
-        font-size: 1.7em !important;
-    }
-
-	/* 상단바 검색 진입 버튼 오른쪽 여백 없애기 */
-	#tnb ul {
-        display: flex !important;
-        align-items: center !important;
-        height: 70px;
-        gap: 4px;
-    }
-
-    #body_wrap {
-        margin-top: 20px;
-}
-
-  `;
-  document.head.appendChild(style);
-})();
-//검색 결과 페이지 재배치(모바일만 적용)
-(function() {
-    if (isRunningOnTv) return;
-    const container = document.getElementById('mov_con_list');
-    if (!container) return;
-    container.style.overflowY = 'hidden';
-
-    // ------------------------------------------------
-    // 1. 너비 조정을 수행하는 함수
-    // ------------------------------------------------
-    function adjustConWidth() {
-        const browserWidth = window.innerWidth;
-
-        // 화면 너비보다 절대 커지지 않도록 Math.floor와 maxWidth 적용
-        let conCalculatedWidth = Math.floor(browserWidth * 0.65);
-        const maxWidth = browserWidth;
-        if (conCalculatedWidth > maxWidth) conCalculatedWidth = maxWidth;
-
-        const conNewWidth = `${conCalculatedWidth}px`;
-
-        const contentDivs = container.querySelectorAll('.con');
-        contentDivs.forEach(con => {
-            con.style.width = conNewWidth;
-            con.style.boxSizing = 'border-box'; // 패딩/보더 포함
-        });
-    }
-
-    // ------------------------------------------------
-    // 2. 초기 스타일 적용
-    // ------------------------------------------------
-    const listItems = container.querySelectorAll('li');
-    listItems.forEach(li => {
-        li.style.width = '100%';
-        li.style.minHeight = '120px'; // 최소 높이
-        li.style.height = 'auto';      // 내용에 따라 높이 확장
-        li.style.alignItems = 'center';
-        li.style.boxSizing = 'border-box'; // 패딩 포함 계산
-
-    });
-
-    const boxes = container.querySelectorAll('.box');
-    boxes.forEach(box => {
-        box.style.display = 'flex';
-        box.style.alignItems = 'center';
-        box.style.gap = '20px';
-        box.style.flexWrap = 'wrap'; // 줄넘김 허용
-        box.style.boxSizing = 'border-box';
-    });
-
-    const images = container.querySelectorAll('.box img');
-    images.forEach(img => {
-        img.style.width = '100%';
-        img.style.height = '100%';
-        img.style.objectFit = 'cover';
-        img.style.objectPosition = 'center';
-        img.style.display = 'block'; // img 여백 제거
-    });
-
-    // ------------------------------------------------
-    // 3. 이벤트 리스너 등록 및 초기 실행
-    // ------------------------------------------------
-    adjustConWidth();
-
-    // 브라우저 크기 변경 시
-    window.addEventListener('resize', adjustConWidth);
-
-    // 모바일 회전 시
-    window.addEventListener('orientationchange', adjustConWidth);
-
-    // ------------------------------------------------
-    // 4. 가로 스크롤 방지 (CSS로 강제)
-    // ------------------------------------------------
-    container.style.overflowX = 'hidden';
-    container.style.boxSizing = 'border-box';
-})();
-//TV환경에서 body_wrap 레이아웃이 아래로 밀리는 현상 해결
-(function() {
-	if (!isRunningOnTv) return;
-	const bw = document.querySelector('#body_wrap');
-	if (bw) {
-	  const rect = bw.getBoundingClientRect();
-	  bw.style.transform = `translateY(${-(rect.top - 20)}px)`;
-	}
-
-})();
-//재생 페이지의 등록된 날짜(profile_info_ct) 높이를 0으로 고정
-(function() {
-  const target = document.querySelector('.profile_info_ct');
-
-  if (target) {
-      target.style.height = '0px';
-      target.style.minHeight = '0px';
-      target.style.maxHeight = '0px';
-      target.style.overflow = 'hidden';
-      target.style.padding = '0';
-      target.style.margin = '0';
-  }
-})();
 
 
 // ==============================================================================================================
 // ==============================================================================================================
 
-
+console.log("UserSciprt Process : 4");
 
 // ==============================================================================================================
 // 5. 네이티브 인터랙션
@@ -826,18 +265,23 @@ function hideById(id) {
   //네이티브에서 ESC혹은 뒤로가기 실행시 호출할 함수
   window.handleBackButton = function() {
     // 1. 검색창에서 ESC, 뒤로가기 눌렀을 때 동작
-    const isSearchLayerOpen = document.querySelector('.search_layer.active') !== null;// 검색창이 활성화 상태인지 여부 (true / false)
-    if (isSearchLayerOpen){
-      document.querySelector('.search_layer')?.classList.remove('active');
-      document.querySelector('.search_wrap')?.classList.remove('active');
-      document.getElementById('autocomplete_parent').style.display = 'none';
+const searchLayer = document.getElementById('userscript-search');
 
-      // 현재 입력창 포커스 제거
-      if (document.activeElement) {
-          document.activeElement.blur();
-      }
-      return;
+if (searchLayer) {
+
+    // 검색창 제거
+    searchLayer.remove();
+
+    // 검색창 CSS 제거
+    document.getElementById('userscript-search-style')?.remove();
+
+    // 현재 포커스 제거
+    if (document.activeElement) {
+        document.activeElement.blur();
     }
+
+    return;
+}
 
     // 2. 드롭다운 선택중 ESC, 뒤로가기 눌렀을 때 동작
     const layer2 = document.querySelector('.filter2_layer');
@@ -886,54 +330,11 @@ function hideById(id) {
     const path = window.location.pathname.replace(/\/$/, ""); // 끝의 / 제거
     NativeApp.showNativeMenu();
   }
-
-  //다음 회차가 있는지 체크하는 함수
-  window.checkIfNextEpisodeExist = function() {
-    if (nextEpisodeLink != "") {
-      NativeApp.showNextEpisodeAlert();
-    }
-  }
-
-  //다음 회차로 이동하는 함수
-  window.moveToNextEpisode = function() {
-    window.location.href = nextEpisodeLink;
-  }
-
-  //검색 버튼 누르기 함수
-  window.clickSearchButton = function() {
-    const element = document.querySelector('.btn_search');
-    if (!element) return false;
-
-    element.click();
-
-    const input = document.getElementById('sch_stx');
-    if (!input) return false;
-
-    input.style.display = 'block';
-    document.getElementById('autocomplete_parent').style.display = 'block';
-    // 짧은 딜레이 후 포커스 및 내용 비우기
-    setTimeout(() => {
-        input.focus();
-        input.click();      // 모바일에서 키보드 강제 호출
-    }, 50);
-
-    return true;
-  }
-
-  //로깅 함수
-  window.customLog = function(message) {
-    console.log(message);
-    if (typeof NativeApp !== "undefined") {
-      NativeApp.jsLog(message);
-    }
-  }
-
-
 })();
 //네이티브로 변수 전송:TV(O)::Phone(O)::Web(X)
 (function() {
   if (typeof NativeApp !== 'undefined') {
-    NativeApp.setWebVar("view_iframe", "view_iframe");
+    NativeApp.setWebVar("iframe", "iframe");
   }
 
 })();
@@ -977,131 +378,13 @@ function hideById(id) {
     return s.trim();
 }
   window.sendWatchListAddSignToNative = function() {
-  const videoTitleElement = document.querySelector('.bo_v_tit');
-    if (videoTitleElement) {
-      //제목 추출
-      const videoTitleText = cleanTitle(videoTitleElement.textContent);
       //링크 추출
       const videoLink = window.location.href
-
-      if (typeof NativeApp !== 'undefined') NativeApp.receiveVideoTitleLinkImage(videoTitleText, videoLink, videoThumbUrl);
-    }
+      if (typeof NativeApp !== 'undefined') NativeApp.receiveVideoTitleLinkImage(thisEpisodeTitle, videoLink, videoThumbUrl);
   }
 })();
 // ==============================================================================================================
 // ==============================================================================================================
-
-
-
-// ==============================================================================================================
-// 6. 기타(디버그 및 버그 수정)
-// ==============================================================================================================
-(function() {
-  //크롬캐스트에서 카테고리 필터 드롭다운 동작을 위해 하위 항목에 tabindex 부여
-  document.querySelectorAll('.filter_layer a').forEach(a => {
-      a.setAttribute('tabindex', '0');
-  });
-
-/*
-  document.forms["fsearchbox"].addEventListener("submit", function (e) {
-    const input = document.getElementById("sch_stx");
-
-    if (!input.value.trim()) {
-        e.preventDefault();// action 실행 막기
-		e.stopPropagation();
-        input.focus();// 포커스 다시 주기 (선택)
-    }
-  });
-  */
-
-})();
-//영화, 외국 드라마 페이지 버튼 겹침 해결: TV(O)::Phone(O)::Web(O)
-(function () {
-  'use strict';
-
-  if (isWebBrowser) return;
-  if (!(pathname.split('/').filter(Boolean)[0] === 'movie') && !(pathname.split('/').filter(Boolean)[0] === 'world')) return;
-
-    const css = `
-    /* 부모를 flex로 강제 */
-    #bo_btn_top {
-        display: flex !important;
-        flex-wrap: nowrap !important;
-    }
-
-    /* 두 버튼 공통 처리 */
-    #bo_btn_top .filter,
-    #bo_btn_top .filter2 {
-        float: none !important;
-        width: 50% !important;
-        margin: 0 !important;
-        box-sizing: border-box !important;
-    }
-
-    /* 모바일 구간 강제 보정 */
-    @media (max-width: 960px) {
-        #bo_btn_top {
-            display: flex !important;
-        }
-
-        #bo_btn_top .filter,
-        #bo_btn_top .filter2 {
-            width: 50% !important;
-        }
-    }
-    `;
-
-    const style = document.createElement('style');
-    style.type = 'text/css';
-    style.appendChild(document.createTextNode(css));
-    document.head.appendChild(style);
-})();
-// ==============================================================================================================
-// ==============================================================================================================
-
-
-
-// ==============================================================================================================
-// 7. 스마트폰 PIP 지원
-// ==============================================================================================================
-(function() {
-  if (isWebBrowser) return;//일반 웹브라우저에서는 사용하지 않음
-  window.ApplyVideoPipStyle = function() {
-    const movDiv = document.querySelector('.bo_v_mov');
-    if (!movDiv) return;
-
-    // 브라우저 전체 화면처럼 fixed
-    movDiv.style.position = 'fixed';
-    movDiv.style.top = '0';
-    movDiv.style.left = '0';
-    movDiv.style.width = '100vw';
-    movDiv.style.setProperty('height', '100vh', 'important');
-    movDiv.style.setProperty('display', 'block', 'important');
-    movDiv.style.zIndex = '9999';
-    movDiv.style.backgroundColor = 'black';
-
-    // 중앙 정렬: flex 컨테이너
-    //movDiv.style.display = 'flex';
-
-    movDiv.style.alignItems = 'center';
-    movDiv.style.justifyContent = 'center';
-
-    // iframe 크기 지정: 부모 div에 맞게
-    const iframe = movDiv.querySelector('view_iframe');
-    if (iframe) {
-        iframe.style.maxWidth = '100%';
-        iframe.style.maxHeight = '100%';
-        iframe.style.border = 'none';
-    }
-
-    // 페이지 스크롤 제거
-    //document.body.style.overflow = 'hidden';
-};
-
-})();
-// ==============================================================================================================
-// ==============================================================================================================
-
 
 
 // ==============================================================================================================
@@ -1410,196 +693,7 @@ function hideById(id) {
 // ==============================================================================================================
 // ==============================================================================================================
 
-
-
-// ==============================================================================================================
-// 9. 검색창, 카테고리 필터 관련 키 입력 오버라이드
-// ==============================================================================================================
-(function(){
-  //키 다운
-  document.addEventListener('keydown', (e) => {
-    //검색창 관련 키입력 로직
-    if (e.key == 'ArrowDown') {
-    //검색창 활성화 상태에서 키 입력 처리
-    const search_wrap = document.querySelector('.search_wrap');
-    if (search_wrap.classList.contains('active')) {
-      var el = document.activeElement;
-      const autocomplete_parent = document.getElementById('autocomplete_parent');
-      if (autocomplete_parent) {
-        const displayValue = window.getComputedStyle(autocomplete_parent).display;
-
-        //추천검색어가 존재한다면
-        if (displayValue == 'block') {
-          //console.log("추천 검색어 존재");  // block, none, flex 등 출력
-
-          //현재 포커스가 검색창에 있다면, 추천 검색어로 포커스를 내린다
-          if (el.id == 'sch_stx') {
-            e.preventDefault();
-			      e.stopPropagation();
-            const childString = (isWebBrowser) ? '.autocomplete_child' : '[class*="autocomplete-item"]'
-            const autocomplete_child = document.querySelectorAll(childString);
-            autocomplete_child[0].focus();
-          }
-
-          //포커스가 추천 검색어에 있다면, 다음 검색어가 있는지 판단하고 내린다.
-          else if (el.className == 'autocomplete_child'){
-            e.preventDefault();
-			      e.stopPropagation();
-            const childString = (isWebBrowser) ? '.autocomplete_child' : '[class*="autocomplete-item"]'
-            const autocomplete_child = document.querySelectorAll(childString);
-            const resultLength = autocomplete_child.length;
-            var currentIndex = 0;
-
-            //현재 포커스중인 인덱스를 특정
-            for (i = 0; i < resultLength; i++) {
-              if (el == autocomplete_child[i]) {
-                currentIndex = i;
-                break;
-              }
-            }
-
-            //다음 인덱스가 존재하므로 다음 인덱스로 포커스를 이동
-            if (resultLength > currentIndex + 1) {
-              autocomplete_child[currentIndex+1].focus();
-              console.log(`다음 추천 검색어 [${autocomplete_child[currentIndex+1].textContent}]로 포커스 이동`);
-            }
-          }
-        }
-
-        //추천창이 뜨지 않았다면
-        else {
-            //포커스가 검색창에 있다면
-          if (el.id == 'sch_stx') {
-            e.preventDefault();
-			      e.stopPropagation();
-          }
-        }
-      }
-    }
-  }
-    else if (e.key == 'ArrowUp') {
-    //검색창 활성화 상태에서 키 입력 처리
-    const search_wrap = document.querySelector('.search_wrap');
-    if (search_wrap.classList.contains('active')) {
-      var el = document.activeElement;
-      //검색창 자체에 포커스가 가 있다면 키 입력을 무시함
-
-      if (el.id == 'sch_stx') {
-        e.preventDefault();
-		    e.stopPropagation();
-      }
-
-      //포커스가 추천 검색어에 있다면, 이전 검색어가 있다면 이전 검색어로, 아니라면 검색입력창으로 포커스 이동
-      else if (el.className == 'autocomplete_child'){
-        e.preventDefault();
-		    e.stopPropagation();
-        const childString = (isWebBrowser) ? '.autocomplete_child' : '[class*="autocomplete-item"]'
-        const autocomplete_child = document.querySelectorAll(childString);
-        const resultLength = autocomplete_child.length;
-        var currentIndex = 0;
-
-        //현재 포커스중인 인덱스를 특정
-        for (i = 0; i < resultLength; i++) {
-          if (el == autocomplete_child[i]) {
-            currentIndex = i;
-            break;
-          }
-        }
-
-        //이전 인덱스가 존재하면 이전 인덱스로 이동
-        if (currentIndex > 0 ) {
-          autocomplete_child[currentIndex-1].focus();
-        }
-        //이전 인덱스가 존재하지 않아 검색창으로 이동
-        else {
-          var search_input = document.getElementById('sch_stx');
-          search_input.focus();
-        }
-      }
-    }
-  }
-
-    //카테고리 필터 관련 키입력 로직
-    const active = document.activeElement;
-    if (active.classList.contains('btn_filter')) {
-        const layer = active.nextElementSibling; // .filter_layer
-        if (!layer) return;
-
-        //드롭다운이 열려있을때, 카테고리 필터 버튼 포커스 상태에서는 아래 방향키만 동작하게 만들기
-        if (e.key === 'ArrowLeft' || e.key == 'ArrowRight' || e.key === 'ArrowUp') {
-
-          const computed = window.getComputedStyle(layer);
-          const hasActiveClass = layer.classList && layer.classList.contains('active');
-          const displayVisible = (layer.style.display && layer.style.display !== 'none') || (computed.display && computed.display !== 'none');
-          const visibilityVisible = (layer.style.visibility && layer.style.visibility !== 'hidden') || (computed.visibility && computed.visibility !== 'hidden');
-          const offscreen = layer.style.left && (layer.style.left === '-9999px' || layer.style.left.indexOf('-') === 0);
-          const isOpen = hasActiveClass || (displayVisible && visibilityVisible && !offscreen);
-          if (isOpen) {
-            e.preventDefault();
-            e.stopPropagation();
-          }
-        }
-
-        //드롭다운이 열려있을때, 카테고리 필터 버튼 포커스 상태에서 아래 방향키를 누르면 자식 요소로 이동하게 하기
-        if (e.key === 'ArrowDown') {
-
-          //드롭다운이 열려있을때
-          const computed = window.getComputedStyle(layer);
-          const hasActiveClass = layer.classList && layer.classList.contains('active');
-          const displayVisible = (layer.style.display && layer.style.display !== 'none') || (computed.display && computed.display !== 'none');
-          const visibilityVisible = (layer.style.visibility && layer.style.visibility !== 'hidden') || (computed.visibility && computed.visibility !== 'hidden');
-          const offscreen = layer.style.left && (layer.style.left === '-9999px' || layer.style.left.indexOf('-') === 0);
-          const isOpen = hasActiveClass || (displayVisible && visibilityVisible && !offscreen);
-          if (isOpen) {
-            const first = layer.querySelector('a');
-            first?.focus();
-            e.preventDefault();
-            e.stopPropagation();
-          }
-        }
-
-      //드롭다운이 열려있고, 자식 요소들에 포커스가 있을 때
-      }
-    else if (active.closest('.filter_layer, .filter2_layer')) {
-
-        //옆 방향키는 동작하지 않게 하기
-        if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
-          e.preventDefault();
-          e.stopPropagation();
-        } else if (e.key === 'ArrowDown') {
-            const next = active.nextElementSibling;
-            if (next) next.focus();
-            e.preventDefault();
-            e.stopPropagation();
-        } else if (e.key === 'ArrowUp') {
-            const prev = active.previousElementSibling;
-            if (prev) prev.focus();
-            e.preventDefault();
-            e.stopPropagation();
-
-      }
-      }
-    });
-
-  //키 업
-  document.addEventListener('keyup', (e) => {
-    if (e.key == 'ArrowUp') {
-      //검색창 활성화 상태에서 키 입력 처리
-      const search_wrap = document.querySelector('.search_wrap');
-      if (search_wrap.classList.contains('active')) {
-        var el = document.activeElement;
-        //검색창 자체에 포커스가 가 있다면 키 입력을 무시함
-        if (el.id == 'sch_stx') {
-          e.preventDefault();
-          e.stopPropagation();
-        }
-      }
-    }
-  });
-
-})();
-// ==============================================================================================================
-// ==============================================================================================================
+console.log("UserSciprt Process : 8");
 
 
 
@@ -1694,7 +788,7 @@ function hideById(id) {
 	}
 
 	//재생 버튼 생성
-	const container = document.querySelector('div.bo_v_mov');
+	const container = document.querySelector('div.watch-player');
 	if (container) {
 		// 새로운 컨테이너 생성
 		const overlay = document.createElement('div');
@@ -1763,11 +857,10 @@ function hideById(id) {
 
         if (typeof NativeApp !== 'undefined' && NativeApp.handlePlayButtonClick) {
             // 3. 약간의 지연 후 네이티브 호출 (JS 스택이 비워진 후 네이티브가 동작하도록)
-          //console.log("클릭이벤트22");
 		  //NativeApp.handlePlayButtonClick();
-          //sendWatchListAddSignToNative();
+          sendWatchListAddSignToNative();
 		  
-		  const target = document.getElementById("view_iframe");
+		  const target = document.querySelector('iframe');
           target.focus();
 		  
         } else {
@@ -1787,7 +880,11 @@ function hideById(id) {
     // 마우스 클릭 대응
     playButton.onclick = handlePlayAction;
 	playButton.onfocus = () => {
-		document.getElementById("view_iframe")?.focus();
+		const iframe = document.querySelector('iframe');
+
+		if (iframe) {
+			iframe.focus();
+		}
 
 		playButton.style.setProperty("z-index", "9999", "important");
 		playButton.style.setProperty("background-color", "#552E00", "important");
@@ -1864,7 +961,7 @@ function hideById(id) {
     }
 	
 	//기존 비디오 영역 숨기기
-	const movDiv = document.querySelector('.bo_v_mov');
+	const movDiv = document.querySelector('.watch-player');
 	if (!movDiv) return;
 	movDiv.style.setProperty('height', '0px', 'important');
 	movDiv.style.setProperty('display', 'flex', 'important');
@@ -1877,15 +974,20 @@ function hideById(id) {
 			playButton.style.display = 'flex';
 			const overlay = document.getElementById('userscript-loading-overlay');
 			if (overlay) overlay.remove();				
-			clearInterval(interval);				
+			//clearInterval(interval);				
 		}
 		
 		//재생 버튼에서 탈출하기 위한 메시지
 		else if (event.data?.action === "IFRAME_MOVE_FOCUS") {
-			const current = document.getElementById("playButton");	
-			if (!current) return;			
+			const current = document.getElementById("playButton");
+			if (!current) return;	
 			moveFocusFrom(current, event.data.direction);
 		}
+		
+		//시청 목록 만들기
+		else if (event.data?.action === "sendWatchListAddSignToNative") {
+			sendWatchListAddSignToNative();
+		}		
 	});
 })();
 //비디오 플레이어의 워터마크 사용 여부 판단
@@ -1947,130 +1049,188 @@ function hideById(id) {
 })();
 // 메인 페이지 재구성: TV(O)::Phone(X)::Web(X)
 (function () {
-  if (pageNumber !== 0) return;
-  if (!isRunningOnTv) return;
+    'use strict';
+    if (pageNumber !== 0) return;
+    if (!isRunningOnTv) return;
 
-  const links = [
-    '/movie',
-    '/drama',
-    '/world',
-    '/ent',
-    '/ani_movie'
-  ];
+    const links = [
+        '/browse/kor_movie',
+        '/browse/drama',
+        '/browse/old_drama',
+        '/browse/ent',
+        '/browse/old_ent',
 
-  const names = [
-    '영화',
-    '한국 드라마',
-    '해외 드라마',
-    '예능 / 시사',
-    '애니메이션'
-  ];
+        '/browse/movie',
+        '/browse/world',
+        '/browse/sisa',
+        '/browse/ott_ent',
+        '/browse/animation'
+    ];
 
-  // 기존 레이아웃 제거
-  const bodyWrap = document.getElementById('body_wrap');
-  if (bodyWrap) bodyWrap.remove();
+    const names = [
+		'한국 영화',
+        '한국 드라마',
+		'한국 드라마\n(종영)',
+		'한국 예능',
+		'한국 예능\n(종영)',		
+        '외국 영화',
+        '외국 드라마',
+        '시사 / 다큐',
+        '해외\n시사 / 다큐',
+        '애니메이션',
+    ];
 
-	// 스타일 주입
-  const style = document.createElement('style');
-  style.textContent = `
-    /* 브라우저 기본 여백 제거 및 스크롤 차단 */
-    body {
-      margin: 0 !important;
-      padding: 0 !important;
-      overflow: hidden !important;
-      background: #141414 !important;
+    // 기존 레이아웃 제거
+    const bodyWrap = document.getElementById('body_wrap');
+    if (bodyWrap) bodyWrap.remove();
+
+    // 기존 TV 레이아웃이 있다면 제거
+    const oldContainer = document.querySelector('.tv-container');
+    if (oldContainer) oldContainer.remove();
+
+    // 스타일 주입
+    const style = document.createElement('style');
+
+    style.textContent = `
+        html,
+        body {
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            overflow: hidden !important;
+            background: #141414 !important;
+        }
+
+        .tv-container {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #141414;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            z-index: 999999;
+        }
+
+        .tv-grid {
+            display: grid;
+
+            /* 5개 × 2줄 */
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+
+            gap: 12px;
+
+            width: 92%;
+            max-width: 1600px;
+
+            /* TV 화면에서 2줄 높이를 안정적으로 유지 */
+            height: 70%;
+        }
+
+        .tv-card {
+			white-space: pre-line;
+
+            min-width: 0;
+            min-height: 0;
+
+            border-radius: 12px;
+
+            background: #2a2a2a;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 24px;
+            font-weight: 700;
+
+            color: #ffffff;
+
+            cursor: pointer;
+            user-select: none;
+            text-align: center;
+
+            outline: none;
+
+            /* GPU 레이어 */
+            transform: translateZ(0);
+
+            /* 기존 0.2s → 0.06s */
+            transition:
+                transform 0.06s linear,
+                background-color 0.06s linear;
+
+            will-change: transform;
+        }
+
+        .tv-card:focus {
+            transform: scale(1.05) translateZ(0);
+            background: #3a3a3a;
+        }
+
+        /* hover는 TV WebView에서 불필요하므로 제거 */
+        .tv-card:hover {
+            transform: none;
+        }
+    `;
+
+    document.head.appendChild(style);
+
+    function createLayout() {
+
+        const fragment = document.createDocumentFragment();
+
+        const container = document.createElement('div');
+        container.className = 'tv-container';
+
+        const grid = document.createElement('div');
+        grid.className = 'tv-grid';
+
+        let firstCard = null;
+
+        for (let i = 0; i < names.length; i++) {
+
+            const card = document.createElement('div');
+
+            card.className = 'tv-card';
+            card.tabIndex = 0;
+            card.textContent = names[i];
+
+            if (i === 0) {
+                firstCard = card;
+            }
+
+            card.addEventListener('click', () => {
+
+                location.href =
+                    "https://hoohootv1.org" + links[i];
+            });
+
+            grid.appendChild(card);
+        }
+
+        container.appendChild(grid);
+        fragment.appendChild(container);
+
+        // DOM 삽입
+        document.body.appendChild(fragment);
+
+        // 첫 번째 카드 포커스
+        if (firstCard) {
+            requestAnimationFrame(() => {
+                firstCard.focus({
+                    preventScroll: true
+                });
+            });
+        }
     }
 
-    .tv-container {
-      position: fixed; /* absolute 대신 fixed를 사용하여 화면 전체를 확실히 덮음 */
-      inset: 0;
-      background: #141414;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 999999; /* 기존 웹사이트의 모든 잔여 요소를 덮어버림 */
-    }
-
-    .tv-grid {
-      display: flex;
-      gap: 16px;
-      padding: 16px;
-      width: 90%;
-      max-width: 1600px;
-      justify-content: space-between;
-    }
-
-    .tv-card {
-      flex: 1;
-      height: 300px;
-      border-radius: 16px;
-      background: #2a2a2a;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      font-weight: 700;
-      color: #ffffff;
-      cursor: pointer;
-      user-select: none;
-      text-align: center;
-      outline: none;
-      will-change: transform;
-      transform: translateZ(0);
-      transition: transform 0.2s ease;
-    }
-
-    .tv-card:focus, .tv-card:hover {
-      transform: translateZ(0) scale(1.08);
-      background: #3a3a3a; /* 포커스 시 색상도 살짝 밝게 변경 (선택사항) */
-    }
-  `;
-  document.head.appendChild(style);
-
-function createLayout() {
-    const fragment = document.createDocumentFragment();
-
-    const container = document.createElement('div');
-    container.className = 'tv-container';
-
-    const grid = document.createElement('div');
-    grid.className = 'tv-grid';
-
-    let firstCard = null; // 첫 번째 카드를 저장할 변수
-
-    for (let i = 0; i < names.length; i++) {
-      const card = document.createElement('div');
-      card.className = 'tv-card';
-      card.tabIndex = 0;
-      card.textContent = names[i];
-
-      // i가 0일 때(첫 번째 순서일 때) firstCard 변수에 저장
-      if (i === 0) {
-        firstCard = card;
-      }
-
-      card.addEventListener('click', () => {
-        window.location.href = links[i];
-      });
-
-      grid.appendChild(card);
-    }
-
-    container.appendChild(grid);
-    fragment.appendChild(container);
-
-    requestAnimationFrame(() => {
-      document.body.appendChild(fragment);
-      
-      // 화면에 요소가 추가된 직후 첫 번째 카드에 포커스 부여
-      if (firstCard) {
-        firstCard.focus();
-      }
-    });
-  }
-
-  createLayout();
-
+    createLayout();
 
 })();
 //개발자 도구 차단 스크립트 무효화
@@ -2099,6 +1259,302 @@ function createLayout() {
 	});
 	removeDisableDevtool();
 })();
+//후후티비 레이아웃 변경
+(function () {
+    'use strict';
+
+    function rebuild() {
+
+        // 카테고리별 페이지
+        const filterBar = document.querySelector('.filter-bar');
+        const posterGrid = document.querySelector('.poster-grid.catalog-grid');
+        const pagination = document.querySelector('.pagination');
+
+        // 재생 페이지
+        const watchHero = document.querySelector('.watch-hero');
+        const watchH1 = document.querySelector('.watch-copy h1');
+        const watchKicker = document.querySelector('.watch-kicker');
+
+        // CSS 수정
+        const style = document.createElement('style');
+        style.textContent = `
+            /* 페이지 전체 여백 제거 */
+            html,
+            body {
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+			/* watch-page의 왼쪽 여백 제거 */
+			.watch-page,
+			.page-shell.catalog-page {
+				margin-left: 0 !important;
+			}
+			
+			page-shell catalog-page
+
+            /* 옮긴 제목 */
+            .watch-hero > h1 {
+                margin-left: 35px !important;
+                margin-bottom: 30 !important;
+            }
+
+            /* 제목 바로 아래 요소의 여백 제거 */
+            .watch-hero > h1 + * {
+                margin-top: 0 !important;
+                padding-top: 0 !important;
+            }
+
+            /* watch-kicker 높이 제거 */
+            .watch-kicker {
+                height: 0 !important;
+                overflow: hidden !important;
+            }
+
+            /* 회차 날짜 제거 */
+            .episode-item span {
+                display: none !important;
+            }
+
+            /* 회차 번호 가운데 정렬 */
+            .episode-item {
+                display: flex !important;
+                justify-content: center !important;
+                align-items: center !important;
+            }
+
+            /* 회차 번호 글씨 크기 */
+            .episode-item strong {
+                font-size: 20px !important;
+            }
+        `;
+
+        document.head.appendChild(style);
+
+        // 재생 페이지 제목을 watch-hero의 최상단으로 이동
+        if (watchHero && watchH1) {
+
+            watchHero.prepend(watchH1);
+
+            // 영상만 재생하는 페이지가 아니라면 회차 정보 추가
+            if (!isOnlyVideo && watchKicker) {
+
+                const kickerText = watchKicker.textContent.trim();
+
+                // "드라마 · 11화"에서 "11화"만 추출
+                const match = kickerText.match(/(\d+화)/);
+
+                if (match) {
+                    watchH1.textContent += ' ' + match[1];
+                }
+            }
+			
+			thisEpisodeTitle = watchH1.textContent;
+        }
+
+        // 필요한 요소가 아직 로드되지 않았다면 대기
+        if (!filterBar && !posterGrid && !pagination) {
+            return;
+        }
+
+        // 기존 body의 모든 내용 제거
+        document.body.innerHTML = '';
+
+        // 원하는 순서대로 body에 추가
+        if (filterBar) {
+            document.body.appendChild(filterBar);
+        }
+
+        if (posterGrid) {
+            document.body.appendChild(posterGrid);
+        }
+
+        if (pagination) {
+            document.body.appendChild(pagination);
+        }
+    }
+
+    // DOM이 만들어진 후 실행
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', rebuild);
+    } else {
+        rebuild();
+    }
+
+})();
+// 검색창 추가
+(function () {
+    'use strict';
+
+    // Kotlin에서 호출
+    window.openSearch = function () {
+
+        // 이미 검색창이 열려 있으면 input에 포커스
+        if (document.getElementById('userscript-search')) {
+            document.getElementById('userscript-search-input')?.focus();
+            return;
+        }
+
+        // 검색창 CSS
+        const style = document.createElement('style');
+        style.id = 'userscript-search-style';
+
+        style.textContent = `
+            #userscript-search {
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+
+                display: flex;
+
+                padding: 20px;
+
+                background: #222;
+                border: 2px solid #555;
+                border-radius: 10px;
+
+                z-index: 999999;
+            }
+
+            #userscript-search-input {
+                width: 500px;
+                height: 60px;
+
+                padding: 0 15px;
+                box-sizing: border-box;
+
+                border: none;
+                border-radius: 5px;
+
+                background: #222 !important;
+                color: #fff !important;
+
+                font-size: 26px;
+                outline: none;
+
+                caret-color: #fff;
+            }
+
+            #userscript-search-input::placeholder {
+                color: #fff !important;
+                opacity: 0.6;
+            }
+
+            #userscript-search-input:focus {
+                outline: 3px solid #FFD700;
+            }
+        `;
+
+        document.head.appendChild(style);
+
+
+        // 검색창 생성
+        const searchBox = document.createElement('div');
+        searchBox.id = 'userscript-search';
+
+        searchBox.innerHTML = `
+            <input
+                id="userscript-search-input"
+                type="text"
+                placeholder="검색어를 입력하세요"
+                autocomplete="off"
+            >
+        `;
+
+        document.body.appendChild(searchBox);
+
+
+        const input =
+            document.getElementById(
+                'userscript-search-input'
+            );
+
+
+        // ============================================
+        // 검색
+        // ============================================
+
+        function search() {
+
+            const keyword =
+                input.value.trim();
+
+            if (!keyword) {
+
+                input.focus();
+
+                return;
+            }
+
+
+            const url =
+                'https://hoohootv1.org/search.php?q=' +
+                encodeURIComponent(keyword);
+
+
+            location.href = url;
+        }
+
+
+        // ============================================
+        // DPAD CENTER / Enter
+        // ============================================
+
+        input.addEventListener('keydown', (e) => {
+
+            const isSearchKey =
+                e.key === 'Enter' ||
+                e.code === 'Enter' ||
+                e.code === 'NumpadEnter' ||
+                e.key === 'Select' ||
+                e.keyCode === 23 ||   // DPAD CENTER
+                e.keyCode === 66;     // ENTER
+
+
+            if (isSearchKey) {
+
+                e.preventDefault();
+                e.stopPropagation();
+
+                search();
+
+                return;
+            }
+        });
+
+
+        // ============================================
+        // 입력값 확인
+        // ============================================
+
+        input.addEventListener('input', () => {
+
+            if (
+                typeof NativeApp !== 'undefined' &&
+                NativeApp.jsLog
+            ) {
+
+                NativeApp.jsLog(
+                    '검색 입력값: ' +
+                    input.value
+                );
+            }
+        });
+
+
+        // ============================================
+        // 검색창이 열리면 input 포커스
+        // ============================================
+
+        requestAnimationFrame(() => {
+
+            input.focus();
+
+        });
+    };
+
+})();
 //마무리 디버그
 (function () {
 	if (isWebBrowser) return;
@@ -2106,3 +1562,7 @@ function createLayout() {
 	const now = performance.now();
 	NativeApp.jsLog(`경과 시간: ${now.toFixed(3)} ms`);
 })();
+
+
+
+
