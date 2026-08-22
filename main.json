@@ -2,8 +2,8 @@
   "streamingHomeUrl": "https://hoohootv1.org",
   "mainScriptVersion": "202608220000",
   "mainScriptUrl": "https://raw.githubusercontent.com/FaAgFFXA6SSkln/tvFlix/refs/heads/main/userScript.js",
-  "avoidUrl": "https://tvwiki.store/",
-  "mainSiteDomain": "space",
+  "avoidUrl": "",
+  "mainSiteDomain": "",
   "removeSelectors": [
 	"#siteHeader",
 	"#sideMenu",
