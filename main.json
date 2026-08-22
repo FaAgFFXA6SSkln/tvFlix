@@ -1,6 +1,6 @@
 {
   "streamingHomeUrl": "https://hoohootv1.org",
-  "mainScriptVersion": "202607050008",
+  "mainScriptVersion": "202608220000",
   "mainScriptUrl": "https://raw.githubusercontent.com/FaAgFFXA6SSkln/tvFlix/refs/heads/main/userScript.js",
   "avoidUrl": "https://tvwiki.store/",
   "mainSiteDomain": "space",
@@ -47,7 +47,7 @@
     },
     {
       "name": "artplayer.js",
-      "version": "202607050008",
+      "version": "202608220000",
       "url": "https://raw.githubusercontent.com/FaAgFFXA6SSkln/tvFlix/refs/heads/main/artplayer.js"
     }
   ]
