@@ -76,181 +76,6 @@ function hideById(id) {
 // ==============================================================================================================
 // 
 
-
-console.log("UserSciprt Process : 2");
-
-
-
-// ==============================================================================================================
-// 3. 웹사이트 요소 추가(검색버튼 텍스트, 동영상 재생버튼, 특수 포커스 효과)
-// ==============================================================================================================
-//특수 포커스 효과: TV(O)::Phone(X)::Web(X)
-(function() {
-  if (!isRunningOnTv) return;
-
-  const style = document.createElement('style');
-  style.innerHTML = `
-      :focus:not(body):not([tabindex="-1"]) {
-          z-index: 9999 !important;
-          background-color: #552E00 !important;
-          outline: 4px solid #FFD700 !important;
-          outline-offset: 0px !important;
-          box-shadow:
-              0 0 0 400px #552E00 inset,
-              0 0 400px rgba(255, 215, 0, 1) !important;
-          transition: outline-color 0.2s, box-shadow 0.2s;
-      }
-  `;
-  document.head.appendChild(style);
-
-  let focusOverlay = null;
-
-  document.addEventListener('focusin', (e) => {
-      const target = e.target.closest &&
-        e.target.closest('.title, .title2, .filter_layer a, .filter2_layer a');
-      if (!target) return;
-
-      const parentDiv = target.parentElement;
-      const isSearchPageItem =
-        parentDiv &&
-        parentDiv.tagName === 'DIV' &&
-        parentDiv.classList.contains('con');
-
-      const isDropDownItem =
-        e.target.closest('.filter_layer a, .filter2_layer a');
-
-      const rect = target.getBoundingClientRect();
-
-      // 원본 투명화
-      target.style.opacity = '0';
-
-      // 시작 / 최종 크기 분리 ★
-      const startWidth  = `${rect.width}px`;
-      const startHeight = `${rect.height}px`;
-
-      const finalWidth =
-        isSearchPageItem ? '65%' : `${rect.width}px`;
-
-      const finalHeight =
-        isDropDownItem ? `${rect.height}px` : `${rect.height + 30}px`;
-
-      // overlay 생성
-      focusOverlay = document.createElement('div');
-      focusOverlay.textContent = target.textContent;
-
-      Object.assign(focusOverlay.style, {
-          position: 'absolute',
-          top: isSearchPageItem
-              ? `${rect.top + window.scrollY - 30}px`
-              : `${rect.top + window.scrollY}px`,
-          left: `${rect.left + window.scrollX}px`,
-
-          // ★ 시작 크기 (원본과 동일)
-          width: startWidth,
-          height: startHeight,
-
-          color: '#FFF',
-          fontWeight: 'bold',
-          background: '#552E00',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: '999999',
-          pointerEvents: 'none',
-          padding: '4px 10px',
-
-          outline: '4px solid #FFD700',
-          outlineOffset: '0',
-          boxShadow: `
-              0 0 0 400px #552E00 inset,
-              0 0 400px rgba(255, 215, 0, 1)
-          `,
-
-          // ★ width / height 애니메이션
-          transition: `
-              width 0.22s cubic-bezier(0.2, 0, 0.38, 0.9),
-              height 0.22s cubic-bezier(0.2, 0, 0.38, 0.9),
-              box-shadow 0.2s
-          `,
-      });
-
-      // 글꼴 스타일 복사
-      const cs = window.getComputedStyle(target);
-      focusOverlay.style.fontSize = cs.fontSize;
-      focusOverlay.style.fontFamily = cs.fontFamily;
-
-      document.body.appendChild(focusOverlay);
-
-      // ★ 다음 프레임에서 최종 크기 적용
-      requestAnimationFrame(() => {
-          if (!focusOverlay) return;
-          focusOverlay.style.width  = finalWidth;
-          focusOverlay.style.height = finalHeight;
-      });
-  });
-
-  document.addEventListener('focusout', (e) => {
-      const el = e.target;
-
-      // 원본 복원
-      el.style.opacity = '';
-
-      // overlay 제거
-      if (focusOverlay) {
-          focusOverlay.remove();
-          focusOverlay = null;
-      }
-  });
-})();
-
-
-
-
-// ==============================================================================================================
-// ==============================================================================================================
-
-console.log("UserSciprt Process : 3");
-
-// ==============================================================================================================
-// 4. 웹사이트 요소 변경
-// ==============================================================================================================
-
-//재생 페이지 이전화, 다음화 버튼 글씨 크기 조정
-(function() {
-
-	if (pageNumber < 2) return;
-
-    const css = `
-        /* 전체 버튼 글씨 키우기 */
-        .bo_v_nb_mobile li a {
-            font-size: 1.3rem !important;
-            font-weight: 600 !important;
-            padding: 12px 18px !important;
-        }
-
-        /* circle 크기 */
-        .bo_v_nb_mobile li a .circle {
-            width: 28px !important;
-            height: 28px !important;
-            font-size: 1.0rem !important;
-            display: inline-flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-        }
-
-        /* 아이콘 크기 (font-awesome) */
-        .bo_v_nb_mobile li a .circle i {
-            font-size: 1.2rem !important;
-        }
-    `;
-
-    const style = document.createElement('style');
-    style.innerHTML = css;
-    document.head.appendChild(style);
-})();
-
-
-
 // ==============================================================================================================
 // ==============================================================================================================
 
@@ -693,10 +518,6 @@ if (searchLayer) {
 // ==============================================================================================================
 // ==============================================================================================================
 
-console.log("UserSciprt Process : 8");
-
-
-
 
 
 //재생 페이지 진입시 비디오 영역, 재생 버튼 숨기고, 로드 완료되면 표시: TV(O)::Phone(O)::Web(X)
@@ -719,7 +540,7 @@ console.log("UserSciprt Process : 8");
     playButton.style.backgroundColor = "#ff0000";
 }
 	
-	//재생 버튼 탈출을 위한 함수
+	// 재생 버튼 탈출을 위한 함수
 	function moveFocusFrom(current, direction) {
 		const currentRect = current.getBoundingClientRect();
 
@@ -742,12 +563,15 @@ console.log("UserSciprt Process : 8");
 				case "ArrowUp":
 					valid = r.bottom <= currentRect.top;
 					break;
+
 				case "ArrowDown":
 					valid = r.top >= currentRect.bottom;
 					break;
+
 				case "ArrowLeft":
 					valid = r.right <= currentRect.left;
 					break;
+
 				case "ArrowRight":
 					valid = r.left >= currentRect.right;
 					break;
@@ -755,8 +579,14 @@ console.log("UserSciprt Process : 8");
 
 			if (!valid) continue;
 
-			const dx = (r.left + r.width / 2) - (currentRect.left + currentRect.width / 2);
-			const dy = (r.top + r.height / 2) - (currentRect.top + currentRect.height / 2);
+			const dx =
+				(r.left + r.width / 2) -
+				(currentRect.left + currentRect.width / 2);
+
+			const dy =
+				(r.top + r.height / 2) -
+				(currentRect.top + currentRect.height / 2);
+
 			const distance = Math.hypot(dx, dy);
 
 			if (distance < bestDistance) {
@@ -764,24 +594,43 @@ console.log("UserSciprt Process : 8");
 				best = el;
 			}
 		}
-		
-		removePlayButtonFocusEffect();
 
+
+		// 이동할 포커스 대상이 있을 때만
+		// 재생 버튼 이펙트 제거
 		if (best) {
-			best.focus({ preventScroll: true });
+
+			removePlayButtonFocusEffect();
+
+			best.focus({
+				preventScroll: true
+			});
+
 			best.scrollIntoView({
 				block: "nearest",
 				inline: "nearest",
 				behavior: "auto"
 			});
+
 		} else {
+
+			// 이동할 요소가 없는 경우
+			// 현재 재생 버튼의 포커스 이펙트를 유지
+
 			switch (direction) {
+
 				case "ArrowUp":
-					window.scrollBy({ top: -150, behavior: "auto" });
+					window.scrollBy({
+						top: -150,
+						behavior: "auto"
+					});
 					break;
 
 				case "ArrowDown":
-					window.scrollBy({ top: 150, behavior: "auto" });
+					window.scrollBy({
+						top: 150,
+						behavior: "auto"
+					});
 					break;
 			}
 		}
@@ -973,8 +822,8 @@ console.log("UserSciprt Process : 8");
 			const playButton = document.getElementById('playButton');
 			playButton.style.display = 'flex';
 			const overlay = document.getElementById('userscript-loading-overlay');
-			if (overlay) overlay.remove();				
-			//clearInterval(interval);				
+			if (overlay) overlay.remove();			
+			//clearInterval(interval);
 		}
 		
 		//재생 버튼에서 탈출하기 위한 메시지
@@ -1050,43 +899,42 @@ console.log("UserSciprt Process : 8");
 // 메인 페이지 재구성: TV(O)::Phone(X)::Web(X)
 (function () {
     'use strict';
+
     if (pageNumber !== 0) return;
     if (!isRunningOnTv) return;
 
     const links = [
         '/browse/kor_movie',
         '/browse/drama',
-        '/browse/old_drama',
         '/browse/ent',
-        '/browse/old_ent',
+        '/browse/sisa',
 
         '/browse/movie',
         '/browse/world',
-        '/browse/sisa',
         '/browse/ott_ent',
         '/browse/animation'
     ];
 
     const names = [
-		'한국 영화',
-        '한국 드라마',
-		'한국 드라마\n(종영)',
-		'한국 예능',
-		'한국 예능\n(종영)',		
+        '영화',
+        '드라마',
+        '예능',
+        '시사',
+
         '외국 영화',
         '외국 드라마',
-        '시사 / 다큐',
-        '해외\n시사 / 다큐',
-        '애니메이션',
+        '외국 예능/시사',
+        '애니메이션'
     ];
 
     // 기존 레이아웃 제거
     const bodyWrap = document.getElementById('body_wrap');
     if (bodyWrap) bodyWrap.remove();
 
-    // 기존 TV 레이아웃이 있다면 제거
+    // 기존 TV 레이아웃 제거
     const oldContainer = document.querySelector('.tv-container');
     if (oldContainer) oldContainer.remove();
+
 
     // 스타일 주입
     const style = document.createElement('style');
@@ -1096,17 +944,23 @@ console.log("UserSciprt Process : 8");
         body {
             margin: 0 !important;
             padding: 0 !important;
+
             width: 100% !important;
             height: 100% !important;
+
             overflow: hidden !important;
+
             background: #141414 !important;
         }
+
 
         .tv-container {
             position: fixed;
             inset: 0;
+
             width: 100vw;
             height: 100vh;
+
             background: #141414;
 
             display: flex;
@@ -1116,11 +970,12 @@ console.log("UserSciprt Process : 8");
             z-index: 999999;
         }
 
+
         .tv-grid {
             display: grid;
 
-            /* 5개 × 2줄 */
-            grid-template-columns: repeat(5, 1fr);
+            /* 가로 4개 × 세로 2줄 */
+            grid-template-columns: repeat(4, 1fr);
             grid-template-rows: repeat(2, 1fr);
 
             gap: 12px;
@@ -1128,12 +983,13 @@ console.log("UserSciprt Process : 8");
             width: 92%;
             max-width: 1600px;
 
-            /* TV 화면에서 2줄 높이를 안정적으로 유지 */
+            /* 2줄 전체 높이 */
             height: 70%;
         }
 
+
         .tv-card {
-			white-space: pre-line;
+            white-space: pre-line;
 
             min-width: 0;
             min-height: 0;
@@ -1153,14 +1009,13 @@ console.log("UserSciprt Process : 8");
 
             cursor: pointer;
             user-select: none;
+
             text-align: center;
 
             outline: none;
 
-            /* GPU 레이어 */
             transform: translateZ(0);
 
-            /* 기존 0.2s → 0.06s */
             transition:
                 transform 0.06s linear,
                 background-color 0.06s linear;
@@ -1168,18 +1023,21 @@ console.log("UserSciprt Process : 8");
             will-change: transform;
         }
 
+
         .tv-card:focus {
             transform: scale(1.05) translateZ(0);
             background: #3a3a3a;
         }
 
-        /* hover는 TV WebView에서 불필요하므로 제거 */
+
+        /* TV에서는 hover 효과 제거 */
         .tv-card:hover {
             transform: none;
         }
     `;
 
     document.head.appendChild(style);
+
 
     function createLayout() {
 
@@ -1193,42 +1051,56 @@ console.log("UserSciprt Process : 8");
 
         let firstCard = null;
 
+
         for (let i = 0; i < names.length; i++) {
 
             const card = document.createElement('div');
 
             card.className = 'tv-card';
             card.tabIndex = 0;
+
             card.textContent = names[i];
+
 
             if (i === 0) {
                 firstCard = card;
             }
 
+
             card.addEventListener('click', () => {
 
                 location.href =
-                    "https://hoohootv1.org" + links[i];
+                    'https://hoohootv1.org' + links[i];
+
             });
+
 
             grid.appendChild(card);
         }
 
+
         container.appendChild(grid);
         fragment.appendChild(container);
+
 
         // DOM 삽입
         document.body.appendChild(fragment);
 
+
         // 첫 번째 카드 포커스
         if (firstCard) {
+
             requestAnimationFrame(() => {
+
                 firstCard.focus({
                     preventScroll: true
                 });
+
             });
+
         }
     }
+
 
     createLayout();
 
@@ -1259,7 +1131,7 @@ console.log("UserSciprt Process : 8");
 	});
 	removeDisableDevtool();
 })();
-//후후티비 레이아웃 변경
+// 후후티비 레이아웃 변경
 (function () {
     'use strict';
 
@@ -1275,8 +1147,10 @@ console.log("UserSciprt Process : 8");
         const watchH1 = document.querySelector('.watch-copy h1');
         const watchKicker = document.querySelector('.watch-kicker');
 
+
         // CSS 수정
         const style = document.createElement('style');
+
         style.textContent = `
             /* 페이지 전체 여백 제거 */
             html,
@@ -1285,18 +1159,16 @@ console.log("UserSciprt Process : 8");
                 padding: 0 !important;
             }
 
-			/* watch-page의 왼쪽 여백 제거 */
-			.watch-page,
-			.page-shell.catalog-page {
-				margin-left: 0 !important;
-			}
-			
-			page-shell catalog-page
+            /* watch-page 및 catalog-page의 왼쪽 여백 제거 */
+            .watch-page,
+            .page-shell.catalog-page {
+                margin-left: 0 !important;
+            }
 
             /* 옮긴 제목 */
             .watch-hero > h1 {
                 margin-left: 35px !important;
-                margin-bottom: 30 !important;
+                margin-bottom: 30px !important;
             }
 
             /* 제목 바로 아래 요소의 여백 제거 */
@@ -1331,34 +1203,46 @@ console.log("UserSciprt Process : 8");
 
         document.head.appendChild(style);
 
+
         // 재생 페이지 제목을 watch-hero의 최상단으로 이동
         if (watchHero && watchH1) {
 
             watchHero.prepend(watchH1);
 
+
             // 영상만 재생하는 페이지가 아니라면 회차 정보 추가
             if (!isOnlyVideo && watchKicker) {
 
-                const kickerText = watchKicker.textContent.trim();
+                const kickerText =
+                    watchKicker.textContent.trim();
+
 
                 // "드라마 · 11화"에서 "11화"만 추출
-                const match = kickerText.match(/(\d+화)/);
+                const match =
+                    kickerText.match(/(\d+화)/);
+
 
                 if (match) {
-                    watchH1.textContent += ' ' + match[1];
+                    watchH1.textContent +=
+                        ' ' + match[1];
                 }
             }
-			
-			thisEpisodeTitle = watchH1.textContent;
+
+
+            thisEpisodeTitle =
+                watchH1.textContent;
         }
 
-        // 필요한 요소가 아직 로드되지 않았다면 대기
+
+        // 필요한 요소가 아직 로드되지 않았다면 종료
         if (!filterBar && !posterGrid && !pagination) {
             return;
         }
 
+
         // 기존 body의 모든 내용 제거
         document.body.innerHTML = '';
+
 
         // 원하는 순서대로 body에 추가
         if (filterBar) {
@@ -1374,12 +1258,332 @@ console.log("UserSciprt Process : 8");
         }
     }
 
+
     // DOM이 만들어진 후 실행
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', rebuild);
+
+        document.addEventListener(
+            'DOMContentLoaded',
+            rebuild
+        );
+
     } else {
+
         rebuild();
+
     }
+
+})();
+
+
+// =============================================
+// 특수 포커스 효과
+// TV(O) :: Phone(X) :: Web(X)
+// =============================================
+(function () {
+
+    if (!isRunningOnTv) return;
+
+
+    // ==============================
+    // 기본 포커스 스타일
+    // ==============================
+    const style = document.createElement('style');
+
+
+    style.innerHTML = `
+        :focus:not(body):not([tabindex="-1"]) {
+            z-index: 9999 !important;
+
+            background-color: #552E00 !important;
+
+            outline: 4px solid #FFD700 !important;
+            outline-offset: 0 !important;
+
+            box-shadow:
+                0 0 0 400px #552E00 inset,
+                0 0 400px rgba(255, 215, 0, 1) !important;
+
+            transition:
+                outline-color 0.2s,
+                box-shadow 0.2s;
+        }
+    `;
+
+
+    document.head.appendChild(style);
+
+
+    // ==============================
+    // 현재 오버레이
+    // ==============================
+    let focusOverlay = null;
+    let currentTarget = null;
+
+
+    // ==============================
+    // 포커스 획득
+    // ==============================
+    document.addEventListener('focusin', (e) => {
+
+        const target = e.target;
+
+
+        // body 및 .poster-card 내부 요소 제외
+        if (
+            !target ||
+            target === document.body ||
+            target.closest('.poster-card')
+        ) {
+            return;
+        }
+
+
+        // 이전 오버레이 제거
+        if (focusOverlay) {
+
+            focusOverlay.remove();
+            focusOverlay = null;
+
+        }
+
+
+        // 이전 대상 복원
+        if (
+            currentTarget &&
+            currentTarget !== target
+        ) {
+
+            currentTarget.style.opacity = '';
+
+        }
+
+
+        currentTarget = target;
+
+
+        // 위치와 크기
+        const rect =
+            target.getBoundingClientRect();
+
+
+        // 크기가 없는 요소는 무시
+        if (
+            rect.width <= 0 ||
+            rect.height <= 0
+        ) {
+            return;
+        }
+
+
+        // ==============================
+        // 원본 요소 숨김
+        // ==============================
+        target.style.opacity = '0';
+
+
+        // ==============================
+        // Overlay 생성
+        // ==============================
+        focusOverlay =
+            document.createElement('div');
+
+
+        focusOverlay.id =
+            'tv-focus-overlay';
+
+
+        // ==============================
+        // 원본 텍스트 복사
+        //
+        // .episode-item의 경우
+        // strong에 있는 회차 번호만 사용
+        // span에 있는 날짜는 제외
+        // ==============================
+        if (target.classList.contains('episode-item')) {
+
+            const strong =
+                target.querySelector('strong');
+
+
+            focusOverlay.textContent =
+                strong
+                    ? strong.textContent.trim()
+                    : '';
+
+        } else {
+
+            focusOverlay.textContent =
+                target.textContent.trim();
+
+        }
+
+
+        // ==============================
+        // Overlay 기본 스타일
+        // ==============================
+        Object.assign(
+            focusOverlay.style,
+            {
+
+                position: 'absolute',
+
+                top:
+                    `${rect.top + window.scrollY}px`,
+
+                left:
+                    `${rect.left + window.scrollX}px`,
+
+
+                width:
+                    `${rect.width}px`,
+
+                height:
+                    `${rect.height}px`,
+
+
+                boxSizing:
+                    'border-box',
+
+
+                background:
+                    '#552E00',
+
+
+                display:
+                    'flex',
+
+
+                alignItems:
+                    'center',
+
+                justifyContent:
+                    'center',
+
+
+                padding:
+                    '4px 10px',
+
+
+                zIndex:
+                    '2147483647',
+
+
+                pointerEvents:
+                    'none',
+
+
+                fontWeight:
+                    'bold',
+
+
+                outline:
+                    '4px solid #FFD700',
+
+
+                outlineOffset:
+                    '0',
+
+
+                boxShadow: `
+                    0 0 0 400px #552E00 inset,
+                    0 0 400px rgba(255, 215, 0, 1)
+                `,
+
+
+                transition: `
+                    width 0.22s cubic-bezier(0.2, 0, 0.38, 0.9),
+                    height 0.22s cubic-bezier(0.2, 0, 0.38, 0.9),
+                    box-shadow 0.2s
+                `
+            }
+        );
+
+
+        // ==============================
+        // 원본 글꼴 스타일 복사
+        // ==============================
+		let cs;
+
+		if (target.classList.contains('episode-item')) {
+
+			const strong = target.querySelector('strong');
+
+			if (strong) {
+				cs = window.getComputedStyle(strong);
+			} else {
+				cs = window.getComputedStyle(target);
+			}
+
+		} else {
+
+			cs = window.getComputedStyle(target);
+
+		}
+
+		focusOverlay.style.fontSize = cs.fontSize;
+		focusOverlay.style.fontFamily = cs.fontFamily;
+		focusOverlay.style.fontWeight = cs.fontWeight;
+
+
+        // ==============================
+        // 글자색은 무조건 흰색
+        // ==============================
+        focusOverlay.style.setProperty(
+            'color',
+            '#FFFFFF',
+            'important'
+        );
+
+
+        focusOverlay.style.setProperty(
+            '-webkit-text-fill-color',
+            '#FFFFFF',
+            'important'
+        );
+
+
+        // ==============================
+        // 화면에 추가
+        // ==============================
+        document.body.appendChild(
+            focusOverlay
+        );
+
+    });
+
+
+    // ==============================
+    // 포커스 해제
+    // ==============================
+    document.addEventListener('focusout', (e) => {
+
+        const target = e.target;
+
+
+        // 현재 포커스 대상이 아니면 무시
+        if (target !== currentTarget) {
+            return;
+        }
+
+
+        // 원본 복원
+        target.style.opacity = '';
+
+
+        // Overlay 제거
+        if (focusOverlay) {
+
+            focusOverlay.remove();
+
+            focusOverlay = null;
+
+        }
+
+
+        currentTarget = null;
+
+    });
 
 })();
 // 검색창 추가
