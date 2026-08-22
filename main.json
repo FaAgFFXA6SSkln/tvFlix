@@ -1,9 +1,9 @@
 {
   "streamingHomeUrl": "https://hoohootv1.org",
-  "mainScriptVersion": "202608220000",
+  "mainScriptVersion": "202607050008",
   "mainScriptUrl": "https://raw.githubusercontent.com/FaAgFFXA6SSkln/tvFlix/refs/heads/main/userScript.js",
-  "avoidUrl": "about:blank",
-  "mainSiteDomain": "about:blank",
+  "avoidUrl": "https://tvwiki.store/",
+  "mainSiteDomain": "space",
   "removeSelectors": [
 	"#siteHeader",
 	"#sideMenu",
@@ -36,8 +36,18 @@
       "url": "https://raw.githubusercontent.com/FaAgFFXA6SSkln/tvFlix/refs/heads/main/p2p-media-loader-core.es.min.js"
     },
     {
+      "name": "vidstack.js",
+      "version": "202501140006",
+      "url": "https://github.com/FaAgFFXA6SSkln/tvFlix/raw/refs/heads/main/vidstack.js"
+    },
+    {
+      "name": "video.min.js",
+      "version": "202605240008",
+      "url": "https://github.com/FaAgFFXA6SSkln/tvFlix/raw/refs/heads/main/video.min.js"
+    },
+    {
       "name": "artplayer.js",
-      "version": "202608220000",
+      "version": "202607050008",
       "url": "https://raw.githubusercontent.com/FaAgFFXA6SSkln/tvFlix/refs/heads/main/artplayer.js"
     }
   ]
