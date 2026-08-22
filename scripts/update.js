@@ -1,3 +1,4 @@
+/*
 const fs = require("fs");
 
 const JSON_PATH = "./main.json";
@@ -72,3 +73,4 @@ async function getLatestUrl() {
     console.log("ERROR:", err.message);
   }
 })();
+*/
