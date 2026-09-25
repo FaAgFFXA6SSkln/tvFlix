@@ -933,6 +933,10 @@ video.addEventListener('canplay', function () {
 var firstPlay = true;
 video.addEventListener('playing', function () {
   setClass('is-error', false);
+  
+      if (!fsElement()) {
+        toggleFullscreen();
+    }
 
   if (!firstPlay) return;
   firstPlay = false;
@@ -1152,4 +1156,1176 @@ video.addEventListener('playing', function () {
     s.onerror = boot;
     document.head.appendChild(s);
   }
+})();
+
+/* ============================================================
+ * TVWiki Player 추가 기능
+ *
+ * 기존 ArtPlayer용 추가 코드를
+ * 현재 TVWiki HLS Player 구조에 맞게 변환한 버전
+ *
+ * 기능
+ * 1. 확인/재생키 → 재생/일시정지
+ * 2. NativeApp WatchList 신호
+ * 3. 비전체화면 ↑↓ → 부모 iframe 포커스 이동
+ * 4. 전체화면 ←→ → Virtual Seek
+ * 5. Virtual Seek UI
+ * 6. 전체화면 종료 시 자동 일시정지
+ * 7. tvwiki Skip Intro 제거
+ *
+ * ============================================================ */
+
+(function () {
+
+    'use strict';
+
+    /* ------------------------------------------------------------
+     * 중복 실행 방지
+     * ------------------------------------------------------------ */
+
+    if (window.__TVWIKI_EXTRA_FEATURES__) {
+        return;
+    }
+
+    window.__TVWIKI_EXTRA_FEATURES__ = true;
+
+
+    /* ------------------------------------------------------------
+     * 기본 객체
+     * ------------------------------------------------------------ */
+
+    var root = document.getElementById('tvp');
+    var video = document.getElementById('tvp-video');
+
+    if (!root || !video) {
+        return;
+    }
+
+
+    /* ------------------------------------------------------------
+     * NativeApp 안전 호출
+     * ------------------------------------------------------------ */
+
+    function nativeLog(message) {
+
+        try {
+
+            if (
+                window.NativeApp &&
+                typeof window.NativeApp.jsLog === 'function'
+            ) {
+                window.NativeApp.jsLog(message);
+            }
+
+        } catch (e) {
+            /* 무시 */
+        }
+
+    }
+
+
+    /* ------------------------------------------------------------
+     * 부모에게 메시지
+     * ------------------------------------------------------------ */
+
+    function postTop(message) {
+
+        try {
+
+            window.top.postMessage(message, '*');
+
+        } catch (e) {
+            /* 무시 */
+        }
+
+    }
+
+
+    /* ============================================================
+     * 1. 재생 / 일시정지
+     * ============================================================ */
+
+    function playPause() {
+
+        if (video.paused || video.ended) {
+
+            var p = video.play();
+
+            if (p && p.catch) {
+
+                p.catch(function () {});
+
+            }
+
+        } else {
+
+            video.pause();
+
+        }
+
+    }
+
+    /* ============================================================
+     * 전체화면 확인
+     * ============================================================ */
+
+    function isFullscreen() {
+
+        return !!(
+            document.fullscreenElement ||
+            document.webkitFullscreenElement
+        );
+
+    }
+
+
+    /* ============================================================
+     * 2. 확인키 / 재생키
+     *
+     * 기존:
+     * _art.playing
+     * _art.play()
+     * _art.pause()
+     *
+     * 를 video API로 변경
+     * ============================================================ */
+
+    function isPlayKey(event) {
+
+        return (
+            event.code === 'KeyF' ||
+            event.code === 'Enter' ||
+            event.code === 'NumpadEnter' ||
+            event.code === 'Space' ||
+            event.key === 'Enter' ||
+            event.key === 'Select' ||
+            event.keyCode === 23 ||      // DPAD_CENTER
+            event.keyCode === 66 ||      // ENTER
+            event.key === 'MediaPlayPause'
+        );
+
+    }
+
+
+    /* ============================================================
+     * 키보드 처리
+     *
+     * capture 단계에서 현재 player.js의 기존 keydown보다 먼저 처리
+     * ============================================================ */
+
+    document.addEventListener(
+        'keydown',
+        function (event) {
+
+            /* Ctrl / Alt / Meta 조합은 건드리지 않는다. */
+            if (
+                event.ctrlKey ||
+                event.altKey ||
+                event.metaKey
+            ) {
+                return;
+            }
+
+
+            /* ----------------------------------------------------
+             * 전체화면
+             *
+             * 좌우 방향키는 Virtual Seek에서 처리
+             * ---------------------------------------------------- */
+
+            if (isFullscreen()) {
+
+				nativeLog('TVWiki Player: 키 수신');
+
+				if (isPlayKey(event)) {
+					event.preventDefault();
+					event.stopPropagation();
+					event.stopImmediatePropagation();
+
+					nativeLog('TVWiki Player: 확인/재생 키 수신');
+
+					// 전체화면 여부와 관계없이 재생/일시정지
+					playPause();
+					return;
+				}
+
+
+                if (
+                    event.code === 'ArrowLeft' ||
+                    event.key === 'ArrowLeft' ||
+                    event.keyCode === 21 ||
+                    event.code === 'ArrowRight' ||
+                    event.key === 'ArrowRight' ||
+                    event.keyCode === 22
+                ) {
+
+                    return;
+                }
+				
+				
+
+				
+
+            }
+
+
+            /* ----------------------------------------------------
+             * 비전체화면
+             *
+             * 확인키 → 재생/일시정지
+             * ---------------------------------------------------- */
+
+            if (!isFullscreen() && isPlayKey(event)) {
+
+                event.preventDefault();
+                event.stopPropagation();
+                event.stopImmediatePropagation();
+
+
+                nativeLog(
+                    'TVWiki Player: 풀스크린 아닌 상태, 확인키 수신'
+                );
+
+
+                postTop({
+                    action: 'sendWatchListAddSignToNative'
+                });
+
+
+                playPause();
+
+                return;
+
+            }
+			
+
+            /* ----------------------------------------------------
+             * 비전체화면 ↑↓
+             *
+             * 부모 iframe에 포커스 이동
+             * ---------------------------------------------------- */
+
+            if (!isFullscreen()) {
+
+                if (
+                    event.code === 'ArrowUp' ||
+                    event.code === 'ArrowDown'
+                ) {
+
+                    event.preventDefault();
+                    event.stopPropagation();
+                    event.stopImmediatePropagation();
+
+
+                    nativeLog(
+                        'TVWiki Player: 풀스크린 아닌 상태, 방향키 수신'
+                    );
+
+
+                    postTop({
+                        action: 'IFRAME_MOVE_FOCUS',
+                        direction: event.code
+                    });
+
+
+                    return;
+
+                }
+
+            }
+
+        },
+        true
+    );
+
+
+    /* ============================================================
+     * 3. 전체화면 종료 시 자동 일시정지
+     * ============================================================ */
+
+    function handleFullscreenChange() {
+
+        if (
+            !isFullscreen() &&
+            !video.paused
+        ) {
+
+            video.pause();
+
+        }
+
+    }
+
+
+    document.addEventListener(
+        'fullscreenchange',
+        handleFullscreenChange
+    );
+
+    document.addEventListener(
+        'webkitfullscreenchange',
+        handleFullscreenChange
+    );
+
+
+    /* ============================================================
+     * 4. Virtual Seek
+     *
+     * ← 10초
+     * → 10초
+     *
+     * 키를 누르는 동안:
+     * 실제 currentTime은 변경하지 않는다.
+     *
+     * 키를 놓으면:
+     * 실제 currentTime에 적용한다.
+     * ============================================================ */
+
+    var STEP = 10;
+
+    var REPEAT_INTERVAL = 100;
+
+    var HIDE_DELAY = 1000;
+
+
+    var seeking = false;
+
+    var virtualTime = 0;
+
+    var wasPlaying = false;
+
+    var repeatTimer = null;
+
+    var hideTimer = null;
+
+
+    /* ------------------------------------------------------------
+     * Virtual Seek UI
+     * ------------------------------------------------------------ */
+
+    var seekUI = null;
+
+    var seekTime = null;
+
+    var seekProgress = null;
+
+    var seekHandle = null;
+
+
+    /* ------------------------------------------------------------
+     * 시간 포맷
+     * ------------------------------------------------------------ */
+
+    function formatTime(seconds) {
+
+        if (!isFinite(seconds) || seconds < 0) {
+            seconds = 0;
+        }
+
+        seconds = Math.floor(seconds);
+
+
+        var hours =
+            Math.floor(seconds / 3600);
+
+
+        var minutes =
+            Math.floor((seconds % 3600) / 60);
+
+
+        var secs =
+            seconds % 60;
+
+
+        if (hours > 0) {
+
+            return (
+                String(hours).padStart(2, '0') +
+                ':' +
+                String(minutes).padStart(2, '0') +
+                ':' +
+                String(secs).padStart(2, '0')
+            );
+
+        }
+
+
+        return (
+            String(minutes).padStart(2, '0') +
+            ':' +
+            String(secs).padStart(2, '0')
+        );
+
+    }
+
+
+    /* ============================================================
+     * UI 부모
+     *
+     * 현재 player의 #tvp를 사용
+     * ============================================================ */
+
+    function getUIParent() {
+
+        if (document.fullscreenElement) {
+
+            return document.fullscreenElement;
+
+        }
+
+        return root;
+
+    }
+
+
+    /* ============================================================
+     * Virtual Seek UI 생성
+     * ============================================================ */
+
+    function createSeekUI() {
+
+        if (seekUI) {
+            return;
+        }
+
+
+        seekUI = document.createElement('div');
+
+        seekUI.id = 'tv-virtual-seek';
+
+
+        seekUI.innerHTML =
+            '<div id="tv-virtual-seek-time">' +
+                '00:00 / 00:00' +
+            '</div>' +
+
+            '<div id="tv-virtual-seek-bar">' +
+
+                '<div id="tv-virtual-seek-progress">' +
+                '</div>' +
+
+                '<div id="tv-virtual-seek-handle">' +
+                '</div>' +
+
+            '</div>';
+
+
+        Object.assign(
+            seekUI.style,
+            {
+                position: 'absolute',
+
+                left: '5%',
+
+                width: '90%',
+
+                bottom: '60px',
+
+                height: '65px',
+
+                zIndex: '2147483647',
+
+                pointerEvents: 'none',
+
+                display: 'none',
+
+                boxSizing: 'border-box'
+            }
+        );
+
+
+        /* 시간 */
+
+        seekTime =
+            seekUI.querySelector(
+                '#tv-virtual-seek-time'
+            );
+
+
+        Object.assign(
+            seekTime.style,
+            {
+                color: '#ffffff',
+
+                fontSize: '22px',
+
+                fontWeight: 'bold',
+
+                textAlign: 'center',
+
+                marginBottom: '12px',
+
+                lineHeight: '28px',
+
+                textShadow:
+                    '0 2px 5px rgba(0,0,0,0.9)'
+            }
+        );
+
+
+        /* Bar */
+
+        var seekBar =
+            seekUI.querySelector(
+                '#tv-virtual-seek-bar'
+            );
+
+
+        Object.assign(
+            seekBar.style,
+            {
+                position: 'relative',
+
+                width: '100%',
+
+                height: '8px',
+
+                background:
+                    'rgba(255,255,255,0.35)',
+
+                borderRadius: '4px',
+
+                overflow: 'visible'
+            }
+        );
+
+
+        /* Progress */
+
+        seekProgress =
+            seekUI.querySelector(
+                '#tv-virtual-seek-progress'
+            );
+
+
+        Object.assign(
+            seekProgress.style,
+            {
+                position: 'absolute',
+
+                left: '0',
+
+                top: '0',
+
+                width: '0%',
+
+                height: '100%',
+
+                background: '#ff0000',
+
+                borderRadius: '4px'
+            }
+        );
+
+
+        /* Handle */
+
+        seekHandle =
+            seekUI.querySelector(
+                '#tv-virtual-seek-handle'
+            );
+
+
+        Object.assign(
+            seekHandle.style,
+            {
+                position: 'absolute',
+
+                left: '0%',
+
+                top: '50%',
+
+                width: '22px',
+
+                height: '22px',
+
+                transform:
+                    'translate(-50%, -50%)',
+
+                background: '#ffffff',
+
+                border: '3px solid #ff0000',
+
+                borderRadius: '50%',
+
+                boxSizing: 'border-box'
+            }
+        );
+
+
+        getUIParent().appendChild(seekUI);
+
+    }
+
+
+    /* ============================================================
+     * Fullscreen 진입/종료 시 UI 이동
+     * ============================================================ */
+
+    function moveSeekUI() {
+
+        if (!seekUI) {
+            return;
+        }
+
+
+        var parent = getUIParent();
+
+
+        if (
+            parent &&
+            seekUI.parentElement !== parent
+        ) {
+
+            parent.appendChild(seekUI);
+
+        }
+
+    }
+
+
+    /* ============================================================
+     * UI 표시
+     * ============================================================ */
+
+    function showSeekUI() {
+
+        createSeekUI();
+
+        moveSeekUI();
+
+
+        clearTimeout(hideTimer);
+
+
+        seekUI.style.display = 'block';
+
+
+        updateSeekUI();
+
+    }
+
+
+    /* ============================================================
+     * UI 숨김
+     * ============================================================ */
+
+    function hideSeekUI() {
+
+        if (!seekUI) {
+            return;
+        }
+
+        seekUI.style.display = 'none';
+
+    }
+
+
+    /* ============================================================
+     * UI 업데이트
+     * ============================================================ */
+
+    function updateSeekUI() {
+
+        if (!seekUI) {
+            return;
+        }
+
+
+        var duration = video.duration;
+
+
+        if (
+            !isFinite(duration) ||
+            duration <= 0
+        ) {
+            return;
+        }
+
+
+        var percent =
+            Math.max(
+                0,
+                Math.min(
+                    100,
+                    virtualTime / duration * 100
+                )
+            );
+
+
+        seekProgress.style.width =
+            percent + '%';
+
+
+        seekHandle.style.left =
+            percent + '%';
+
+
+        seekTime.textContent =
+            formatTime(virtualTime) +
+            ' / ' +
+            formatTime(duration);
+
+    }
+
+
+    /* ============================================================
+     * Virtual Time 이동
+     * ============================================================ */
+
+    function moveVirtualTime(direction) {
+
+        var duration = video.duration;
+
+
+        if (
+            !isFinite(duration) ||
+            duration <= 0
+        ) {
+            return;
+        }
+
+
+        virtualTime +=
+            direction * STEP;
+
+
+        virtualTime =
+            Math.max(
+                0,
+                Math.min(
+                    duration,
+                    virtualTime
+                )
+            );
+
+
+        updateSeekUI();
+
+    }
+
+
+    /* ============================================================
+     * Seek 시작
+     * ============================================================ */
+
+    function startVirtualSeek(direction) {
+
+        if (!isFullscreen()) {
+            return;
+        }
+
+
+        if (
+            !isFinite(video.duration) ||
+            video.duration <= 0
+        ) {
+            return;
+        }
+
+
+        if (!seeking) {
+
+            seeking = true;
+
+
+            virtualTime =
+                video.currentTime;
+
+
+            wasPlaying =
+                !video.paused;
+
+
+            /*
+             * 이동 중에는 영상 일시정지
+             *
+             * 기존 코드처럼 실제 currentTime은
+             * 키를 놓을 때까지 변경하지 않는다.
+             */
+
+            if (wasPlaying) {
+                video.pause();
+            }
+
+
+            showSeekUI();
+
+        }
+
+
+        moveVirtualTime(direction);
+
+
+        if (repeatTimer !== null) {
+
+            clearInterval(repeatTimer);
+
+        }
+
+
+        repeatTimer =
+            setInterval(
+                function () {
+
+                    if (!seeking) {
+                        return;
+                    }
+
+
+                    moveVirtualTime(direction);
+
+                },
+                REPEAT_INTERVAL
+            );
+
+    }
+
+
+    /* ============================================================
+     * Seek 종료
+     * ============================================================ */
+
+    function finishVirtualSeek() {
+
+        if (!seeking) {
+            return;
+        }
+
+
+        if (repeatTimer !== null) {
+
+            clearInterval(repeatTimer);
+
+            repeatTimer = null;
+
+        }
+
+
+        /*
+         * 실제 위치 적용
+         */
+
+        video.currentTime =
+            virtualTime;
+
+
+        /*
+         * 원래 재생 중이었다면 다시 재생
+         */
+
+        if (wasPlaying) {
+
+            var p = video.play();
+
+            if (p && p.catch) {
+
+                p.catch(function () {});
+
+            }
+
+        }
+
+
+        seeking = false;
+
+
+        clearTimeout(hideTimer);
+
+
+        hideTimer =
+            setTimeout(
+                function () {
+
+                    hideSeekUI();
+
+                },
+                HIDE_DELAY
+            );
+
+    }
+
+
+    /* ============================================================
+     * 좌우 키 판별
+     * ============================================================ */
+
+    function isLeft(event) {
+
+        return (
+            event.code === 'ArrowLeft' ||
+            event.key === 'ArrowLeft' ||
+            event.keyCode === 21
+        );
+
+    }
+
+
+    function isRight(event) {
+
+        return (
+            event.code === 'ArrowRight' ||
+            event.key === 'ArrowRight' ||
+            event.keyCode === 22
+        );
+
+    }
+
+
+    /* ============================================================
+     * KEY DOWN
+     *
+     * capture 단계
+     *
+     * 현재 player.js의 기본 seekBy()보다 먼저 가로챈다.
+     * ============================================================ */
+
+    document.addEventListener(
+        'keydown',
+        function (event) {
+
+            if (!isFullscreen()) {
+                return;
+            }
+
+
+            var left =
+                isLeft(event);
+
+
+            var right =
+                isRight(event);
+
+
+            if (!left && !right) {
+                return;
+            }
+
+
+            event.preventDefault();
+
+            event.stopPropagation();
+
+            event.stopImmediatePropagation();
+
+
+            var direction =
+                left ? -1 : 1;
+
+
+            nativeLog(
+                left
+                    ? 'Virtual Seek LEFT'
+                    : 'Virtual Seek RIGHT'
+            );
+
+
+            startVirtualSeek(direction);
+
+        },
+        true
+    );
+
+
+    /* ============================================================
+     * KEY UP
+     * ============================================================ */
+
+    document.addEventListener(
+        'keyup',
+        function (event) {
+
+            if (!isFullscreen()) {
+                return;
+            }
+
+
+            var left =
+                isLeft(event);
+
+
+            var right =
+                isRight(event);
+
+
+            if (!left && !right) {
+                return;
+            }
+
+
+            event.preventDefault();
+
+            event.stopPropagation();
+
+            event.stopImmediatePropagation();
+
+
+            if (seeking) {
+
+                nativeLog(
+                    'Virtual Seek 적용'
+                );
+
+
+                finishVirtualSeek();
+
+            }
+
+        },
+        true
+    );
+
+
+    /* ============================================================
+     * Fullscreen 변경
+     * ============================================================ */
+
+    document.addEventListener(
+        'fullscreenchange',
+        function () {
+
+            moveSeekUI();
+
+
+            /*
+             * Fullscreen 종료 중 Virtual Seek 상태가 남아 있으면
+             * 정리
+             */
+
+            if (!isFullscreen() && seeking) {
+
+                if (repeatTimer !== null) {
+
+                    clearInterval(repeatTimer);
+
+                    repeatTimer = null;
+
+                }
+
+
+                seeking = false;
+
+                hideSeekUI();
+
+            }
+
+        }
+    );
+
+
+    document.addEventListener(
+        'webkitfullscreenchange',
+        function () {
+
+            moveSeekUI();
+
+
+            if (!isFullscreen() && seeking) {
+
+                if (repeatTimer !== null) {
+
+                    clearInterval(repeatTimer);
+
+                    repeatTimer = null;
+
+                }
+
+
+                seeking = false;
+
+                hideSeekUI();
+
+            }
+
+        }
+    );
+
+
+    /* ============================================================
+     * 5. tvwiki Skip Intro 제거
+     *
+     * 기존 코드 그대로 유지
+     * ============================================================ */
+
+    function removeSkipIntroButton() {
+
+        document
+            .querySelectorAll(
+                '.tvwiki-skip-intro-btn'
+            )
+            .forEach(
+                function (element) {
+
+                    element.remove();
+
+                }
+            );
+
+    }
+
+
+    removeSkipIntroButton();
+
+
+    setTimeout(
+        removeSkipIntroButton,
+        100
+    );
+
+
+    setTimeout(
+        removeSkipIntroButton,
+        500
+    );
+
+
+    setTimeout(
+        removeSkipIntroButton,
+        1000
+    );
+
+
+    var skipObserver =
+        new MutationObserver(
+            function () {
+
+                removeSkipIntroButton();
+
+            }
+        );
+
+
+    if (document.documentElement) {
+
+        skipObserver.observe(
+            document.documentElement,
+            {
+                childList: true,
+                subtree: true
+            }
+        );
+
+    }
+
+
+    var skipStyle =
+        document.createElement('style');
+
+
+    skipStyle.textContent =
+
+        '.tvwiki-skip-intro-btn,' +
+        '[class*="tvwiki-skip-intro-btn"] {' +
+            'display:none !important;' +
+            'visibility:hidden !important;' +
+            'opacity:0 !important;' +
+            'pointer-events:none !important;' +
+        '}';
+
+
+    document.head.appendChild(
+        skipStyle
+    );
+
+
 })();
