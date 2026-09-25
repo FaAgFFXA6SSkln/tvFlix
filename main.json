@@ -47,8 +47,14 @@
     },
     {
       "name": "artplayer.js",
-      "version": "202608220000",
+      "version": "202607050008",
       "url": "https://raw.githubusercontent.com/FaAgFFXA6SSkln/tvFlix/refs/heads/main/artplayer.js"
+    },
+	{
+      "name": "player.js",
+      "version": "202607050008",
+      "url": "https://raw.githubusercontent.com/FaAgFFXA6SSkln/tvFlix/refs/heads/main/player.js"
     }
+	
   ]
 }
